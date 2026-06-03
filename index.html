@@ -1780,6 +1780,75 @@
 </head>
 <body>
 
+<!-- ── Modal Pricing ───────────────────────────────────────── -->
+<div id="pricing-modal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
+  <div style="background:#0f0f13;border:1px solid rgba(255,255,255,0.1);border-radius:20px;max-width:760px;width:100%;padding:40px 32px;position:relative;max-height:90vh;overflow-y:auto">
+    <!-- Fechar -->
+    <button onclick="closePricing()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.07);border:none;color:#a0aec0;width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">×</button>
+
+    <div style="text-align:center;margin-bottom:32px">
+      <div style="font-size:13px;color:#f472b6;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Suas 3 análises grátis acabaram</div>
+      <h2 style="font-size:1.8rem;font-weight:800;color:#fff;margin:0 0 8px">Um preço justo para cada<br>momento da sua busca.</h2>
+      <p style="color:#718096;font-size:14px;margin:0">Cancele quando quiser. Sem multa.</p>
+    </div>
+
+    <!-- Cards -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+      <!-- Anual (destaque) -->
+      <div style="border:2px solid #f472b6;border-radius:16px;padding:28px 24px;position:relative;background:rgba(244,114,182,0.05)">
+        <div style="position:absolute;top:-13px;left:20px;background:#f472b6;color:#fff;font-size:11px;font-weight:700;padding:3px 12px;border-radius:20px;letter-spacing:.5px">MELHOR VALOR</div>
+        <div style="font-size:11px;font-weight:700;color:#a0aec0;letter-spacing:1px;margin-bottom:12px">ANUAL</div>
+        <div style="display:flex;align-items:flex-end;gap:4px;margin-bottom:4px">
+          <span style="font-size:2.4rem;font-weight:800;color:#fff">R$&nbsp;25</span>
+          <span style="color:#718096;font-size:14px;margin-bottom:8px">/ por mês</span>
+        </div>
+        <div style="color:#718096;font-size:13px;margin-bottom:8px">cobrado como R$&nbsp;300/ano</div>
+        <div style="background:rgba(244,114,182,0.12);color:#f472b6;font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;margin-bottom:20px">Economize R$&nbsp;419,80 por ano</div>
+        <ul style="list-style:none;padding:0;margin:0 0 24px;display:flex;flex-direction:column;gap:8px;font-size:13px;color:#cbd5e0">
+          <li>✓ &nbsp;Vagas ilimitadas</li>
+          <li>✓ &nbsp;Kanban + fit score</li>
+          <li>✓ &nbsp;Analytics do funil</li>
+          <li>✓ &nbsp;Lembretes de follow-up</li>
+          <li>✓ &nbsp;Buscador IA <span style="color:#718096">(em breve)</span></li>
+          <li>✓ &nbsp;Suporte prioritário</li>
+        </ul>
+        <a href="STRIPE_ANUAL_LINK" target="_blank" id="btn-anual"
+          style="display:block;text-align:center;background:linear-gradient(135deg,#f472b6,#ec4899);color:#fff;font-weight:700;font-size:15px;padding:14px;border-radius:10px;text-decoration:none;transition:opacity .2s"
+          onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+          Assinar plano anual →
+        </a>
+      </div>
+
+      <!-- Mensal -->
+      <div style="border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:28px 24px;background:rgba(255,255,255,0.03)">
+        <div style="font-size:11px;font-weight:700;color:#a0aec0;letter-spacing:1px;margin-bottom:12px">MENSAL</div>
+        <div style="display:flex;align-items:flex-end;gap:4px;margin-bottom:4px">
+          <span style="font-size:2.4rem;font-weight:800;color:#fff">R$&nbsp;59,90</span>
+          <span style="color:#718096;font-size:14px;margin-bottom:8px">/ por mês</span>
+        </div>
+        <div style="color:#718096;font-size:13px;margin-bottom:8px">sem fidelidade</div>
+        <div style="color:#f6ad55;font-size:12px;font-weight:600;margin-bottom:20px">Cancele quando quiser, sem multa.</div>
+        <ul style="list-style:none;padding:0;margin:0 0 24px;display:flex;flex-direction:column;gap:8px;font-size:13px;color:#cbd5e0">
+          <li>✓ &nbsp;Vagas ilimitadas</li>
+          <li>✓ &nbsp;Kanban + fit score</li>
+          <li>✓ &nbsp;Analytics do funil</li>
+          <li>✓ &nbsp;Lembretes de follow-up</li>
+          <li>✓ &nbsp;Buscador IA <span style="color:#718096">(em breve)</span></li>
+          <li>✓ &nbsp;Suporte via chat</li>
+        </ul>
+        <a href="STRIPE_MENSAL_LINK" target="_blank" id="btn-mensal"
+          style="display:block;text-align:center;background:transparent;color:#f472b6;font-weight:700;font-size:15px;padding:14px;border-radius:10px;text-decoration:none;border:2px solid #f472b6;transition:background .2s"
+          onmouseover="this.style.background='rgba(244,114,182,0.1)'" onmouseout="this.style.background='transparent'">
+          Começar agora →
+        </a>
+      </div>
+    </div>
+
+    <p style="text-align:center;color:#4a5568;font-size:12px;margin-top:20px">🔒 Pagamento seguro via Stripe · Cancele a qualquer momento</p>
+  </div>
+</div>
+
 <header class="topbar">
   <a class="topbar-logo" href="#">
     <div class="topbar-logo-dot">L</div>
@@ -3176,6 +3245,18 @@ async function extractProfilePDF(input) {
   input.value = '';
 }
 
+function openPricing() {
+  const m = document.getElementById('pricing-modal');
+  m.style.display = 'flex';
+}
+function closePricing() {
+  document.getElementById('pricing-modal').style.display = 'none';
+}
+// Fecha ao clicar fora
+document.getElementById('pricing-modal').addEventListener('click', function(e) {
+  if (e.target === this) closePricing();
+});
+
 function showAnalyzeError(msg) {
   const btn = document.getElementById('btn-analyze');
   btn.disabled = false;
@@ -3227,8 +3308,7 @@ async function analyzeFit() {
 
   // Sem chave própria: verifica cota grátis (admin tem acesso ilimitado)
   if (!hasOwnKey && !isAdmin() && getFreeRemaining() <= 0) {
-    showAnalyzeError('Suas <strong>3 análises grátis</strong> foram usadas. Configure sua chave de API abaixo para continuar — ou entre em contato para saber sobre planos.');
-    document.getElementById('fit-apikey-section').scrollIntoView({ behavior: 'smooth' });
+    openPricing();
     return;
   }
 
