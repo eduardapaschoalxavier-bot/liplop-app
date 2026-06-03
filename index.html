@@ -1,0 +1,3505 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pipeline de Vagas — Duda</title>
+  <style>
+    :root {
+      --bg:      #0C0509;
+      --surface: #140A10;
+      --card:    #110810;
+      --rose:    #E04478;
+      --rose-s:  #A8305A;
+      --rose-dim: rgba(224,68,120,.12);
+      --text:    #EDE0E8;
+      --mid:     #9B7389;
+      --dim:     #4A2C3D;
+      --border:  #221018;
+      --gold:    #C9974A;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* ── Topbar ─────────────────────────────────────────────── */
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      height: 56px;
+      background: rgba(12, 5, 9, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Logo */
+    .topbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .topbar-logo-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--rose);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .topbar-logo-name {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    /* Center tabs */
+    .tab-nav {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--mid);
+      font-size: 0.82rem;
+      font-weight: 500;
+      padding: 6px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: color 0.15s, background 0.15s;
+      letter-spacing: 0.1px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 32px;
+    }
+
+    .tab-btn svg {
+      width: 14px;
+      height: 14px;
+      opacity: 0.7;
+      flex-shrink: 0;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      background: var(--surface);
+    }
+
+    .tab-btn.active {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* Underline indicator */
+    .tab-nav-track {
+      position: relative;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .topbar-badge {
+      font-size: 0.68rem;
+      font-weight: 600;
+      background: var(--rose-dim);
+      color: var(--rose);
+      border: 1px solid var(--rose-s);
+      border-radius: 20px;
+      padding: 2px 10px;
+      letter-spacing: 0.3px;
+    }
+
+    /* Page content */
+    .page-content {
+      padding: 32px 28px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Tab views */
+    .tab-view { display: none; }
+    .tab-view.active { display: block; }
+
+    /* ── Analisar Fit tab ───────────────────────────────────── */
+    .fit-wrap {
+      max-width: 700px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .fit-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+    }
+
+    .fit-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .fit-section-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .fit-section-hint {
+      font-size: 0.75rem;
+      color: var(--mid);
+    }
+
+    .fit-textarea {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.83rem;
+      line-height: 1.6;
+      padding: 12px 14px;
+      resize: vertical;
+      min-height: 120px;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+    .fit-textarea:focus { outline: none; border-color: var(--rose-s); }
+    .fit-textarea::placeholder { color: var(--dim); }
+
+    .fit-input {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.83rem;
+      padding: 10px 14px;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+    .fit-input:focus { outline: none; border-color: var(--rose-s); }
+    .fit-input::placeholder { color: var(--dim); }
+
+    /* Provider toggle */
+    .provider-toggle {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .provider-btn {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--mid);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+    .provider-btn:hover { border-color: var(--rose-s); color: var(--text); }
+    .provider-btn.active {
+      background: var(--rose-dim);
+      border-color: var(--rose-s);
+      color: var(--text);
+    }
+
+    /* Profile collapsed state */
+    .profile-saved {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+    }
+    .profile-saved.visible { display: flex; }
+    .profile-saved-text {
+      font-size: 0.8rem;
+      color: var(--mid);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+      margin-right: 12px;
+    }
+    .profile-saved-text strong {
+      color: #22c55e;
+      margin-right: 6px;
+      font-size: 0.72rem;
+    }
+    .btn-profile-edit {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--mid);
+      border-radius: 6px;
+      padding: 4px 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: border-color 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .btn-profile-edit:hover { border-color: var(--rose-s); color: var(--text); }
+
+    /* Profile input mode toggle */
+    .profile-input-toggle {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .profile-toggle-btn {
+      flex: 1;
+      padding: 7px 10px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--mid);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .profile-toggle-btn:hover { border-color: var(--rose-s); color: var(--text); }
+    .profile-toggle-btn.active {
+      background: var(--rose-dim);
+      border-color: var(--rose-s);
+      color: var(--text);
+    }
+
+    .fit-api-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .fit-api-row .fit-input { flex: 1; font-family: monospace; font-size: 0.78rem; }
+
+    .fit-url-row {
+      display: flex;
+      gap: 8px;
+    }
+    .fit-url-row .fit-input { flex: 1; }
+
+    .btn-fit-fetch {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--mid);
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: border-color 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .btn-fit-fetch:hover { border-color: var(--rose-s); color: var(--text); }
+    .btn-fit-fetch:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-fit-analyze {
+      width: 100%;
+      background: var(--rose);
+      border: none;
+      color: #fff;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+      letter-spacing: 0.2px;
+    }
+    .btn-fit-analyze:hover { background: var(--rose-s); }
+    .btn-fit-analyze:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .fit-status {
+      font-size: 0.78rem;
+      color: var(--mid);
+      margin-top: 8px;
+      min-height: 18px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .fit-status.error { color: #f87171; }
+    .fit-status.ok    { color: #22c55e; }
+
+    /* Job description preview */
+    .fit-jd-preview {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.78rem;
+      color: var(--mid);
+      line-height: 1.6;
+      max-height: 140px;
+      overflow-y: auto;
+      margin-top: 10px;
+      white-space: pre-wrap;
+      display: none;
+    }
+
+    /* Results */
+    .fit-result {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .fit-result.visible { display: flex; }
+
+    .fit-score-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .fit-score-circle {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 3px solid;
+    }
+
+    .fit-score-circle .score-num {
+      font-size: 1.5rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .fit-score-circle .score-pct {
+      font-size: 0.65rem;
+      font-weight: 600;
+      opacity: 0.7;
+      margin-top: 1px;
+    }
+
+    .fit-score-circle.high { border-color: #22c55e; color: #22c55e; background: #0d2b1a; }
+    .fit-score-circle.good { border-color: #a3e635; color: #a3e635; background: #1c2200; }
+    .fit-score-circle.mid  { border-color: #f59e0b; color: #f59e0b; background: #1f1400; }
+    .fit-score-circle.low  { border-color: #f87171; color: #f87171; background: #200a0a; }
+
+    .fit-score-summary {
+      flex: 1;
+    }
+
+    .fit-score-label {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .fit-score-sub {
+      font-size: 0.8rem;
+      color: var(--mid);
+      line-height: 1.5;
+    }
+
+    .fit-pillars {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .fit-pillar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .fit-pillar-label {
+      font-size: 0.75rem;
+      color: var(--mid);
+      width: 130px;
+      flex-shrink: 0;
+    }
+
+    .fit-pillar-bar-wrap {
+      flex: 1;
+      height: 5px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .fit-pillar-bar {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.6s ease;
+    }
+
+    .fit-pillar-pct {
+      font-size: 0.72rem;
+      font-weight: 700;
+      width: 32px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .fit-blocks {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .fit-block {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 14px 16px;
+    }
+
+    .fit-block-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    .fit-block.has   .fit-block-title { color: #22c55e; }
+    .fit-block.lacks .fit-block-title { color: #f87171; }
+    .fit-block.tips  .fit-block-title { color: var(--gold); }
+    .fit-block.next  .fit-block-title { color: var(--rose); }
+
+    .fit-block ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .fit-block ul li {
+      font-size: 0.78rem;
+      color: var(--mid);
+      line-height: 1.45;
+      padding-left: 14px;
+      position: relative;
+    }
+
+    .fit-block ul li::before {
+      content: '·';
+      position: absolute;
+      left: 4px;
+      color: var(--dim);
+    }
+
+    .fit-block.has   li::before { color: #22c55e; }
+    .fit-block.lacks li::before { color: #f87171; }
+    .fit-block.tips  li::before { color: var(--gold); }
+    .fit-block.next  li::before { color: var(--rose); }
+
+    .fit-save-row {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .btn-fit-save {
+      background: var(--rose-dim);
+      border: 1px solid var(--rose-s);
+      color: var(--rose);
+      border-radius: 8px;
+      padding: 8px 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-fit-save:hover { background: var(--rose); color: #fff; }
+
+    /* Warning banner */
+    .fit-banner-warn {
+      display: none;
+      align-items: flex-start;
+      gap: 14px;
+      background: rgba(245,158,11,.08);
+      border: 1px solid rgba(245,158,11,.3);
+      border-radius: 10px;
+      padding: 14px 18px;
+    }
+    .fit-banner-warn.visible { display: flex; }
+    .fit-banner-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+    .fit-banner-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .fit-banner-body strong {
+      font-size: 0.82rem;
+      color: #f59e0b;
+      font-weight: 700;
+    }
+    .fit-banner-body span {
+      font-size: 0.77rem;
+      color: var(--mid);
+      line-height: 1.5;
+    }
+    .fit-banner-cta {
+      background: rgba(245,158,11,.15);
+      border: 1px solid rgba(245,158,11,.4);
+      color: #f59e0b;
+      border-radius: 7px;
+      padding: 6px 14px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .fit-banner-cta:hover { background: rgba(245,158,11,.25); }
+
+    /* Config divider */
+    .fit-config-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 8px 0 4px;
+    }
+    .fit-config-divider::before,
+    .fit-config-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .fit-config-divider span {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--dim);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      white-space: nowrap;
+    }
+
+    /* Info icon + tooltip */
+    .fit-info-icon {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--mid);
+      font-size: 0.72rem;
+      font-style: normal;
+      cursor: default;
+      transition: border-color 0.15s, color 0.15s;
+      user-select: none;
+    }
+    .fit-info-icon:hover {
+      border-color: var(--rose-s);
+      color: var(--text);
+    }
+    .fit-tooltip {
+      display: none;
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      width: 280px;
+      background: #1e0d18;
+      border: 1px solid var(--rose-s);
+      border-radius: 10px;
+      padding: 14px 16px;
+      z-index: 200;
+      box-shadow: 0 8px 32px rgba(0,0,0,.5);
+    }
+    .fit-info-icon:hover .fit-tooltip { display: block; }
+    .fit-tooltip strong {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--text);
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+    .fit-tooltip ol {
+      padding-left: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .fit-tooltip ol li {
+      font-size: 0.76rem;
+      color: var(--mid);
+      line-height: 1.45;
+    }
+    .fit-tooltip ol li strong { display: inline; color: var(--text); margin-bottom: 0; }
+    .tooltip-note {
+      font-size: 0.72rem;
+      color: var(--dim);
+      border-top: 1px solid var(--border);
+      padding-top: 8px;
+      margin-top: 4px;
+    }
+    .tooltip-note code {
+      background: var(--card);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 0.72rem;
+      color: var(--rose);
+    }
+
+    /* Get API key CTA button */
+    .btn-get-apikey {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 11px;
+      background: var(--rose-dim);
+      border: 1px solid var(--rose-s);
+      border-radius: 8px;
+      color: var(--rose);
+      font-size: 0.83rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+      margin-bottom: 4px;
+    }
+    .btn-get-apikey:hover { background: var(--rose); color: #fff; }
+
+    /* Free counter */
+    .free-counter {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .free-counter-ok {
+      background: rgba(224,68,120,0.08);
+      border: 1px solid rgba(224,68,120,0.22);
+      color: var(--mid);
+    }
+    .free-counter-ok strong { color: var(--rose); }
+    .free-counter-empty {
+      background: #1f1400;
+      border: 1px solid #92400e;
+      color: #f59e0b;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 13px; height: 13px;
+      border: 2px solid var(--border);
+      border-top-color: var(--rose);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    /* Active tab underline */
+    .tab-btn.active {
+      color: var(--rose);
+      font-weight: 600;
+      position: relative;
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -13px;
+      left: 10%;
+      width: 80%;
+      height: 2px;
+      background: var(--rose);
+      border-radius: 2px 2px 0 0;
+    }
+
+    /* ── Analyzer Hero ──────────────────────────────────────── */
+
+    @keyframes heroIn {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes heroGlow {
+      0%, 100% { opacity: 0.55; transform: scale(1) translate(-50%, -50%); }
+      50%       { opacity: 0.85; transform: scale(1.12) translate(-50%, -50%); }
+    }
+    @keyframes chipFloat {
+      0%, 100% { transform: translateY(0px) rotate(var(--rot)); }
+      50%       { transform: translateY(-7px) rotate(var(--rot)); }
+    }
+    @keyframes ringPulse {
+      0%, 100% { opacity: 0.18; transform: scale(1); }
+      50%       { opacity: 0.32; transform: scale(1.06); }
+    }
+    @keyframes gradientText {
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    .analyzer-hero {
+      position: relative;
+      overflow: hidden;
+      padding: 52px 32px 44px;
+      margin-bottom: 8px;
+      border-radius: 18px;
+      border: 1px solid rgba(224, 68, 120, 0.14);
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(224,68,120,0.08) 0%, transparent 70%), var(--surface);
+      animation: heroIn 0.6s cubic-bezier(.22,1,.36,1) both;
+      text-align: center;
+    }
+
+    /* Animated ambient glow blob */
+    .hero-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 420px;
+      height: 280px;
+      background: radial-gradient(ellipse at center, rgba(224,68,120,0.22) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: heroGlow 4s ease-in-out infinite;
+      transform-origin: 0 0;
+    }
+
+    /* Decorative rings behind content */
+    .hero-rings {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .hero-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(224,68,120,0.18);
+      transform: translate(-50%, -50%);
+    }
+    .hero-ring.r1 { width: 320px; height: 320px; animation: ringPulse 3s ease-in-out infinite; }
+    .hero-ring.r2 { width: 480px; height: 480px; animation: ringPulse 3s ease-in-out 0.8s infinite; }
+    .hero-ring.r3 { width: 640px; height: 640px; animation: ringPulse 3s ease-in-out 1.6s infinite; }
+
+    /* Content */
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      background: rgba(224,68,120,0.12);
+      border: 1px solid rgba(224,68,120,0.28);
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--rose);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      animation: heroIn 0.6s 0.1s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    .hero-title {
+      font-size: 2.4rem;
+      font-weight: 800;
+      line-height: 1.12;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 16px;
+      animation: heroIn 0.6s 0.18s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    .hero-title-accent {
+      background: linear-gradient(90deg, #E04478, #C9974A, #E04478, #A8305A);
+      background-size: 300% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientText 4s linear infinite;
+    }
+
+    .hero-sub {
+      font-size: 0.95rem;
+      color: var(--mid);
+      line-height: 1.6;
+      max-width: 480px;
+      margin: 0 auto 28px;
+      animation: heroIn 0.6s 0.26s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    /* Floating score chips */
+    .hero-chips {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      animation: heroIn 0.6s 0.34s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    .hero-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 14px;
+      border-radius: 40px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border: 1px solid;
+      animation: chipFloat 3.5s ease-in-out infinite;
+    }
+    .hero-chip:nth-child(1) { --rot: -1deg; animation-delay: 0s;   }
+    .hero-chip:nth-child(2) { --rot:  1deg; animation-delay: 0.4s; }
+    .hero-chip:nth-child(3) { --rot: -0.5deg; animation-delay: 0.8s; }
+
+    .hero-chip-score {
+      font-size: 1rem;
+      font-weight: 800;
+    }
+
+    .hero-chip.hc-high  { background:#0d2b1a; color:#22c55e; border-color:#166534; }
+    .hero-chip.hc-good  { background:#1c2200; color:#a3e635; border-color:#4d7c0f; }
+    .hero-chip.hc-mid   { background:#1f1400; color:#f59e0b; border-color:#92400e; }
+
+    /* Ranking */
+    .ranking-wrap {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .ranking-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .ranking-header h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .ranking-header p {
+      font-size: 0.8rem;
+      color: var(--dim);
+    }
+
+    .ranking-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .ranking-row:hover {
+      border-color: var(--rose-s);
+      background: var(--surface);
+    }
+
+    .ranking-pos {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--dim);
+      width: 22px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .ranking-pos.top3 { color: var(--gold); }
+
+    .ranking-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ranking-company {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ranking-role {
+      font-size: 0.75rem;
+      color: var(--mid);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ranking-bar-wrap {
+      flex: 1;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .ranking-bar {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    .ranking-pct {
+      font-size: 0.85rem;
+      font-weight: 700;
+      width: 52px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .ranking-stage-tag {
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 5px;
+      background: var(--card);
+      color: var(--mid);
+      border: 1px solid var(--border);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* Funnel */
+    .funnel {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      margin-bottom: 36px;
+      max-width: 1100px;
+      margin-left: auto;
+      margin-right: auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .funnel-stage {
+      flex: 1;
+      padding: 18px 20px;
+      position: relative;
+      border-right: 1px solid var(--border);
+    }
+
+    .funnel-stage:last-child { border-right: none; }
+
+    .funnel-bar-wrap {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+
+    .funnel-bar {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.4s ease;
+    }
+
+    .funnel-count {
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .funnel-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--mid);
+      margin-top: 4px;
+      margin-bottom: 8px;
+    }
+
+    .funnel-rate {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--mid);
+    }
+
+    .funnel-rate span {
+      font-size: 0.72rem;
+      color: var(--dim);
+      font-weight: 400;
+    }
+
+    .bar-todo      { background: var(--rose); }
+    .bar-applied   { background: var(--rose-s); }
+    .bar-recruiter { background: var(--gold); }
+    .bar-decision  { background: var(--mid); }
+    .bar-offer     { background: var(--rose); }
+    .bar-lost      { background: var(--dim); }
+
+    .funnel-footnote {
+      font-size: 0.72rem;
+      color: var(--dim);
+      margin-top: -24px;
+      margin-bottom: 24px;
+      padding-left: 4px;
+      max-width: 1100px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .tag-organic, .tag-referred {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      border-radius: 5px;
+      padding: 2px 7px;
+      margin-left: 6px;
+      vertical-align: middle;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .tag-organic {
+      background: rgba(201,151,74,.1);
+      color: var(--gold);
+      border: 1px solid rgba(201,151,74,.3);
+    }
+
+    .tag-referred {
+      background: var(--rose-dim);
+      color: var(--rose);
+      border: 1px solid var(--rose-s);
+    }
+
+    /* Kanban board */
+    .board {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 16px;
+    }
+
+    .column {
+      flex: 0 0 280px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .column-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .column-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--mid);
+    }
+
+    .column-count {
+      background: var(--border);
+      color: var(--mid);
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 20px;
+      padding: 2px 8px;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.1s;
+      position: relative;
+    }
+
+    .card:hover {
+      border-color: var(--rose-s);
+      transform: translateY(-1px);
+    }
+
+    .card-company {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin-bottom: 4px;
+    }
+
+    .card-role {
+      font-size: 0.8rem;
+      color: var(--mid);
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .card-fit {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      border-radius: 6px;
+      padding: 2px 8px;
+      letter-spacing: 0.3px;
+      margin-bottom: 12px;
+    }
+
+    .fit-high    { background: #0d2b1a; color: #22c55e; border: 1px solid #166534; }   /* verde vivo */
+    .fit-good    { background: #1c2200; color: #a3e635; border: 1px solid #4d7c0f; }   /* verde-limão */
+    .fit-mid     { background: #1f1400; color: #f59e0b; border: 1px solid #92400e; }   /* âmbar */
+    .fit-low     { background: #200a0a; color: #f87171; border: 1px solid #7f1d1d; }   /* vermelho */
+
+    /* Contacts */
+    .card-contacts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--surface);
+    }
+    .contact-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      color: #93c5fd;
+      background: var(--rose-dim);
+      border: 1px solid #1e3a5f;
+      border-radius: 20px;
+      padding: 3px 9px;
+      text-decoration: none;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .contact-chip:hover { background: #1e3a5f; }
+    .contact-chip-role {
+      color: var(--dim);
+      font-size: 0.68rem;
+    }
+
+    /* Modal contacts */
+    .modal-contact-item {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--surface);
+    }
+    .modal-contact-item:last-child { border-bottom: none; }
+    .modal-contact-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #f1f5f9;
+    }
+    .modal-contact-role-text {
+      font-size: 0.75rem;
+      color: var(--mid);
+      margin-top: 2px;
+    }
+    .modal-contact-link {
+      font-size: 0.75rem;
+      color: var(--rose);
+      text-decoration: none;
+      border: 1px solid #1e3a5f;
+      border-radius: 6px;
+      padding: 3px 8px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .modal-contact-link:hover { background: #1e3a5f; }
+
+    /* Form contacts */
+    .form-contact-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+    .form-contact-row input {
+      flex: 1;
+    }
+    .btn-remove-contact {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--mid);
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-remove-contact:hover { background: var(--rose-dim); color: var(--rose); }
+    .btn-add-contact {
+      background: none;
+      border: 1px dashed var(--border);
+      color: var(--mid);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 4px;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-add-contact:hover { border-color: var(--rose-s); color: var(--mid); }
+
+    /* Inline add-contact form inside modal */
+    .modal-add-contact-form {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .modal-add-contact-form input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.82rem;
+      padding: 7px 11px;
+      font-family: inherit;
+    }
+    .modal-add-contact-form input:focus { outline: none; border-color: var(--rose-s); }
+    .modal-add-contact-actions { display: flex; gap: 8px; justify-content: flex-end; }
+    .btn-modal-add { background: var(--rose); border: none; color: #fff; border-radius: 7px; padding: 6px 16px; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+    .btn-modal-add:hover { background: var(--rose-s); }
+    .btn-modal-cancel-contact { background: none; border: 1px solid var(--border); color: var(--mid); border-radius: 7px; padding: 6px 12px; font-size: 0.82rem; cursor: pointer; }
+    .btn-modal-cancel-contact:hover { background: var(--border); }
+    .btn-add-contact-modal { background: none; border: 1px dashed var(--border); color: var(--mid); border-radius: 7px; padding: 5px 12px; font-size: 0.78rem; cursor: pointer; margin-top: 8px; transition: border-color 0.15s, color 0.15s; }
+    .btn-add-contact-modal:hover { border-color: var(--rose-s); color: var(--mid); }
+
+    .card-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      gap: 8px;
+    }
+
+    .card-link-btn {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--rose);
+      text-decoration: none;
+      border: 1px solid #1e3a5f;
+      border-radius: 6px;
+      padding: 3px 8px;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+
+    .card-link-btn:hover { background: #1e3a5f; }
+
+    .card-link-missing {
+      color: var(--dim);
+      border-color: var(--border);
+      cursor: default;
+    }
+
+    /* Add-card button in column header */
+    .col-add-btn {
+      background: none;
+      border: none;
+      color: var(--dim);
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+      border-radius: 4px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .col-add-btn:hover { color: #f1f5f9; background: var(--border); }
+
+    /* Form modal */
+    .form-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 200;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+    .form-overlay.active { display: flex; }
+    .form-modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      max-width: 480px;
+      width: 100%;
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .form-modal h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--mid);
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.85rem;
+      padding: 8px 12px;
+      font-family: inherit;
+      transition: border-color 0.15s;
+      resize: vertical;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--rose-s);
+    }
+    .form-group select option { background: var(--surface); }
+    .form-checkboxes {
+      display: flex;
+      gap: 16px;
+    }
+    .form-checkboxes label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      color: var(--mid);
+      text-transform: none;
+      letter-spacing: 0;
+      font-weight: 400;
+      cursor: pointer;
+    }
+    .form-checkboxes input[type=checkbox] { width: auto; }
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+    .btn-cancel {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--mid);
+      border-radius: 8px;
+      padding: 8px 18px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-cancel:hover { background: var(--border); }
+    .btn-save {
+      background: var(--rose);
+      border: none;
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-save:hover { background: var(--rose-s); }
+
+    .card-delete {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      color: var(--dim);
+      font-size: 0.85rem;
+      cursor: pointer;
+      padding: 2px 5px;
+      border-radius: 4px;
+      line-height: 1;
+      transition: background 0.15s, color 0.15s;
+    }
+    .card-delete:hover { background: var(--rose-dim); color: var(--rose); }
+
+    .modal-link-btn {
+      display: inline-block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--rose);
+      text-decoration: none;
+      border: 1px solid #1e3a5f;
+      border-radius: 8px;
+      padding: 6px 14px;
+      margin-top: 4px;
+      transition: background 0.15s;
+    }
+
+    .modal-link-btn:hover { background: #1e3a5f; }
+
+    .card-next {
+      font-size: 0.78rem;
+      color: var(--mid);
+      border-top: 1px solid var(--surface);
+      padding-top: 10px;
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+
+    .card-next strong {
+      color: var(--mid);
+      display: block;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      max-width: 520px;
+      width: 100%;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: var(--mid);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .modal-close:hover { background: var(--border); color: #f1f5f9; }
+
+    .modal h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .modal-role {
+      font-size: 0.85rem;
+      color: var(--mid);
+      margin-bottom: 20px;
+    }
+
+    .modal-section {
+      margin-bottom: 16px;
+    }
+
+    .modal-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--mid);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .modal-value {
+      font-size: 0.85rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Modal edit mode */
+    .modal-header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      gap: 12px;
+    }
+    .modal-header-row h2 { margin-bottom: 2px; }
+    .btn-edit-modal {
+      flex-shrink: 0;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--mid);
+      border-radius: 7px;
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      margin-top: 2px;
+    }
+    .btn-edit-modal:hover { background: var(--border); color: #f1f5f9; }
+    .btn-edit-modal.active { background: var(--rose); border-color: var(--rose); color: #fff; }
+
+    .modal-edit-input,
+    .modal-edit-textarea,
+    .modal-edit-select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid #3b3b55;
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.85rem;
+      padding: 8px 11px;
+      font-family: inherit;
+      line-height: 1.5;
+      transition: border-color 0.15s;
+    }
+    .modal-edit-textarea { resize: vertical; min-height: 68px; }
+    .modal-edit-input:focus,
+    .modal-edit-textarea:focus,
+    .modal-edit-select:focus { outline: none; border-color: var(--rose); }
+    .modal-edit-select option { background: var(--surface); }
+
+    .modal-edit-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .btn-modal-save {
+      background: var(--rose);
+      border: none;
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 22px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-modal-save:hover { background: var(--rose-s); }
+    .btn-modal-discard {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--mid);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-modal-discard:hover { background: var(--border); }
+
+    .modal { max-height: 90vh; overflow-y: auto; }
+
+    /* Column accent colors */
+    .col-todo .column-title { color: var(--rose); }
+    .col-todo { border-top: 2px solid var(--rose-s); }
+
+    .col-applied .column-title { color: var(--rose); }
+    .col-applied { border-top: 2px solid var(--rose-s); }
+
+    .col-recruiter .column-title { color: var(--gold); }
+    .col-recruiter { border-top: 2px solid rgba(201,151,74,.5); }
+
+    .col-decision .column-title { color: var(--mid); }
+    .col-decision { border-top: 2px solid var(--dim); }
+
+    .col-offer .column-title { color: var(--rose); }
+    .col-offer { border-top: 2px solid var(--rose-s); }
+
+    .col-lost .column-title { color: var(--mid); }
+    .col-lost { border-top: 2px solid var(--dim); }
+
+    /* Drag & drop */
+    .card[draggable=true] { cursor: grab; }
+    .card[draggable=true]:active { cursor: grabbing; }
+    .card.dragging { opacity: 0.3; transform: scale(0.97); }
+    .column.drag-over { background: var(--rose-dim); border-color: var(--rose-s); }
+    .drop-line {
+      height: 3px;
+      background: var(--rose);
+      border-radius: 2px;
+      margin: -2px 0 2px;
+      display: none;
+      pointer-events: none;
+    }
+    .drop-line.active { display: block; }
+
+    /* Funnel extras */
+    .funnel-sep {
+      width: 1px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+    .funnel-extras {
+      flex: 0 0 auto;
+      padding: 18px 20px;
+      min-width: 140px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .funnel-extras-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--mid);
+      margin-bottom: 10px;
+    }
+    .funnel-extras-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .funnel-extras-count {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+      min-width: 20px;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .board { flex-direction: column; }
+      .column { flex: none; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="topbar-logo" href="#">
+    <div class="topbar-logo-dot">L</div>
+    <span class="topbar-logo-name">Liplop</span>
+  </a>
+
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('analyzer')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="8" cy="8" r="6"/>
+        <path d="M8 5v3.5l2 2"/>
+      </svg>
+      Analisar Fit
+    </button>
+    <button class="tab-btn" onclick="switchTab('kanban')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="1" y="1" width="5" height="14" rx="1.5"/>
+        <rect x="8" y="1" width="7" height="9" rx="1.5"/>
+        <rect x="8" y="12" width="7" height="3" rx="1.5"/>
+      </svg>
+      Kanban
+    </button>
+    <button class="tab-btn" onclick="switchTab('ranking')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M8 2l1.5 3.5L13 6l-2.5 2.5.5 3.5L8 10.5 5 12l.5-3.5L3 6l3.5-.5z"/>
+      </svg>
+      Ranking
+    </button>
+  </nav>
+
+  <div class="topbar-right">
+    <span class="topbar-badge" id="topbar-count">— vagas</span>
+  </div>
+</header>
+
+<div class="page-content">
+
+<!-- ANALISAR FIT TAB -->
+<div class="tab-view active" id="tab-analyzer" style="display:block">
+  <div class="fit-wrap">
+
+    <!-- Hero -->
+    <div class="analyzer-hero">
+      <div class="hero-glow"></div>
+      <div class="hero-rings">
+        <div class="hero-ring r1"></div>
+        <div class="hero-ring r2"></div>
+        <div class="hero-ring r3"></div>
+      </div>
+      <div class="hero-content">
+        <div class="hero-badge">✦ Análise de Fit com IA</div>
+        <h1 class="hero-title">Cole a vaga.<br><span class="hero-title-accent">Descubra seu fit.</span></h1>
+        <p class="hero-sub">Em segundos, a IA analisa a compatibilidade entre seu perfil e a vaga — e aponta seus pontos fortes, lacunas e como se posicionar.</p>
+        <div class="hero-chips">
+          <div class="hero-chip hc-high">
+            <span class="hero-chip-score">92%</span>
+            <span>Head of Partnerships · Nubank</span>
+          </div>
+          <div class="hero-chip hc-good">
+            <span class="hero-chip-score">78%</span>
+            <span>Growth Lead · Airwallex</span>
+          </div>
+          <div class="hero-chip hc-mid">
+            <span class="hero-chip-score">61%</span>
+            <span>Marketing Sr · Pismo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Banner de aviso: chave não configurada -->
+    <div class="fit-banner-warn" id="fit-no-key-banner">
+      <div class="fit-banner-icon">⚠️</div>
+      <div class="fit-banner-body">
+        <strong>Configure sua chave de IA para usar esta função</strong>
+        <span>A análise de fit usa inteligência artificial externa. Você precisa de uma chave de API — é gratuito para começar e custa centavos por análise.</span>
+      </div>
+      <button class="fit-banner-cta" onclick="document.getElementById('fit-apikey-section').scrollIntoView({behavior:'smooth'});document.getElementById('fit-apikey').focus()">
+        Configurar agora →
+      </button>
+    </div>
+
+    <!-- Vaga — PRIMEIRO -->
+    <div class="fit-section">
+      <div class="fit-section-header">
+        <span class="fit-section-title">🔍 Vaga para analisar</span>
+        <span class="fit-section-hint">Cole o link do LinkedIn</span>
+      </div>
+      <div class="fit-url-row">
+        <input class="fit-input" id="fit-url" type="url" placeholder="https://linkedin.com/jobs/view/..." />
+        <button class="btn-fit-fetch" id="btn-fetch-jd" onclick="fetchJobDescription()">Buscar descrição</button>
+      </div>
+      <div class="fit-status" id="fit-fetch-status"></div>
+      <div class="fit-jd-preview" id="fit-jd-preview"></div>
+      <div style="margin-top:12px">
+        <div class="fit-section-hint" style="margin-bottom:6px">Ou cole o texto da vaga diretamente:</div>
+        <textarea class="fit-textarea" id="fit-jd-manual" rows="4"
+          placeholder="Cole aqui a descrição completa da vaga..."></textarea>
+      </div>
+    </div>
+
+    <!-- Contador de análises grátis -->
+    <div class="free-counter" id="free-counter" style="display:none"></div>
+
+    <!-- Botão analisar -->
+    <button class="btn-fit-analyze" id="btn-analyze" onclick="analyzeFit()">
+      ✨ Analisar compatibilidade com IA
+    </button>
+
+    <!-- Resultado -->
+    <div class="fit-section fit-result" id="fit-result">
+      <div class="fit-score-row">
+        <div class="fit-score-circle" id="result-circle">
+          <span class="score-num" id="result-score">—</span>
+          <span class="score-pct">fit</span>
+        </div>
+        <div class="fit-score-summary">
+          <div class="fit-score-label" id="result-label">—</div>
+          <div class="fit-score-sub" id="result-summary">—</div>
+        </div>
+      </div>
+
+      <!-- Pillars -->
+      <div class="fit-pillars" id="result-pillars"></div>
+
+      <!-- Blocos -->
+      <div class="fit-blocks" id="result-blocks"></div>
+
+      <!-- Salvar no kanban -->
+      <div class="fit-save-row">
+        <button class="btn-fit-save" id="btn-save-to-kanban" onclick="saveAnalysisToKanban()">
+          + Salvar no Kanban com esse score
+        </button>
+      </div>
+    </div>
+
+    <!-- Divisor -->
+    <div class="fit-config-divider">
+      <span>Configurações</span>
+    </div>
+
+    <!-- Perfil -->
+    <div class="fit-section">
+      <div class="fit-section-header">
+        <span class="fit-section-title">👤 Seu perfil profissional</span>
+        <span class="fit-section-hint">Salvo uma vez · usado em todas as análises</span>
+      </div>
+
+      <!-- Estado salvo (colapsado) -->
+      <div class="profile-saved" id="profile-saved-view">
+        <div class="profile-saved-text">
+          <strong>✓ salvo</strong><span id="profile-preview-text"></span>
+        </div>
+        <button class="btn-profile-edit" onclick="editProfile()">✏️ Editar</button>
+      </div>
+
+      <!-- Estado editando -->
+      <div id="profile-edit-view">
+        <!-- Toggle texto / LinkedIn -->
+        <div class="profile-input-toggle">
+          <button class="profile-toggle-btn active" id="btn-profile-text" onclick="setProfileMode('text')">
+            ✍️ Colar texto
+          </button>
+          <button class="profile-toggle-btn" id="btn-profile-linkedin" onclick="setProfileMode('linkedin')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:4px"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            LinkedIn
+          </button>
+        </div>
+
+        <!-- Modo texto -->
+        <div id="profile-mode-text">
+          <textarea class="fit-textarea" id="fit-profile" rows="6"
+            placeholder="Cole aqui um resumo do seu perfil profissional — experiências, habilidades, cargos anteriores, áreas de expertise. Quanto mais detalhado, mais precisa a análise."></textarea>
+        </div>
+
+        <!-- Modo LinkedIn -->
+        <div id="profile-mode-linkedin" style="display:none">
+          <div class="fit-url-row">
+            <input class="fit-input" id="fit-profile-url" type="url"
+              placeholder="https://linkedin.com/in/seuusuario" />
+            <button class="btn-fit-fetch" id="btn-fetch-profile" onclick="fetchLinkedInProfile()">Buscar</button>
+          </div>
+          <div class="fit-status" id="fit-profile-fetch-status"></div>
+          <div class="fit-jd-preview" id="fit-profile-preview" style="margin-top:10px"></div>
+          <textarea class="fit-textarea" id="fit-profile-linkedin-text" rows="5" style="margin-top:10px;display:none"
+            placeholder="Perfil extraído — você pode editar antes de salvar..."></textarea>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;margin-top:10px">
+          <button class="btn-fit-fetch" onclick="saveProfile()">Salvar perfil</button>
+        </div>
+      </div>
+      <div class="fit-status" id="fit-profile-status"></div>
+    </div>
+
+    <!-- API Key + Provider -->
+    <div class="fit-section" id="fit-apikey-section">
+      <div class="fit-section-header">
+        <span class="fit-section-title">🔑 Chave de IA</span>
+        <span class="fit-info-icon" id="fit-info-icon">
+          ⓘ
+          <div class="fit-tooltip" id="fit-tooltip">
+            <strong id="tooltip-title">Como obter sua chave — OpenAI</strong>
+            <ol id="tooltip-steps">
+              <li>Acesse <strong>platform.openai.com</strong></li>
+              <li>Faça login ou crie uma conta gratuita</li>
+              <li>No menu lateral, clique em <strong>API Keys</strong></li>
+              <li>Clique em <strong>"Create new secret key"</strong></li>
+              <li>Copie a chave e cole no campo abaixo</li>
+            </ol>
+            <p class="tooltip-note">A chave começa com <code>sk-</code> e fica salva só no seu browser.</p>
+          </div>
+        </span>
+      </div>
+
+      <!-- Estado salvo (colapsado) -->
+      <div class="profile-saved" id="apikey-saved-view">
+        <div class="profile-saved-text">
+          <strong>✓ salvo</strong><span id="apikey-provider-label"></span>
+        </div>
+        <button class="btn-profile-edit" onclick="editApiKey()">✏️ Editar</button>
+      </div>
+
+      <!-- Estado editando -->
+      <div id="apikey-edit-view">
+        <!-- Provider toggle -->
+        <div class="provider-toggle">
+          <button class="provider-btn active" id="btn-provider-openai" onclick="setProvider('openai')">GPT-4o · OpenAI</button>
+          <button class="provider-btn" id="btn-provider-claude" onclick="setProvider('claude')">Claude · Anthropic</button>
+        </div>
+
+        <!-- Link de obter chave -->
+        <a class="btn-get-apikey" id="btn-get-apikey-link" href="https://platform.openai.com/api-keys" target="_blank">
+          🔗 Abrir painel da OpenAI e pegar minha chave
+        </a>
+
+        <div class="fit-api-row" style="margin-top:10px">
+          <input class="fit-input" id="fit-apikey" type="password" placeholder="sk-..." />
+          <button class="btn-fit-fetch" onclick="saveApiKey()">Salvar</button>
+        </div>
+        <div class="fit-status" id="fit-apikey-status"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- KANBAN TAB -->
+<div class="tab-view" id="tab-kanban">
+  <div class="funnel" id="funnel"></div>
+  <p class="funnel-footnote" id="funnel-note" style="display:none"></p>
+  <div class="board" id="board"></div>
+</div>
+
+<!-- RANKING TAB -->
+<div class="tab-view" id="tab-ranking">
+  <div class="ranking-wrap" id="ranking"></div>
+</div>
+
+<!-- Form modal -->
+<div class="form-overlay" id="form-overlay" onclick="closeForm(event)">
+  <div class="form-modal">
+    <button class="modal-close" onclick="closeForm()">✕</button>
+    <h3 id="form-title">Nova vaga</h3>
+    <div class="form-group">
+      <label>Empresa *</label>
+      <input id="f-company" type="text" placeholder="Ex: Airwallex" oninput="triggerAutoFit()" />
+    </div>
+    <div class="form-group">
+      <label>Cargo / Escopo *</label>
+      <input id="f-role" type="text" placeholder="Ex: Head of Partnerships, Brazil" oninput="triggerAutoFit()" />
+    </div>
+    <div class="form-group">
+      <label>Etapa</label>
+      <select id="f-stage">
+        <option value="todo">Para Aplicar</option>
+        <option value="applied">Aplicada</option>
+        <option value="recruiter">Entrevista c/ Recrutador</option>
+        <option value="decision">Entrevista c/ Decisor</option>
+        <option value="offer">Oferta</option>
+        <option value="lost">Lost</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>% Compatibilidade
+        <span id="f-fit-auto" style="font-size:0.7rem;color:var(--mid);font-weight:400;margin-left:6px"></span>
+      </label>
+      <input type="number" id="f-fit" min="0" max="100" placeholder="Calculando…"
+        oninput="this.dataset.manual='1';document.getElementById('f-fit-auto').textContent='✏️ editado manualmente'" />
+    </div>
+    <div class="form-group">
+      <label>Link da vaga</label>
+      <input id="f-link" type="url" placeholder="https://linkedin.com/jobs/..." />
+    </div>
+    <div class="form-group">
+      <label>Próximo passo</label>
+      <textarea id="f-next" rows="2" placeholder="O que fazer agora?"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Observações estratégicas</label>
+      <textarea id="f-notes" rows="3" placeholder="Fit, riscos, contexto..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Contatos</label>
+      <div id="f-contacts-list"></div>
+      <button type="button" class="btn-add-contact" onclick="addContactRow()">+ adicionar contato</button>
+    </div>
+    <div class="form-group">
+      <label>Origem</label>
+      <div class="form-checkboxes">
+        <label><input type="checkbox" id="f-organic" /> Orgânico</label>
+        <label><input type="checkbox" id="f-referred" /> Indicação</label>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeForm()">Cancelar</button>
+      <button class="btn-save" onclick="saveCard()">Salvar vaga</button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+
+    <!-- VIEW mode -->
+    <div id="m-view">
+      <div class="modal-header-row">
+        <div>
+          <h2 id="m-company"></h2>
+          <div class="modal-role" id="m-role"></div>
+        </div>
+        <button class="btn-edit-modal" onclick="enterEditMode()">✏️ Editar</button>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Etapa do funil</div>
+        <div class="modal-value" id="m-stage"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Próximo passo</div>
+        <div class="modal-value" id="m-next"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Observações estratégicas</div>
+        <div class="modal-value" id="m-notes"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">% Compatibilidade</div>
+        <div class="modal-value" id="m-fit"></div>
+      </div>
+      <div class="modal-section" id="m-link-section"></div>
+      <div class="modal-section" id="m-contacts-section"></div>
+    </div>
+
+    <!-- EDIT mode -->
+    <div id="m-edit" style="display:none">
+      <div class="modal-header-row">
+        <div>
+          <h2 style="color:var(--text);margin-bottom:6px">Editando vaga</h2>
+        </div>
+        <button class="btn-edit-modal active">✏️ Editando</button>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Empresa</div>
+        <input class="modal-edit-input" id="e-company" type="text" />
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Cargo / Escopo</div>
+        <input class="modal-edit-input" id="e-role" type="text" />
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Etapa</div>
+        <select class="modal-edit-select" id="e-stage">
+          <option value="todo">Para Aplicar</option>
+          <option value="applied">Aplicada</option>
+          <option value="recruiter">Entrevista c/ Recrutador</option>
+          <option value="decision">Entrevista c/ Decisor</option>
+          <option value="offer">Oferta</option>
+          <option value="lost">Lost</option>
+        </select>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">% Compatibilidade (0–100)</div>
+        <input class="modal-edit-input" id="e-fit" type="number" min="0" max="100" />
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Próximo passo</div>
+        <textarea class="modal-edit-textarea" id="e-next"></textarea>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Observações estratégicas</div>
+        <textarea class="modal-edit-textarea" id="e-notes" style="min-height:90px"></textarea>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Link da vaga</div>
+        <input class="modal-edit-input" id="e-link" type="url" placeholder="https://..." />
+      </div>
+      <div class="modal-edit-actions">
+        <button class="btn-modal-discard" onclick="discardEdit()">Cancelar</button>
+        <button class="btn-modal-save" onclick="saveEdit()">Salvar alterações</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY   = 'job-crm-opps-v2';
+const STORAGE_KEY_V1 = 'job-crm-opps-v1';
+const APIKEY_KEY    = 'liplop-apikey';
+const PROFILE_KEY   = 'liplop-profile';
+const PROVIDER_KEY  = 'liplop-provider';
+const FREE_KEY      = 'liplop-free-count';
+const FREE_LIMIT    = 3;
+
+// fit scores por id (para migrar dados do v1 que não tinham fit)
+const DEFAULT_FIT = {1:90,2:92,3:70,4:75,5:78,6:86,7:80,8:65,9:82,10:84,11:68,12:73,13:77,14:52,15:45};
+
+const defaultOpps = [
+  {
+    id: 1,
+    company: "Clara",
+    role: "Partnerships Lead / Líder de Parcerias",
+    status: "Aplicada / indicação feita",
+    stage: "applied",
+    fit: 90,
+    link: "https://br.linkedin.com/jobs/view/partnerships-lead-l%C3%ADder-de-parcerias-s%C3%A3o-paulo-hybrid-at-clara-4405421766",
+    next: "Aguardar retorno após contatos feitos; follow-up em 3–5 dias úteis se não houver resposta",
+    notes: "Alto fit com fintech, partnerships, canais e growth. Já pediu conselho a profissionais da Clara — indicação feita, aguardando movimentação."
+  },
+  {
+    id: 2,
+    company: "Nuvemshop",
+    role: "Senior Partner Marketing Manager",
+    status: "Aplicada / indicação feita",
+    stage: "applied",
+    fit: 92,
+    link: "https://br.linkedin.com/jobs/view/senior-partner-marketing-manager-at-nuvemshop-4418831385",
+    next: "Aguardar retorno após contatos feitos; follow-up em 3–5 dias úteis se não houver resposta",
+    notes: "Muito fit com canais, parceiros, e-commerce, aquisição e comunidade. Já pediu conselho a profissionais da Nuvemshop — indicação feita, aguardando movimentação."
+  },
+  {
+    id: 3,
+    company: "G4 Educação",
+    role: "Growth / Marketing / GTM",
+    status: "Follow-up feito; aguardando retorno",
+    stage: "recruiter",
+    fit: 70,
+    link: null,
+    organic: true,
+    next: "Aguardar resposta por 3–5 dias úteis; se não responder, fazer novo follow-up curto",
+    notes: "Pode ter fit com educação, comunidade, eventos e growth. Validar remuneração e escopo para não virar marketing operacional. Link da vaga ainda não consolidado."
+  },
+  {
+    id: 4,
+    company: "Connectly",
+    role: "Estruturar marketing do zero",
+    status: "Em avaliação pela empresa",
+    stage: "recruiter",
+    fit: 75,
+    link: null,
+    referred: true,
+    next: "Aguardar retorno da recruiter; fazer follow-up em 4–5 dias úteis se não houver resposta",
+    notes: "Oportunidade interessante se tiver produto validado e budget. Risco: escopo amplo demais e marketing 'do zero' com pouca estrutura. Link da vaga ainda não consolidado."
+  },
+  {
+    id: 5,
+    company: "Manual",
+    role: "Marketing / Growth — nova posição em estruturação",
+    status: "Processo anterior encerrado; nova oportunidade sendo discutida internamente",
+    stage: "recruiter",
+    fit: 78,
+    link: null,
+    contacts: [{ name: "Marcos Caringi", role: "Liderança na Manual", linkedin: "https://www.linkedin.com/in/mpcaringi/" }],
+    next: "Aguardar Caringi fechar com Filipe sobre novas categorias BR e mudanças no time de mkt. Se não houver retorno em 1–2 semanas, retomar contato gentilmente.",
+    notes: "Processo anterior foi positivo — todo mundo gostou, nome foi discutido. Não avançou pois precisavam de alguém hardcore em mídia paga.\n\nOportunidade real: Caringi mencionou que vão trazer novas categorias pro BR e está discutindo com Filipe como encaixar a Duda. Também planeja mudanças no time de mkt.\n\nDuda se colocou à disposição: ajudar a pensar a posição, caçar perfil técnico em mídia (tem mapeamento via Mulheres de Growth), contribuir durante o processo.\n\nRelacionamento quente — Caringi foi transparente e receptivo. Canal aberto."
+  },
+  {
+    id: 6,
+    company: "Airwallex",
+    role: "Head of SME & Partnerships, Brazil",
+    status: "Pendente",
+    stage: "todo",
+    fit: 86,
+    link: "https://br.linkedin.com/jobs/view/head-of-sme-partnerships-brazil-at-airwallex-4269247836",
+    next: "Aplicar + buscar alguém de fintech/partnerships lá para indicação",
+    notes: "Forte fit com fintech, parcerias e expansão BR. Buscar indicação para furar filtro."
+  },
+  {
+    id: 7,
+    company: "Tanium",
+    role: "Partner Marketing Manager, LATAM",
+    status: "Pendente — contato respondeu e pediu CV",
+    stage: "todo",
+    fit: 80,
+    link: "https://br.linkedin.com/jobs/view/partner-marketing-manager-latam-at-tanium-4410879781",
+    contacts: [{ name: "Wellington Lobo", role: "Director, Partners & Alliances Latin America at Tanium", linkedin: "https://www.linkedin.com/in/wellingtonlobo/" }],
+    next: "Enviar CV para Wellington Lobo repassar ao líder da posição",
+    notes: "Narrativa de canais e partner-driven pipeline é forte aqui. Wellington Lobo pediu o currículo para encaminhar ao líder da posição — indicação interna ativa."
+  },
+  {
+    id: 8,
+    company: "Camunda",
+    role: "Senior Partner Marketing Manager",
+    status: "Pendente",
+    stage: "todo",
+    fit: 65,
+    link: "https://br.linkedin.com/jobs/view/senior-partner-marketing-manager-at-camunda-4414083396",
+    next: "Aplicar + validar se exige experiência forte com GSI",
+    notes: "Validar requisito de GSI (Global System Integrators) antes de customizar a candidatura. Existe também uma listagem alternativa: https://br.linkedin.com/jobs/view/senior-partner-marketing-manager-at-camunda-4414081571"
+  },
+  {
+    id: 9,
+    company: "Canva",
+    role: "Growth Lead, User Engagement",
+    status: "Pendente — contato respondeu, conversa ativa",
+    stage: "todo",
+    fit: 82,
+    link: "https://br.linkedin.com/jobs/view/growth-lead-user-engagement-at-canva-4381697600",
+    contacts: [{ name: "Karlos Rabello", role: "Channel Sales Lead @ Canva | Latin America & Caribbean", linkedin: "https://www.linkedin.com/in/karlosrabello/" }],
+    next: "Confirmar horário na terça à tarde com Karlos Rabello e enviar invite por e-mail",
+    notes: "Alta competição — indicação é pré-requisito para ter chance real. Karlos Rabello respondeu prontamente, vai checar o status da vaga com o dono e confirmou conversa na terça à tarde."
+  },
+  {
+    id: 10,
+    company: "Kommo",
+    role: "Partner Growth Manager, Brazil",
+    status: "Pendente",
+    stage: "todo",
+    fit: 84,
+    link: null,
+    next: "Buscar vaga ativa no LinkedIn e aplicar",
+    notes: "Boa aderência com canais e parcerias. Vaga não encontrada diretamente — buscar no LinkedIn antes de aplicar."
+  },
+  {
+    id: 11,
+    company: "Samba TV",
+    role: "Country Lead, Brazil",
+    status: "Pendente",
+    stage: "todo",
+    fit: 68,
+    link: "https://br.linkedin.com/jobs/view/country-lead-brazil-at-samba-tv-4411728267",
+    next: "Aplicar se escopo for expansão/GTM, não sales puro",
+    notes: "Confirmar se a vaga é GTM/expansão ou vendas operacional antes de investir energia na candidatura."
+  },
+  {
+    id: 12,
+    company: "PlayerUm",
+    role: "Head of Growth & Performance B2B SaaS",
+    status: "Pendente",
+    stage: "todo",
+    fit: 73,
+    link: "https://br.linkedin.com/jobs/view/head-of-growth-performance-b2b-saas-at-playerum-4361816639",
+    next: "Aplicar se não for mídia paga operacional",
+    notes: "Validar se 'performance' significa estratégia de growth ou execução de mídia paga. Só faz sentido se for o primeiro."
+  },
+  {
+    id: 13,
+    company: "Time Doctor",
+    role: "Partner Marketing Manager",
+    status: "Pendente",
+    stage: "todo",
+    fit: 77,
+    link: null,
+    next: "Buscar vaga no LinkedIn e validar elegibilidade (remoto LATAM)",
+    notes: "SaaS remoto com foco LATAM — bom fit para parceiros e canais. Validar se aceita candidatos BR."
+  },
+  {
+    id: 14,
+    company: "Hub.xyz",
+    role: "Marketing Growth Operator, Brazil",
+    status: "Pendente",
+    stage: "todo",
+    fit: 52,
+    link: "https://br.linkedin.com/jobs/view/marketing-growth-operator-brazil-at-hub-xyz-4423201660",
+    next: "Aplicar, mas validar senioridade e remuneração",
+    notes: "Risco de ser júnior/operacional demais. Validar escopo real e pacote antes de priorizar."
+  },
+  {
+    id: 15,
+    company: "Bitget",
+    role: "Growth Manager, Latin America",
+    status: "Pendente",
+    stage: "todo",
+    fit: 45,
+    link: "https://www.linkedin.com/jobs/view/growth-manager-at-bitget-4159239432",
+    next: "Aplicar só se aceitar crypto como contexto",
+    notes: "Exchange de crypto — validar se o contexto faz sentido para a narrativa de carreira antes de aplicar."
+  }
+];
+
+// ── persistence ───────────────────────────────────────────────
+function loadOpps() {
+  try {
+    // Tenta v2 primeiro (já tem fit %)
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return JSON.parse(saved);
+
+    // Migração: recupera dados do v1 e injeta fit %
+    const savedV1 = localStorage.getItem(STORAGE_KEY_V1);
+    if (savedV1) {
+      const data = JSON.parse(savedV1);
+      return data.map(o => ({
+        ...o,
+        fit: o.fit ?? DEFAULT_FIT[o.id] ?? null,  // será completado por patchMissingFit() após autoFit estar disponível
+        priority: undefined
+      }));
+    }
+  } catch(e) {}
+  return defaultOpps.map(o => ({...o}));
+}
+
+// Roda depois que autoFit() está disponível: preenche fit=null com score calculado
+function patchMissingFit() {
+  let patched = false;
+  opps.forEach(o => {
+    if (o.fit == null || o.fit === 0) {
+      o.fit = autoFit(o.company || '', o.role || '');
+      patched = true;
+    }
+  });
+  if (patched) saveOpps();
+}
+
+function saveOpps() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(opps)); } catch(e) {}
+  updateTopbarCount();
+}
+
+const opps = loadOpps();
+
+const columns = [
+  { id: "todo",       label: "Para Aplicar",           cls: "col-todo" },
+  { id: "applied",    label: "Aplicada",               cls: "col-applied" },
+  { id: "recruiter",  label: "Entrevista c/ Recrutador", cls: "col-recruiter" },
+  { id: "decision",   label: "Entrevista c/ Decisor",  cls: "col-decision" },
+  { id: "offer",      label: "Oferta",                 cls: "col-offer" },
+  { id: "lost",       label: "Lost",                   cls: "col-lost" }
+];
+
+// fit % tiers: ≥85 high, ≥70 good, ≥55 mid, <55 low
+
+// ── drag state ──────────────────────────────────────────────
+let draggedId   = null;
+let dropTargetId = null; // card id we're hovering over
+let dropPos     = 'after'; // 'before' | 'after'
+
+// ── funnel ───────────────────────────────────────────────────
+function renderFunnel() {
+  const stages = [
+    { id: "todo",      label: "Para Aplicar",       barCls: "bar-todo" },
+    { id: "applied",   label: "Aplicada",           barCls: "bar-applied" },
+    { id: "recruiter", label: "Entrev. Recrutador", barCls: "bar-recruiter" },
+    { id: "decision",  label: "Entrev. Decisor",    barCls: "bar-decision" },
+    { id: "offer",     label: "Oferta",             barCls: "bar-offer" },
+    { id: "lost",      label: "Lost",               barCls: "bar-lost" },
+  ];
+
+  const isExtra = o => o.organic || o.referred;
+  const counts       = stages.map(s => opps.filter(o => o.stage === s.id).length);
+  const countsFunnel = stages.map(s => opps.filter(o => o.stage === s.id && !isExtra(o)).length);
+  const max = counts[0] || 1;
+
+  const funnelEl = document.getElementById("funnel");
+  funnelEl.innerHTML = stages.map((s, i) => {
+    const n       = counts[i];
+    const nF      = countsFunnel[i];
+    const prevF   = countsFunnel[i - 1];
+    const pct     = Math.round((n / max) * 100);
+    const excl    = n !== nF;
+
+    let rate;
+    if (i === 0) {
+      rate = `<span>${opps.filter(o => !isExtra(o)).length} no funil</span>`;
+    } else if (prevF > 0) {
+      rate = `${Math.round((nF / prevF) * 100)}%${excl ? '*' : ''} <span>conv.</span>`;
+    } else {
+      rate = `— <span>sem dado</span>`;
+    }
+
+    return `<div class="funnel-stage">
+        <div class="funnel-bar-wrap"><div class="funnel-bar ${s.barCls}" style="width:${pct}%"></div></div>
+        <div class="funnel-count">${n}</div>
+        <div class="funnel-label">${s.label}</div>
+        <div class="funnel-rate">${rate}</div>
+      </div>`;
+  }).join("");
+
+  // extras box
+  const extras = opps.filter(isExtra);
+  if (extras.length) {
+    const rows = extras.map(o => {
+      const tag = o.organic
+        ? '<span class="tag-organic">Orgânico</span>'
+        : '<span class="tag-referred">Indicação</span>';
+      return `<div class="funnel-extras-row">
+          <span class="funnel-extras-count">1</span>
+          <span style="font-size:.78rem;color:var(--mid)">${o.company} ${tag}</span>
+        </div>`;
+    }).join("");
+    funnelEl.innerHTML += `
+      <div class="funnel-sep"></div>
+      <div class="funnel-extras">
+        <div class="funnel-extras-label">Extras / Networking</div>
+        ${rows}
+        <div style="font-size:.7rem;color:var(--dim);margin-top:6px">* fora da taxa de conv.</div>
+      </div>`;
+  }
+
+  const note = document.getElementById("funnel-note");
+  note.style.display = "none";
+}
+
+// ── helpers ──────────────────────────────────────────────────
+function fitClass(f) {
+  if (f >= 85) return "fit-high";
+  if (f >= 70) return "fit-good";
+  if (f >= 55) return "fit-mid";
+  return "fit-low";
+}
+
+function buildCard(opp) {
+  const card = document.createElement("div");
+  card.className = "card";
+  card.dataset.id = opp.id;
+  card.setAttribute("draggable", "true");
+
+  const linkBtn = opp.link
+    ? `<a class="card-link-btn" href="${opp.link}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Ver vaga →</a>`
+    : `<span class="card-link-btn card-link-missing">Buscar no LinkedIn</span>`;
+
+  card.innerHTML = `
+    <button class="card-delete" title="Excluir vaga">✕</button>
+    <div class="card-company">${opp.company}
+      ${opp.organic  ? '<span class="tag-organic">Orgânico</span>'   : ''}
+      ${opp.referred ? '<span class="tag-referred">Indicação</span>' : ''}
+    </div>
+    <div class="card-role">${opp.role}</div>
+    <div class="card-row">
+      <span class="card-fit ${fitClass(opp.fit ?? 0)}">${opp.fit != null ? opp.fit + '% fit' : '— %'}</span>
+      ${linkBtn}
+    </div>
+    <div class="card-next"><strong>Próximo passo</strong>${opp.next}</div>
+    ${(opp.contacts || []).length ? `
+      <div class="card-contacts">
+        ${(opp.contacts).map(c => `
+          <a class="contact-chip" href="${c.linkedin}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+            👤 ${c.name}
+          </a>`).join('')}
+      </div>` : ''}
+  `;
+
+  card.querySelector(".card-delete").addEventListener("click", e => {
+    e.stopPropagation();
+    const idx = opps.findIndex(o => o.id === opp.id);
+    if (idx !== -1) opps.splice(idx, 1);
+    saveOpps();
+    renderFunnel();
+    renderBoard();
+  });
+
+  // click → modal (only if not dragging)
+  card.addEventListener("click", () => { if (!draggedId) openModal(opp); });
+
+  // drag events
+  card.addEventListener("dragstart", e => {
+    draggedId = opp.id;
+    e.dataTransfer.effectAllowed = "move";
+    setTimeout(() => card.classList.add("dragging"), 0);
+  });
+
+  card.addEventListener("dragend", () => {
+    draggedId = null;
+    dropTargetId = null;
+    card.classList.remove("dragging");
+    document.querySelectorAll(".drop-line.active").forEach(l => l.classList.remove("active"));
+    document.querySelectorAll(".column.drag-over").forEach(c => c.classList.remove("drag-over"));
+  });
+
+  card.addEventListener("dragover", e => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (draggedId === opp.id) return;
+    const rect = card.getBoundingClientRect();
+    dropPos      = e.clientY < rect.top + rect.height / 2 ? "before" : "after";
+    dropTargetId = opp.id;
+    document.querySelectorAll(".drop-line.active").forEach(l => l.classList.remove("active"));
+    const line = dropPos === "before" ? card.previousElementSibling : card.nextElementSibling;
+    if (line?.classList.contains("drop-line")) line.classList.add("active");
+  });
+
+  card.addEventListener("drop", e => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (draggedId == null || draggedId === opp.id) return;
+    moveTo(draggedId, opp.stage, opp.id, dropPos);
+  });
+
+  return card;
+}
+
+// ── move logic ───────────────────────────────────────────────
+function moveTo(srcId, targetStage, anchorId, pos) {
+  const srcIdx = opps.findIndex(o => o.id === srcId);
+  if (srcIdx === -1) return;
+  const [item] = opps.splice(srcIdx, 1);
+  item.stage = targetStage;
+
+  if (anchorId != null) {
+    const anchorIdx = opps.findIndex(o => o.id === anchorId);
+    if (anchorIdx !== -1) {
+      opps.splice(pos === "before" ? anchorIdx : anchorIdx + 1, 0, item);
+    } else {
+      opps.push(item);
+    }
+  } else {
+    opps.push(item);
+  }
+
+  saveOpps();
+  renderFunnel();
+  renderBoard();
+}
+
+// ── board ────────────────────────────────────────────────────
+function renderBoard() {
+  const board = document.getElementById("board");
+  board.innerHTML = "";
+
+  columns.forEach(col => {
+    let colOpps = opps.filter(o => o.stage === col.id);
+    if (col.id === "todo") {
+      colOpps = [...colOpps].sort((a, b) =>
+        (b.fit ?? 0) - (a.fit ?? 0));
+    }
+
+    const colEl = document.createElement("div");
+    colEl.className = `column ${col.cls}`;
+    colEl.dataset.col = col.id;
+
+    const header = document.createElement("div");
+    header.className = "column-header";
+    header.innerHTML = `
+      <span class="column-title">${col.label}</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="column-count">${colOpps.length}</span>
+        <button class="col-add-btn" title="Adicionar vaga">+</button>
+      </div>`;
+    header.querySelector(".col-add-btn").addEventListener("click", () => openForm(col.id));
+    colEl.appendChild(header);
+
+    colOpps.forEach(opp => {
+      const line = document.createElement("div");
+      line.className = "drop-line";
+      colEl.appendChild(line);
+      colEl.appendChild(buildCard(opp));
+    });
+
+    // trailing drop line (for dropping at end)
+    const endLine = document.createElement("div");
+    endLine.className = "drop-line";
+    colEl.appendChild(endLine);
+
+    // column-level dragover/drop (empty area or between cards)
+    colEl.addEventListener("dragover", e => {
+      e.preventDefault();
+      if (dropTargetId == null) {
+        // hovering empty column or below all cards
+        document.querySelectorAll(".drop-line.active").forEach(l => l.classList.remove("active"));
+        endLine.classList.add("active");
+      }
+      colEl.classList.add("drag-over");
+    });
+
+    colEl.addEventListener("dragleave", e => {
+      if (!colEl.contains(e.relatedTarget)) {
+        colEl.classList.remove("drag-over");
+        dropTargetId = null;
+      }
+    });
+
+    colEl.addEventListener("drop", e => {
+      e.preventDefault();
+      if (draggedId == null) return;
+      if (dropTargetId != null) return; // handled by card's drop
+      moveTo(draggedId, col.id, null, "after");
+    });
+
+    board.appendChild(colEl);
+  });
+}
+
+// ── modal ─────────────────────────────────────────────────────
+function openModal(opp) {
+  document.getElementById("m-company").textContent = opp.company;
+  document.getElementById("m-role").textContent    = opp.role;
+  document.getElementById("m-stage").textContent   = opp.status;
+  document.getElementById("m-next").textContent    = opp.next;
+  document.getElementById("m-notes").textContent   = opp.notes;
+  document.getElementById("m-fit").textContent = opp.fit != null ? opp.fit + '% de compatibilidade' : '—';
+  const linkEl = document.getElementById("m-link-section");
+  if (opp.link) {
+    linkEl.innerHTML = `<div class="modal-label">Link da vaga</div>
+      <a class="modal-link-btn" href="${opp.link}" target="_blank" rel="noopener">Abrir no LinkedIn →</a>`;
+    linkEl.style.display = "block";
+  } else {
+    linkEl.style.display = "none";
+  }
+  // contacts
+  renderModalContacts(opp);
+  document.getElementById("modal-overlay").classList.add("active");
+}
+
+let _modalOpp = null;
+
+function renderModalContacts(opp) {
+  _modalOpp = opp;
+  const contactsEl = document.getElementById("m-contacts-section");
+  const contacts = opp.contacts || [];
+
+  const list = contacts.map((c, i) => `
+    <div class="modal-contact-item">
+      <div>
+        <div class="modal-contact-name">${c.name}</div>
+        <div class="modal-contact-role-text">${c.role || ''}</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+        <a class="modal-contact-link" href="${c.linkedin}" target="_blank" rel="noopener">LinkedIn →</a>
+        <button onclick="removeContact(${i})" style="background:none;border:none;color:var(--dim);cursor:pointer;font-size:0.8rem;padding:2px 5px;border-radius:4px;" title="Remover">✕</button>
+      </div>
+    </div>`).join('');
+
+  contactsEl.innerHTML = `
+    <div class="modal-label">Contatos</div>
+    ${list}
+    <div id="m-contact-form" style="display:none" class="modal-add-contact-form">
+      <input id="mc-name"     type="text" placeholder="Nome *" />
+      <input id="mc-role"     type="text" placeholder="Cargo" />
+      <input id="mc-linkedin" type="url"  placeholder="LinkedIn URL" />
+      <div class="modal-add-contact-actions">
+        <button class="btn-modal-cancel-contact" onclick="toggleContactForm(false)">Cancelar</button>
+        <button class="btn-modal-add" onclick="saveModalContact()">Salvar</button>
+      </div>
+    </div>
+    <button class="btn-add-contact-modal" id="m-btn-add-contact" onclick="toggleContactForm(true)">+ adicionar contato</button>
+  `;
+  contactsEl.style.display = "block";
+}
+
+function toggleContactForm(show) {
+  document.getElementById("m-contact-form").style.display = show ? "flex" : "none";
+  document.getElementById("m-contact-form").style.flexDirection = "column";
+  document.getElementById("m-btn-add-contact").style.display = show ? "none" : "block";
+  if (show) document.getElementById("mc-name").focus();
+}
+
+function saveModalContact() {
+  const name = document.getElementById("mc-name").value.trim();
+  if (!name) { document.getElementById("mc-name").style.borderColor = "var(--rose)"; return; }
+  if (!_modalOpp.contacts) _modalOpp.contacts = [];
+  _modalOpp.contacts.push({
+    name,
+    role:     document.getElementById("mc-role").value.trim(),
+    linkedin: document.getElementById("mc-linkedin").value.trim(),
+  });
+  saveOpps();
+  renderModalContacts(_modalOpp);
+  renderBoard();
+}
+
+function removeContact(idx) {
+  if (!_modalOpp.contacts) return;
+  _modalOpp.contacts.splice(idx, 1);
+  saveOpps();
+  renderModalContacts(_modalOpp);
+  renderBoard();
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById("modal-overlay")) {
+    document.getElementById("modal-overlay").classList.remove("active");
+    discardEdit();
+  }
+}
+
+function enterEditMode() {
+  const o = _modalOpp;
+  document.getElementById("e-company").value  = o.company  || "";
+  document.getElementById("e-role").value     = o.role     || "";
+  document.getElementById("e-stage").value    = o.stage    || "todo";
+  document.getElementById("e-fit").value = o.fit ?? '';
+  document.getElementById("e-next").value     = o.next     || "";
+  document.getElementById("e-notes").value    = o.notes    || "";
+  document.getElementById("e-link").value     = o.link     || "";
+  document.getElementById("m-view").style.display = "none";
+  document.getElementById("m-edit").style.display = "block";
+  document.getElementById("e-company").focus();
+}
+
+function discardEdit() {
+  document.getElementById("m-view").style.display = "block";
+  document.getElementById("m-edit").style.display = "none";
+}
+
+function saveEdit() {
+  const o = _modalOpp;
+  o.company  = document.getElementById("e-company").value.trim()  || o.company;
+  o.role     = document.getElementById("e-role").value.trim()     || o.role;
+  o.stage    = document.getElementById("e-stage").value;
+  const fitVal = parseInt(document.getElementById("e-fit").value, 10);
+  o.fit = isNaN(fitVal) ? null : Math.min(100, Math.max(0, fitVal));
+  o.next     = document.getElementById("e-next").value.trim()     || "—";
+  o.notes    = document.getElementById("e-notes").value.trim()    || "—";
+  const link = document.getElementById("e-link").value.trim();
+  o.link     = link || null;
+  o.status   = document.getElementById("e-stage").options[document.getElementById("e-stage").selectedIndex].text;
+
+  saveOpps();
+  renderFunnel();
+  renderBoard();
+
+  // refresh view mode
+  document.getElementById("m-company").textContent  = o.company;
+  document.getElementById("m-role").textContent     = o.role;
+  document.getElementById("m-stage").textContent    = o.status;
+  document.getElementById("m-next").textContent     = o.next;
+  document.getElementById("m-notes").textContent    = o.notes;
+  document.getElementById("m-fit").textContent = o.fit != null ? o.fit + '% de compatibilidade' : '—';
+  const linkEl = document.getElementById("m-link-section");
+  if (o.link) {
+    linkEl.innerHTML = `<div class="modal-label">Link da vaga</div>
+      <a class="modal-link-btn" href="${o.link}" target="_blank" rel="noopener">Abrir no LinkedIn →</a>`;
+    linkEl.style.display = "block";
+  } else {
+    linkEl.style.display = "none";
+  }
+  discardEdit();
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") { closeModal(); closeForm(); }
+});
+
+// ── form ──────────────────────────────────────────────────────
+let nextId = Math.max(...opps.map(o => o.id)) + 1;
+
+function addContactRow(name = "", role = "", linkedin = "") {
+  const list = document.getElementById("f-contacts-list");
+  const row = document.createElement("div");
+  row.className = "form-contact-row";
+  row.innerHTML = `
+    <div style="flex:1;display:flex;flex-direction:column;gap:5px">
+      <input type="text" placeholder="Nome" value="${name}" data-contact="name" />
+      <input type="text" placeholder="Cargo" value="${role}" data-contact="role" />
+      <input type="url"  placeholder="LinkedIn URL" value="${linkedin}" data-contact="linkedin" />
+    </div>
+    <button type="button" class="btn-remove-contact" onclick="this.parentElement.remove()">✕</button>
+  `;
+  list.appendChild(row);
+}
+
+function openForm(stageId = "todo") {
+  document.getElementById("f-company").value  = "";
+  document.getElementById("f-role").value     = "";
+  document.getElementById("f-stage").value    = stageId;
+  const fitEl = document.getElementById("f-fit");
+  fitEl.value = "";
+  delete fitEl.dataset.manual;
+  document.getElementById("f-fit-auto").textContent = "";
+  document.getElementById("f-link").value     = "";
+  document.getElementById("f-next").value     = "";
+  document.getElementById("f-notes").value    = "";
+  document.getElementById("f-organic").checked  = false;
+  document.getElementById("f-referred").checked = false;
+  document.getElementById("f-contacts-list").innerHTML = "";
+  document.getElementById("form-overlay").classList.add("active");
+  document.getElementById("f-company").focus();
+}
+
+function closeForm(e) {
+  if (!e || e.target === document.getElementById("form-overlay"))
+    document.getElementById("form-overlay").classList.remove("active");
+}
+
+// ── Auto-fit scoring ─────────────────────────────────────────
+// Baseado no perfil da Duda: Growth · GTM · Partnerships · Marketing · LATAM · B2B SaaS
+function autoFit(company, role, notes = "") {
+  const txt = (company + " " + role + " " + notes).toLowerCase();
+
+  let score = 50; // base neutra
+
+  // Sinais muito positivos (+)
+  const highPos = [
+    [/\bmarketing\b/, 12],
+    [/\bpartner(ship)?s?\b|\bparcerias?\b|\bcanais\b/, 14],
+    [/\bgrowth\b/, 12],
+    [/\bgtm\b|go.?to.?market/, 12],
+    [/\blatam\b|latin america|am[eé]rica latina/, 8],
+    [/\bbrazil\b|\bbrasil\b/, 5],
+    [/\bb2b\b/, 8],
+    [/\bsaas\b|software/, 6],
+    [/\bhead\b|\blead\b|\bmanager\b|\bdirector\b|\bgerente\b/, 6],
+    [/\bexpans[aã]o\b|expansion|go.to.market/, 6],
+    [/\bfintech\b|\bpayments?\b/, 4],
+    [/\bcommunity\b|\bcomunidade\b/, 4],
+    [/\buser engagement\b|\baquisição\b|acquisition/, 5],
+    [/\bstrateg/, 4],
+  ];
+
+  // Sinais negativos (−)
+  const lowNeg = [
+    [/\bcrypto\b|\bblockchain\b|\bweb3\b|\bexchange\b|\bbitcoin\b/, -18],
+    [/\boperator\b|\boperacional\b|\boperations\b/, -10],
+    [/\bjunior\b|\banalyst\b|\banalista\b|\bassistant\b/, -12],
+    [/\bmídia paga\b|paid media|\bperformance marketing\b/, -8],
+    [/\bsales\b|\bvendas\b|\bsdr\b|\bae\b\b/, -6],
+    [/\bsupport\b|\bsuporte\b/, -8],
+    [/\bengineer\b|\bdev\b|\bdevelop/, -12],
+  ];
+
+  for (const [re, pts] of highPos) if (re.test(txt)) score += pts;
+  for (const [re, pts] of lowNeg)  if (re.test(txt)) score += pts;
+
+  return Math.min(95, Math.max(30, Math.round(score)));
+}
+
+let _autoFitTimer = null;
+function triggerAutoFit() {
+  clearTimeout(_autoFitTimer);
+  _autoFitTimer = setTimeout(() => {
+    const company = document.getElementById("f-company").value.trim();
+    const role    = document.getElementById("f-role").value.trim();
+    const fitInput = document.getElementById("f-fit");
+    const fitLabel = document.getElementById("f-fit-auto");
+
+    // Só preenche automaticamente se o campo estiver vazio ou tiver sido gerado auto antes
+    if (company || role) {
+      const score = autoFit(company, role);
+      // Só substitui se o usuário não digitou manualmente (campo vazio ou marcado como auto)
+      if (!fitInput.dataset.manual) {
+        fitInput.value = score;
+        fitLabel.textContent = "✨ calculado automaticamente";
+      }
+    }
+  }, 400);
+}
+
+function saveCard() {
+  const company = document.getElementById("f-company").value.trim();
+  const role    = document.getElementById("f-role").value.trim();
+  if (!company || !role) {
+    document.getElementById("f-company").style.borderColor = company ? "var(--border)" : "var(--rose)";
+    document.getElementById("f-role").style.borderColor    = role    ? "var(--border)" : "var(--rose)";
+    return;
+  }
+  const link = document.getElementById("f-link").value.trim();
+  const contacts = [...document.querySelectorAll("#f-contacts-list .form-contact-row")].map(row => ({
+    name:     row.querySelector("[data-contact=name]").value.trim(),
+    role:     row.querySelector("[data-contact=role]").value.trim(),
+    linkedin: row.querySelector("[data-contact=linkedin]").value.trim(),
+  })).filter(c => c.name);
+
+  opps.push({
+    id:       nextId++,
+    company,
+    role,
+    status:   document.getElementById("f-stage").options[document.getElementById("f-stage").selectedIndex].text,
+    stage:    document.getElementById("f-stage").value,
+    fit:      (() => { const v = parseInt(document.getElementById("f-fit").value, 10); return isNaN(v) ? null : Math.min(100, Math.max(0, v)); })(),
+    link:     link || null,
+    contacts,
+    next:     document.getElementById("f-next").value.trim()  || "—",
+    notes:    document.getElementById("f-notes").value.trim() || "—",
+    organic:  document.getElementById("f-organic").checked  || undefined,
+    referred: document.getElementById("f-referred").checked || undefined,
+  });
+  document.getElementById("form-overlay").classList.remove("active");
+  saveOpps();
+  renderFunnel();
+  renderBoard();
+}
+
+patchMissingFit();
+renderFunnel();
+renderBoard();
+updateTopbarCount();
+
+// ── Tab switching ────────────────────────────────────────────
+let _currentTab = 'analyzer';
+
+function switchTab(tab) {
+  _currentTab = tab;
+
+  // Esconde todas as abas explicitamente
+  ['analyzer','kanban','ranking'].forEach(id => {
+    const el = document.getElementById('tab-' + id);
+    if (el) { el.style.display = 'none'; el.classList.remove('active'); }
+  });
+
+  // Mostra a aba selecionada
+  const target = document.getElementById('tab-' + tab);
+  if (target) {
+    target.style.display = 'block';
+    target.classList.add('active');
+  }
+
+  // Atualiza botões
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    const matches = (btn.getAttribute('onclick') || '').includes("'" + tab + "'");
+    btn.classList.toggle('active', matches);
+  });
+
+  // Renderiza conteúdo da aba
+  if (tab === 'kanban')   { renderFunnel(); renderBoard(); }
+  if (tab === 'ranking')  renderRanking();
+  if (tab === 'analyzer') initAnalyzer();
+}
+
+// ── Ranking ──────────────────────────────────────────────────
+const stageLabel = {
+  todo:      'Para Aplicar',
+  applied:   'Aplicada',
+  recruiter: 'Entrevista Recrutador',
+  decision:  'Entrevista Decisor',
+  offer:     'Oferta',
+  lost:      'Lost'
+};
+
+function rankingBarColor(fit) {
+  if (fit >= 85) return '#22c55e';
+  if (fit >= 70) return '#a3e635';
+  if (fit >= 55) return '#f59e0b';
+  return '#f87171';
+}
+
+function renderRanking() {
+  const sorted = [...opps]
+    .filter(o => o.fit != null)
+    .sort((a, b) => (b.fit ?? 0) - (a.fit ?? 0));
+
+  const noFit = opps.filter(o => o.fit == null);
+
+  const wrap = document.getElementById('ranking');
+
+  let html = `
+    <div class="ranking-header">
+      <div>
+        <h2>Ranking de Compatibilidade</h2>
+        <p>${sorted.length} vagas ordenadas por % de fit com o seu perfil</p>
+      </div>
+    </div>`;
+
+  sorted.forEach((opp, i) => {
+    const pos = i + 1;
+    const color = rankingBarColor(opp.fit);
+    const isTop3 = pos <= 3 ? ' top3' : '';
+    const medal = pos === 1 ? '🥇' : pos === 2 ? '🥈' : pos === 3 ? '🥉' : pos;
+    const stage = stageLabel[opp.stage] || opp.stage;
+    html += `
+      <div class="ranking-row" onclick="openModal(opps.find(o=>o.id===${opp.id}))">
+        <div class="ranking-pos${isTop3}">${medal}</div>
+        <div class="ranking-info">
+          <div class="ranking-company">${opp.company}</div>
+          <div class="ranking-role">${opp.role}</div>
+        </div>
+        <div class="ranking-bar-wrap">
+          <div class="ranking-bar" style="width:${opp.fit}%;background:${color}"></div>
+        </div>
+        <div class="ranking-pct" style="color:${color}">${opp.fit}%</div>
+        <div class="ranking-stage-tag">${stage}</div>
+      </div>`;
+  });
+
+  if (noFit.length) {
+    html += `<p style="font-size:0.75rem;color:var(--dim);margin-top:16px">+ ${noFit.length} vaga(s) sem % definido</p>`;
+  }
+
+  wrap.innerHTML = html;
+}
+
+function updateTopbarCount() {
+  const active = opps.filter(o => o.stage !== 'lost').length;
+  const el = document.getElementById('topbar-count');
+  if (el) el.textContent = active + ' vaga' + (active !== 1 ? 's' : '') + ' ativas';
+}
+
+// ── Analyzer tab ─────────────────────────────────────────────
+let   _lastJD       = '';
+let   _lastAnalysis = null;
+
+const PROVIDER_LINKS = {
+  openai: { url: 'https://platform.openai.com/api-keys', label: 'Obter chave OpenAI →', ph: 'sk-...' },
+  claude: { url: 'https://console.anthropic.com/settings/keys', label: 'Obter chave Anthropic →', ph: 'sk-ant-...' }
+};
+
+function updateWarningBanner() {
+  const provider = localStorage.getItem(PROVIDER_KEY) || 'openai';
+  const hasKey   = !!localStorage.getItem(APIKEY_KEY + '-' + provider);
+  document.getElementById('fit-no-key-banner').classList.toggle('visible', !hasKey);
+}
+
+function setProvider(p) {
+  localStorage.setItem(PROVIDER_KEY, p);
+  document.getElementById('btn-provider-openai').classList.toggle('active', p === 'openai');
+  document.getElementById('btn-provider-claude').classList.toggle('active', p === 'claude');
+  const info = PROVIDER_LINKS[p];
+  // Update the prominent CTA button
+  const ctaBtn = document.getElementById('btn-get-apikey-link');
+  ctaBtn.href = info.url;
+  ctaBtn.textContent = p === 'openai'
+    ? '🔗 Abrir painel da OpenAI e pegar minha chave'
+    : '🔗 Abrir painel da Anthropic e pegar minha chave';
+
+  // Update tooltip
+  const tooltipSteps = {
+    openai: {
+      title: 'Como obter sua chave — OpenAI',
+      steps: [
+        'Acesse <strong>platform.openai.com</strong>',
+        'Faça login ou crie uma conta gratuita',
+        'No menu lateral, clique em <strong>API Keys</strong>',
+        'Clique em <strong>"Create new secret key"</strong>',
+        'Copie a chave e cole no campo abaixo'
+      ],
+      note: 'A chave começa com <code>sk-</code> e fica salva só no seu browser.'
+    },
+    claude: {
+      title: 'Como obter sua chave — Anthropic',
+      steps: [
+        'Acesse <strong>console.anthropic.com</strong>',
+        'Faça login ou crie uma conta gratuita',
+        'No menu lateral, clique em <strong>API Keys</strong>',
+        'Clique em <strong>"Create Key"</strong>',
+        'Copie a chave e cole no campo abaixo'
+      ],
+      note: 'A chave começa com <code>sk-ant-</code> e fica salva só no seu browser.'
+    }
+  };
+  const t = tooltipSteps[p];
+  document.getElementById('tooltip-title').textContent = t.title;
+  document.getElementById('tooltip-steps').innerHTML = t.steps.map(s => `<li>${s}</li>`).join('');
+  document.querySelector('.tooltip-note').innerHTML = t.note;
+  document.getElementById('fit-apikey').placeholder = info.ph;
+  // Show saved key or clear
+  const saved = localStorage.getItem(APIKEY_KEY + '-' + p);
+  const input = document.getElementById('fit-apikey');
+  const st    = document.getElementById('fit-apikey-status');
+  if (saved) {
+    input.value = '••••••••' + saved.slice(-4);
+    st.className = 'fit-status ok';
+    st.textContent = '✓ Chave salva';
+  } else {
+    input.value = '';
+    st.className = 'fit-status';
+    st.textContent = '';
+  }
+  updateWarningBanner();
+}
+
+function initAnalyzer() {
+  const provider = localStorage.getItem(PROVIDER_KEY) || 'openai';
+  setProvider(provider);
+  updateFreeCounter();
+  const profile = localStorage.getItem(PROFILE_KEY);
+  if (profile) {
+    document.getElementById('fit-profile').value = profile;
+    showProfileSaved(profile);
+  }
+  const savedKey = localStorage.getItem(APIKEY_KEY + '-' + provider);
+  if (savedKey) {
+    showApiKeySaved(provider);
+  }
+  updateWarningBanner();
+}
+
+function showProfileSaved(text) {
+  document.getElementById('profile-edit-view').style.display = 'none';
+  document.getElementById('profile-saved-view').classList.add('visible');
+  // Preview: first 80 chars
+  document.getElementById('profile-preview-text').textContent =
+    text.slice(0, 90) + (text.length > 90 ? '…' : '');
+}
+
+function editProfile() {
+  document.getElementById('profile-saved-view').classList.remove('visible');
+  document.getElementById('profile-edit-view').style.display = 'block';
+  document.getElementById('fit-profile').focus();
+}
+
+function showApiKeySaved(provider) {
+  document.getElementById('apikey-edit-view').style.display = 'none';
+  document.getElementById('apikey-saved-view').classList.add('visible');
+  document.getElementById('apikey-provider-label').textContent =
+    provider === 'openai' ? 'GPT-4o · OpenAI' : 'Claude · Anthropic';
+}
+
+function editApiKey() {
+  document.getElementById('apikey-saved-view').classList.remove('visible');
+  document.getElementById('apikey-edit-view').style.display = 'block';
+  document.getElementById('fit-apikey').focus();
+}
+
+function saveApiKey() {
+  const val      = document.getElementById('fit-apikey').value.trim();
+  if (!val || val.startsWith('••') || val.startsWith('**') || /^\*+$/.test(val)) {
+    const st = document.getElementById('fit-apikey-status');
+    st.className = 'fit-status error';
+    st.textContent = '✗ Cole a chave original (começa com sk-), não a versão mascarada';
+    return;
+  }
+  const provider = localStorage.getItem(PROVIDER_KEY) || 'openai';
+  localStorage.setItem(APIKEY_KEY + '-' + provider, val);
+  document.getElementById('fit-apikey').value = '••••••••' + val.slice(-4);
+  const st = document.getElementById('fit-apikey-status');
+  st.className = 'fit-status ok';
+  st.textContent = '✓ Chave salva';
+  showApiKeySaved(provider);
+  updateWarningBanner();
+}
+
+function saveProfile() {
+  const val = _profileMode === 'linkedin'
+    ? (document.getElementById('fit-profile-linkedin-text').value.trim() ||
+       document.getElementById('fit-profile').value.trim())
+    : document.getElementById('fit-profile').value.trim();
+
+  if (!val) {
+    const st = document.getElementById('fit-profile-status');
+    st.className = 'fit-status error';
+    st.textContent = _profileMode === 'linkedin'
+      ? '✗ Busque seu perfil do LinkedIn primeiro'
+      : '✗ Cole seu perfil antes de salvar';
+    return;
+  }
+  document.getElementById('fit-profile').value = val;
+  localStorage.setItem(PROFILE_KEY, val);
+  showProfileSaved(val);
+  const st = document.getElementById('fit-profile-status');
+  st.className = 'fit-status ok';
+  st.textContent = '✓ Perfil salvo';
+}
+
+async function fetchJobDescription() {
+  const url = document.getElementById('fit-url').value.trim();
+  if (!url) return;
+  const btn   = document.getElementById('btn-fetch-jd');
+  const st    = document.getElementById('fit-fetch-status');
+  const prev  = document.getElementById('fit-jd-preview');
+
+  btn.disabled = true;
+  btn.textContent = '…';
+  st.className = 'fit-status';
+  st.innerHTML = '<span class="spinner"></span> Buscando descrição da vaga…';
+  prev.style.display = 'none';
+
+  try {
+    const jinaUrl = 'https://r.jina.ai/' + url;
+    const res = await fetch(jinaUrl, { headers: { 'Accept': 'text/plain' } });
+    if (!res.ok) throw new Error('Falha ao buscar a página');
+    const text = await res.text();
+
+    // Tenta extrair só a parte relevante da descrição
+    const clean = text
+      .replace(/https?:\/\/\S+/g, '')
+      .replace(/\[.*?\]/g, '')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim()
+      .slice(0, 4000);
+
+    _lastJD = clean;
+    document.getElementById('fit-jd-manual').value = clean;
+    prev.textContent = clean.slice(0, 600) + (clean.length > 600 ? '…' : '');
+    prev.style.display = 'block';
+
+    st.className = 'fit-status ok';
+    st.textContent = '✓ Descrição capturada (' + clean.length + ' caracteres)';
+  } catch(e) {
+    st.className = 'fit-status error';
+    st.textContent = '✗ Não foi possível buscar — cole o texto da vaga manualmente abaixo';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Buscar';
+  }
+}
+
+function showAnalyzeError(msg) {
+  const btn = document.getElementById('btn-analyze');
+  btn.disabled = false;
+  btn.innerHTML = '✨ Analisar compatibilidade com IA';
+  // Mostra erro inline abaixo do botão
+  let errEl = document.getElementById('analyze-error');
+  if (!errEl) {
+    errEl = document.createElement('div');
+    errEl.id = 'analyze-error';
+    errEl.style.cssText = 'margin-top:10px;padding:12px 16px;background:#200a0a;border:1px solid #7f1d1d;border-radius:10px;color:#f87171;font-size:0.83rem;line-height:1.5;';
+    btn.parentNode.insertBefore(errEl, btn.nextSibling);
+  }
+  errEl.style.display = 'block';
+  errEl.innerHTML = '<strong>⚠️ Erro na análise</strong><br>' + msg;
+  errEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function getFreeCount() { return parseInt(localStorage.getItem(FREE_KEY) || '0'); }
+function incFreeCount() { localStorage.setItem(FREE_KEY, getFreeCount() + 1); updateFreeCounter(); }
+function getFreeRemaining() { return Math.max(0, FREE_LIMIT - getFreeCount()); }
+
+function updateFreeCounter() {
+  const el = document.getElementById('free-counter');
+  if (!el) return;
+  const rem = getFreeRemaining();
+  const apiKey = localStorage.getItem(APIKEY_KEY + '-' + (localStorage.getItem(PROVIDER_KEY) || 'openai'));
+  const hasOwnKey = apiKey && !apiKey.startsWith('*');
+  if (hasOwnKey) { el.style.display = 'none'; return; }
+  el.style.display = 'flex';
+  if (rem > 0) {
+    el.innerHTML = `<span>✦ <strong>${rem} análise${rem > 1 ? 's' : ''} grátis</strong> restante${rem > 1 ? 's' : ''}</span>`;
+    el.className = 'free-counter free-counter-ok';
+  } else {
+    el.innerHTML = `<span>Suas análises grátis acabaram — <a href="mailto:liplop@app.com" style="color:var(--rose)">entre em contato para continuar</a> ou configure sua própria chave abaixo.</span>`;
+    el.className = 'free-counter free-counter-empty';
+  }
+}
+
+async function analyzeFit() {
+  // Esconde erro anterior
+  const prevErr = document.getElementById('analyze-error');
+  if (prevErr) prevErr.style.display = 'none';
+
+  const provider = localStorage.getItem(PROVIDER_KEY) || 'openai';
+  const apiKey   = localStorage.getItem(APIKEY_KEY + '-' + provider);
+  const hasOwnKey = apiKey && !apiKey.startsWith('*');
+  const profile  = localStorage.getItem(PROFILE_KEY) || document.getElementById('fit-profile').value.trim();
+  const jd       = document.getElementById('fit-jd-manual').value.trim() || _lastJD;
+
+  // Sem chave própria: verifica cota grátis
+  if (!hasOwnKey && getFreeRemaining() <= 0) {
+    showAnalyzeError('Suas <strong>3 análises grátis</strong> foram usadas. Configure sua chave de API abaixo para continuar — ou entre em contato para saber sobre planos.');
+    document.getElementById('fit-apikey-section').scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+
+  if (!profile) {
+    showAnalyzeError('Configure seu perfil profissional primeiro — role até a seção <strong>Seu perfil profissional</strong>.');
+    document.getElementById('fit-profile').focus();
+    return;
+  }
+  if (!jd) {
+    showAnalyzeError('Busque ou cole a descrição da vaga antes de analisar.');
+    document.getElementById('fit-url').focus();
+    return;
+  }
+
+  const btn = document.getElementById('btn-analyze');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="border-top-color:#fff;vertical-align:middle;margin-right:8px"></span> Analisando com IA…';
+
+  const prompt = `Você é um especialista em recrutamento e carreira. Analise o fit entre o perfil profissional e a vaga abaixo.
+
+## PERFIL DA CANDIDATA
+${profile}
+
+## DESCRIÇÃO DA VAGA
+${jd}
+
+Responda SOMENTE com um JSON válido neste formato exato (sem markdown, sem texto extra):
+{
+  "score": <número 0-100>,
+  "label": "<Ex: Fit muito forte | Fit sólido | Fit parcial | Fit baixo>",
+  "summary": "<1-2 frases explicando o score de forma direta>",
+  "pillars": [
+    {"name": "Experiência", "pct": <0-100>},
+    {"name": "Skills técnicas", "pct": <0-100>},
+    {"name": "Senioridade", "pct": <0-100>},
+    {"name": "Contexto/setor", "pct": <0-100>},
+    {"name": "LATAM / idioma", "pct": <0-100>}
+  ],
+  "has": ["<ponto forte 1>", "<ponto forte 2>", "<ponto forte 3>"],
+  "lacks": ["<gap 1>", "<gap 2>"],
+  "tips": ["<dica de adaptação 1>", "<dica 2>"],
+  "next": ["<próximo passo concreto 1>", "<próximo passo 2>"]
+}`;
+
+  try {
+    let raw;
+
+    if (hasOwnKey) {
+      // Modo chave própria: chama API diretamente
+      const endpoint = provider === 'openai'
+        ? 'https://api.openai.com/v1/chat/completions'
+        : 'https://api.anthropic.com/v1/messages';
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(provider === 'openai'
+            ? { 'Authorization': 'Bearer ' + apiKey }
+            : { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' })
+        },
+        body: JSON.stringify(provider === 'openai' ? {
+          model: 'gpt-4o', max_tokens: 1024,
+          messages: [{ role: 'user', content: prompt }],
+          response_format: { type: 'json_object' }
+        } : {
+          model: 'claude-opus-4-5', max_tokens: 1024,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error?.message || 'Erro na API (' + res.status + ')');
+      }
+      const data = await res.json();
+      raw = provider === 'openai'
+        ? data.choices[0].message.content.trim()
+        : data.content[0].text.trim();
+    } else {
+      // Modo grátis: chama backend Vercel
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Erro no servidor (' + res.status + ')');
+      }
+      const data = await res.json();
+      raw = data.result;
+      incFreeCount(); // só conta quando deu certo
+    }
+
+    const json = JSON.parse(raw.replace(/^```json?\n?/, '').replace(/\n?```$/, ''));
+    _lastAnalysis = json;
+    renderAnalysisResult(json);
+  } catch(e) {
+    let msg = e.message;
+    if (msg.includes('quota') || msg.includes('billing')) {
+      msg = 'Cota da API esgotada. Acesse <a href="https://platform.openai.com/settings/billing" target="_blank" style="color:#f87171">platform.openai.com/billing</a> e adicione créditos (mín. $5). Cada análise custa ~$0,01.';
+    } else if (msg.includes('Incorrect API key') || msg.includes('invalid_api_key')) {
+      msg = 'Chave de API inválida. Clique em <strong>Chave de IA → Editar</strong> e cole a chave correta do <a href="https://platform.openai.com/api-keys" target="_blank" style="color:#f87171">painel da OpenAI</a>.';
+    }
+    showAnalyzeError(msg);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '✨ Analisar compatibilidade com IA';
+  }
+}
+
+function scoreCircleClass(s) {
+  if (s >= 85) return 'high';
+  if (s >= 70) return 'good';
+  if (s >= 55) return 'mid';
+  return 'low';
+}
+
+function pillarColor(pct) {
+  if (pct >= 85) return '#22c55e';
+  if (pct >= 70) return '#a3e635';
+  if (pct >= 55) return '#f59e0b';
+  return '#f87171';
+}
+
+function renderAnalysisResult(r) {
+  const circle  = document.getElementById('result-circle');
+  circle.className = 'fit-score-circle ' + scoreCircleClass(r.score);
+  document.getElementById('result-score').textContent   = r.score;
+  document.getElementById('result-label').textContent   = r.label;
+  document.getElementById('result-summary').textContent = r.summary;
+
+  // Pillars
+  const pillarsEl = document.getElementById('result-pillars');
+  pillarsEl.innerHTML = (r.pillars || []).map(p => `
+    <div class="fit-pillar">
+      <div class="fit-pillar-label">${p.name}</div>
+      <div class="fit-pillar-bar-wrap">
+        <div class="fit-pillar-bar" style="width:${p.pct}%;background:${pillarColor(p.pct)}"></div>
+      </div>
+      <div class="fit-pillar-pct" style="color:${pillarColor(p.pct)}">${p.pct}%</div>
+    </div>`).join('');
+
+  // Blocks
+  const blocks = [
+    { key: 'has',   cls: 'has',   title: '✅ Você tem' },
+    { key: 'lacks', cls: 'lacks', title: '❌ Gaps' },
+    { key: 'tips',  cls: 'tips',  title: '💡 Como adaptar' },
+    { key: 'next',  cls: 'next',  title: '🎯 Próximos passos' },
+  ];
+  document.getElementById('result-blocks').innerHTML = blocks.map(b =>
+    `<div class="fit-block ${b.cls}">
+      <div class="fit-block-title">${b.title}</div>
+      <ul>${(r[b.key] || []).map(i => `<li>${i}</li>`).join('')}</ul>
+    </div>`
+  ).join('');
+
+  document.getElementById('fit-result').classList.add('visible');
+  document.getElementById('fit-result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function saveAnalysisToKanban() {
+  if (!_lastAnalysis) return;
+  const url  = document.getElementById('fit-url').value.trim();
+  // Tenta extrair empresa e cargo do JD
+  const jd   = document.getElementById('fit-jd-manual').value.trim();
+  const lines = jd.split('\n').filter(l => l.trim()).slice(0, 5);
+
+  openForm('todo');
+  // Pre-preenche o score
+  const fitEl = document.getElementById('f-fit');
+  fitEl.value = _lastAnalysis.score;
+  fitEl.dataset.manual = '1';
+  document.getElementById('f-fit-auto').textContent = '✨ calculado pela IA';
+  if (url) document.getElementById('f-link').value = url;
+  if (lines[0]) document.getElementById('f-company').value = lines[0].slice(0, 60);
+  document.getElementById('f-notes').value = _lastAnalysis.summary || '';
+
+  switchTab('kanban');
+}
+
+// Inicializa ao carregar — chamado depois de todas as declarações
+initAnalyzer();
+</script>
+</div><!-- /page-content -->
+</body>
+</html>
