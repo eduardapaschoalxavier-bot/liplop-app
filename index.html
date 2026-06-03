@@ -2211,182 +2211,43 @@ function isAdmin() {
 }
 
 // fit scores por id (para migrar dados do v1 que não tinham fit)
-const DEFAULT_FIT = {1:90,2:92,3:70,4:75,5:78,6:86,7:80,8:65,9:82,10:84,11:68,12:73,13:77,14:52,15:45};
+const DEFAULT_FIT = {1:85,2:78,3:62};
 
 const defaultOpps = [
-  // App começa limpo para novos usuários
-  /*
   {
     id: 1,
-    company: "Clara",
-    role: "Partnerships Lead / Líder de Parcerias",
-    status: "Aplicada / indicação feita",
-    stage: "applied",
-    fit: 90,
-    link: "https://br.linkedin.com/jobs/view/partnerships-lead-l%C3%ADder-de-parcerias-s%C3%A3o-paulo-hybrid-at-clara-4405421766",
-    next: "Aguardar retorno após contatos feitos; follow-up em 3–5 dias úteis se não houver resposta",
-    notes: "Alto fit com fintech, partnerships, canais e growth. Já pediu conselho a profissionais da Clara — indicação feita, aguardando movimentação."
+    company: "Fintech Exemplo",
+    role: "Partner Growth Manager, Brazil",
+    status: "Pendente — pesquisando contatos",
+    stage: "todo",
+    fit: 85,
+    link: "https://www.linkedin.com/jobs/",
+    next: "Buscar indicação interna antes de aplicar",
+    notes: "Vaga exemplo: use para testar o Analisar Fit! Cole a descrição da vaga e o seu perfil para ver como funciona a análise de compatibilidade."
   },
   {
     id: 2,
-    company: "Nuvemshop",
+    company: "SaaS B2B Exemplo",
     role: "Senior Partner Marketing Manager",
-    status: "Aplicada / indicação feita",
+    status: "Aplicada via LinkedIn",
     stage: "applied",
-    fit: 92,
-    link: "https://br.linkedin.com/jobs/view/senior-partner-marketing-manager-at-nuvemshop-4418831385",
-    next: "Aguardar retorno após contatos feitos; follow-up em 3–5 dias úteis se não houver resposta",
-    notes: "Muito fit com canais, parceiros, e-commerce, aquisição e comunidade. Já pediu conselho a profissionais da Nuvemshop — indicação feita, aguardando movimentação."
+    fit: 78,
+    link: "https://www.linkedin.com/jobs/",
+    next: "Follow-up em 5 dias úteis se não houver retorno",
+    notes: "Vaga exemplo já aplicada. Aqui você acompanha o status das candidaturas que já enviou."
   },
   {
     id: 3,
-    company: "G4 Educação",
-    role: "Growth / Marketing / GTM",
-    status: "Follow-up feito; aguardando retorno",
+    company: "Scale-up Tech Exemplo",
+    role: "Head of Growth & Partnerships",
+    status: "Call com recrutadora agendada",
     stage: "recruiter",
-    fit: 70,
-    link: null,
-    organic: true,
-    next: "Aguardar resposta por 3–5 dias úteis; se não responder, fazer novo follow-up curto",
-    notes: "Pode ter fit com educação, comunidade, eventos e growth. Validar remuneração e escopo para não virar marketing operacional. Link da vaga ainda não consolidado."
-  },
-  {
-    id: 4,
-    company: "Connectly",
-    role: "Estruturar marketing do zero",
-    status: "Em avaliação pela empresa",
-    stage: "recruiter",
-    fit: 75,
-    link: null,
-    referred: true,
-    next: "Aguardar retorno da recruiter; fazer follow-up em 4–5 dias úteis se não houver resposta",
-    notes: "Oportunidade interessante se tiver produto validado e budget. Risco: escopo amplo demais e marketing 'do zero' com pouca estrutura. Link da vaga ainda não consolidado."
-  },
-  {
-    id: 5,
-    company: "Manual",
-    role: "Marketing / Growth — nova posição em estruturação",
-    status: "Processo anterior encerrado; nova oportunidade sendo discutida internamente",
-    stage: "recruiter",
-    fit: 78,
-    link: null,
-    contacts: [{ name: "Marcos Caringi", role: "Liderança na Manual", linkedin: "https://www.linkedin.com/in/mpcaringi/" }],
-    next: "Aguardar Caringi fechar com Filipe sobre novas categorias BR e mudanças no time de mkt. Se não houver retorno em 1–2 semanas, retomar contato gentilmente.",
-    notes: "Processo anterior foi positivo — todo mundo gostou, nome foi discutido. Não avançou pois precisavam de alguém hardcore em mídia paga.\n\nOportunidade real: Caringi mencionou que vão trazer novas categorias pro BR e está discutindo com Filipe como encaixar a Duda. Também planeja mudanças no time de mkt.\n\nDuda se colocou à disposição: ajudar a pensar a posição, caçar perfil técnico em mídia (tem mapeamento via Mulheres de Growth), contribuir durante o processo.\n\nRelacionamento quente — Caringi foi transparente e receptivo. Canal aberto."
-  },
-  {
-    id: 6,
-    company: "Airwallex",
-    role: "Head of SME & Partnerships, Brazil",
-    status: "Pendente",
-    stage: "todo",
-    fit: 86,
-    link: "https://br.linkedin.com/jobs/view/head-of-sme-partnerships-brazil-at-airwallex-4269247836",
-    next: "Aplicar + buscar alguém de fintech/partnerships lá para indicação",
-    notes: "Forte fit com fintech, parcerias e expansão BR. Buscar indicação para furar filtro."
-  },
-  {
-    id: 7,
-    company: "Tanium",
-    role: "Partner Marketing Manager, LATAM",
-    status: "Pendente — contato respondeu e pediu CV",
-    stage: "todo",
-    fit: 80,
-    link: "https://br.linkedin.com/jobs/view/partner-marketing-manager-latam-at-tanium-4410879781",
-    contacts: [{ name: "Wellington Lobo", role: "Director, Partners & Alliances Latin America at Tanium", linkedin: "https://www.linkedin.com/in/wellingtonlobo/" }],
-    next: "Enviar CV para Wellington Lobo repassar ao líder da posição",
-    notes: "Narrativa de canais e partner-driven pipeline é forte aqui. Wellington Lobo pediu o currículo para encaminhar ao líder da posição — indicação interna ativa."
-  },
-  {
-    id: 8,
-    company: "Camunda",
-    role: "Senior Partner Marketing Manager",
-    status: "Pendente",
-    stage: "todo",
-    fit: 65,
-    link: "https://br.linkedin.com/jobs/view/senior-partner-marketing-manager-at-camunda-4414083396",
-    next: "Aplicar + validar se exige experiência forte com GSI",
-    notes: "Validar requisito de GSI (Global System Integrators) antes de customizar a candidatura. Existe também uma listagem alternativa: https://br.linkedin.com/jobs/view/senior-partner-marketing-manager-at-camunda-4414081571"
-  },
-  {
-    id: 9,
-    company: "Canva",
-    role: "Growth Lead, User Engagement",
-    status: "Pendente — contato respondeu, conversa ativa",
-    stage: "todo",
-    fit: 82,
-    link: "https://br.linkedin.com/jobs/view/growth-lead-user-engagement-at-canva-4381697600",
-    contacts: [{ name: "Karlos Rabello", role: "Channel Sales Lead @ Canva | Latin America & Caribbean", linkedin: "https://www.linkedin.com/in/karlosrabello/" }],
-    next: "Confirmar horário na terça à tarde com Karlos Rabello e enviar invite por e-mail",
-    notes: "Alta competição — indicação é pré-requisito para ter chance real. Karlos Rabello respondeu prontamente, vai checar o status da vaga com o dono e confirmou conversa na terça à tarde."
-  },
-  {
-    id: 10,
-    company: "Kommo",
-    role: "Partner Growth Manager, Brazil",
-    status: "Pendente",
-    stage: "todo",
-    fit: 84,
-    link: null,
-    next: "Buscar vaga ativa no LinkedIn e aplicar",
-    notes: "Boa aderência com canais e parcerias. Vaga não encontrada diretamente — buscar no LinkedIn antes de aplicar."
-  },
-  {
-    id: 11,
-    company: "Samba TV",
-    role: "Country Lead, Brazil",
-    status: "Pendente",
-    stage: "todo",
-    fit: 68,
-    link: "https://br.linkedin.com/jobs/view/country-lead-brazil-at-samba-tv-4411728267",
-    next: "Aplicar se escopo for expansão/GTM, não sales puro",
-    notes: "Confirmar se a vaga é GTM/expansão ou vendas operacional antes de investir energia na candidatura."
-  },
-  {
-    id: 12,
-    company: "PlayerUm",
-    role: "Head of Growth & Performance B2B SaaS",
-    status: "Pendente",
-    stage: "todo",
-    fit: 73,
-    link: "https://br.linkedin.com/jobs/view/head-of-growth-performance-b2b-saas-at-playerum-4361816639",
-    next: "Aplicar se não for mídia paga operacional",
-    notes: "Validar se 'performance' significa estratégia de growth ou execução de mídia paga. Só faz sentido se for o primeiro."
-  },
-  {
-    id: 13,
-    company: "Time Doctor",
-    role: "Partner Marketing Manager",
-    status: "Pendente",
-    stage: "todo",
-    fit: 77,
-    link: null,
-    next: "Buscar vaga no LinkedIn e validar elegibilidade (remoto LATAM)",
-    notes: "SaaS remoto com foco LATAM — bom fit para parceiros e canais. Validar se aceita candidatos BR."
-  },
-  {
-    id: 14,
-    company: "Hub.xyz",
-    role: "Marketing Growth Operator, Brazil",
-    status: "Pendente",
-    stage: "todo",
-    fit: 52,
-    link: "https://br.linkedin.com/jobs/view/marketing-growth-operator-brazil-at-hub-xyz-4423201660",
-    next: "Aplicar, mas validar senioridade e remuneração",
-    notes: "Risco de ser júnior/operacional demais. Validar escopo real e pacote antes de priorizar."
-  },
-  {
-    id: 15,
-    company: "Bitget",
-    role: "Growth Manager, Latin America",
-    status: "Pendente",
-    stage: "todo",
-    fit: 45,
-    link: "https://www.linkedin.com/jobs/view/growth-manager-at-bitget-4159239432",
-    next: "Aplicar só se aceitar crypto como contexto",
-    notes: "Exchange de crypto — validar se o contexto faz sentido para a narrativa de carreira antes de aplicar."
+    fit: 62,
+    link: "https://www.linkedin.com/jobs/",
+    contacts: [{ name: "Ana Recrutadora", role: "Talent Acquisition", linkedin: "https://www.linkedin.com/in/" }],
+    next: "Preparar pitch sobre experiência com canais e parceiros",
+    notes: "Vaga exemplo em processo. No Kanban você visualiza todas as suas vagas por etapa — de 'Para Aplicar' até 'Oferta'."
   }
-  */
 ];
 
 // ── persistence ───────────────────────────────────────────────
