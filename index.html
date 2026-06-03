@@ -1965,10 +1965,10 @@
           </div>
         </div>
         <div class="fit-status" id="fit-pdf-status" style="margin-bottom:6px"></div>
-        <textarea class="fit-textarea" id="fit-profile" rows="6"
-          placeholder="O texto do seu perfil aparecerá aqui após subir o PDF — você pode editar antes de salvar."></textarea>
+        <textarea class="fit-textarea" id="fit-profile" rows="6" style="display:none"
+          placeholder="Texto extraído do PDF — você pode editar antes de salvar."></textarea>
 
-        <div style="display:flex;justify-content:flex-end;margin-top:10px">
+        <div id="profile-save-btn" style="display:none;justify-content:flex-end;margin-top:10px">
           <button class="btn-fit-fetch" onclick="saveProfile()">Salvar perfil</button>
         </div>
       </div>
@@ -3163,9 +3163,12 @@ async function extractProfilePDF(input) {
     fullText = fullText.trim();
     if (!fullText) throw new Error('PDF sem texto extraível');
 
-    document.getElementById('fit-profile').value = fullText;
+    const ta = document.getElementById('fit-profile');
+    ta.value = fullText;
+    ta.style.display = 'block';
+    document.getElementById('profile-save-btn').style.display = 'flex';
     st.className = 'fit-status ok';
-    st.textContent = '✓ PDF extraído (' + fullText.length + ' caracteres) — confira e clique em Salvar perfil';
+    st.textContent = '✓ PDF extraído! Confira o texto e clique em Salvar perfil.';
   } catch(e) {
     st.className = 'fit-status error';
     st.textContent = '✗ Não foi possível ler o PDF: ' + e.message;
