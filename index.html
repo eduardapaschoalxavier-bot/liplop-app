@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -2193,6 +2194,21 @@ const PROFILE_KEY   = 'liplop-profile';
 const PROVIDER_KEY  = 'liplop-provider';
 const FREE_KEY      = 'liplop-free-count';
 const FREE_LIMIT    = 3;
+const ADMIN_KEY     = 'liplop-admin';
+
+// Modo admin — acesso via ?admin=duda2026
+(function checkAdmin() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('admin') === 'duda2026') {
+    localStorage.setItem(ADMIN_KEY, '1');
+    // Remove o parâmetro da URL sem recarregar
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+})();
+
+function isAdmin() {
+  return localStorage.getItem(ADMIN_KEY) === '1';
+}
 
 // fit scores por id (para migrar dados do v1 que não tinham fit)
 const DEFAULT_FIT = {1:90,2:92,3:70,4:75,5:78,6:86,7:80,8:65,9:82,10:84,11:68,12:73,13:77,14:52,15:45};
@@ -3138,6 +3154,16 @@ function setProvider(p) {
   updateWarningBanner();
 }
 
+let _profileMode = 'text';
+
+function setProfileMode(mode) {
+  _profileMode = mode;
+  document.getElementById('profile-mode-text').style.display    = mode === 'text'     ? 'block' : 'none';
+  document.getElementById('profile-mode-linkedin').style.display = mode === 'linkedin' ? 'block' : 'none';
+  document.getElementById('btn-profile-text').classList.toggle('active', mode === 'text');
+  document.getElementById('btn-profile-linkedin').classList.toggle('active', mode === 'linkedin');
+}
+
 function initAnalyzer() {
   const provider = localStorage.getItem(PROVIDER_KEY) || 'openai';
   setProvider(provider);
@@ -3291,7 +3317,7 @@ function updateFreeCounter() {
   const rem = getFreeRemaining();
   const apiKey = localStorage.getItem(APIKEY_KEY + '-' + (localStorage.getItem(PROVIDER_KEY) || 'openai'));
   const hasOwnKey = apiKey && !apiKey.startsWith('*');
-  if (hasOwnKey) { el.style.display = 'none'; return; }
+  if (hasOwnKey || isAdmin()) { el.style.display = 'none'; return; }
   el.style.display = 'flex';
   if (rem > 0) {
     el.innerHTML = `<span>✦ <strong>${rem} análise${rem > 1 ? 's' : ''} grátis</strong> restante${rem > 1 ? 's' : ''}</span>`;
@@ -3313,8 +3339,8 @@ async function analyzeFit() {
   const profile  = localStorage.getItem(PROFILE_KEY) || document.getElementById('fit-profile').value.trim();
   const jd       = document.getElementById('fit-jd-manual').value.trim() || _lastJD;
 
-  // Sem chave própria: verifica cota grátis
-  if (!hasOwnKey && getFreeRemaining() <= 0) {
+  // Sem chave própria: verifica cota grátis (admin tem acesso ilimitado)
+  if (!hasOwnKey && !isAdmin() && getFreeRemaining() <= 0) {
     showAnalyzeError('Suas <strong>3 análises grátis</strong> foram usadas. Configure sua chave de API abaixo para continuar — ou entre em contato para saber sobre planos.');
     document.getElementById('fit-apikey-section').scrollIntoView({ behavior: 'smooth' });
     return;
