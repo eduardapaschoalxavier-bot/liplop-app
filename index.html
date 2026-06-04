@@ -1780,79 +1780,6 @@
 </head>
 <body>
 
-<!-- ── Gate Modal ─────────────────────────────────────────────────────────── -->
-<div id="gate-modal" style="display:flex;position:fixed;inset:0;z-index:99999;background:#0C0509;align-items:center;justify-content:center;padding:24px">
-  <div style="background:#110810;border:1px solid #221018;border-radius:16px;max-width:420px;width:100%;padding:40px 36px">
-
-    <!-- Logo -->
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:32px">
-      <div style="width:28px;height:28px;border-radius:50%;background:#E04478;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff;flex-shrink:0">L</div>
-      <span style="font-weight:700;font-size:17px;color:#EDE0E8;letter-spacing:-.01em">Liplop</span>
-    </div>
-
-    <h2 style="font-size:22px;font-weight:700;line-height:1.25;letter-spacing:-.02em;color:#EDE0E8;margin-bottom:8px">Bem-vindo ao acesso antecipado.</h2>
-    <p style="font-size:14px;color:#9B7389;line-height:1.6;margin-bottom:28px">Você está entre os primeiros a testar o Liplop. Deixa seu nome e email para continuar.</p>
-
-    <form id="gate-form" onsubmit="submitGate(event)" style="display:flex;flex-direction:column;gap:12px">
-      <input
-        id="gate-name" type="text" placeholder="Seu nome" required
-        style="background:#0C0509;border:1px solid #221018;border-radius:8px;padding:12px 14px;font-size:14px;color:#EDE0E8;outline:none;width:100%;font-family:inherit;transition:border-color .15s"
-        onfocus="this.style.borderColor='#A8305A'" onblur="this.style.borderColor='#221018'"
-      />
-      <input
-        id="gate-email" type="email" placeholder="Seu melhor email" required
-        style="background:#0C0509;border:1px solid #221018;border-radius:8px;padding:12px 14px;font-size:14px;color:#EDE0E8;outline:none;width:100%;font-family:inherit;transition:border-color .15s"
-        onfocus="this.style.borderColor='#A8305A'" onblur="this.style.borderColor='#221018'"
-      />
-      <button type="submit" id="gate-btn"
-        style="background:#E04478;color:#fff;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px;font-family:inherit;transition:opacity .15s"
-        onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'"
-      >
-        Acessar o Liplop →
-      </button>
-    </form>
-
-    <p id="gate-error" style="display:none;margin-top:12px;font-size:12px;color:#E04478;text-align:center"></p>
-    <p style="margin-top:20px;font-size:11px;color:#4A2C3D;text-align:center">Seus dados não serão compartilhados com terceiros.</p>
-  </div>
-</div>
-
-<script>
-  (function() {
-    // Se já passou pelo gate, esconde imediatamente
-    if (localStorage.getItem('liplop-access') === 'true') {
-      document.getElementById('gate-modal').style.display = 'none';
-    }
-  })();
-
-  async function submitGate(e) {
-    e.preventDefault();
-    const btn   = document.getElementById('gate-btn');
-    const error = document.getElementById('gate-error');
-    const name  = document.getElementById('gate-name').value.trim();
-    const email = document.getElementById('gate-email').value.trim();
-
-    btn.textContent = 'Entrando...';
-    btn.disabled = true;
-    error.style.display = 'none';
-
-    try {
-      await fetch('/api/waitlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email }),
-      });
-    } catch(err) {
-      // Mesmo se a API falhar, deixa entrar (não bloqueia o usuário)
-    }
-
-    localStorage.setItem('liplop-access', 'true');
-    localStorage.setItem('liplop-user-name', name);
-    localStorage.setItem('liplop-user-email', email);
-    document.getElementById('gate-modal').style.display = 'none';
-  }
-</script>
-
 <!-- ── Modal Pricing ───────────────────────────────────────── -->
 <div id="pricing-modal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
   <div style="background:#0f0f13;border:1px solid rgba(255,255,255,0.1);border-radius:20px;max-width:760px;width:100%;padding:40px 32px;position:relative;max-height:90vh;overflow-y:auto">
@@ -2295,39 +2222,193 @@ function isAdmin() {
 const DEFAULT_FIT = {1:85,2:78,3:62};
 
 const defaultOpps = [
+  // ── Para Aplicar ──
   {
     id: 1,
-    company: "Fintech Exemplo",
-    role: "Partner Growth Manager, Brazil",
-    status: "Pendente — pesquisando contatos",
+    company: "Nubank",
+    role: "Senior Partner Growth Manager",
+    status: "Pesquisando contatos internos",
     stage: "todo",
-    fit: 85,
+    fit: 88,
     link: "https://www.linkedin.com/jobs/",
     next: "Buscar indicação interna antes de aplicar",
-    notes: "Vaga exemplo: use para testar o Analisar Fit! Cole a descrição da vaga e o seu perfil para ver como funciona a análise de compatibilidade."
+    notes: "Vaga com fit alto. Testar o Analisar Fit com a descrição completa antes de aplicar."
   },
   {
     id: 2,
-    company: "SaaS B2B Exemplo",
-    role: "Senior Partner Marketing Manager",
-    status: "Aplicada via LinkedIn",
-    stage: "applied",
-    fit: 78,
+    company: "Conta Simples",
+    role: "Head of Sales — SMB",
+    status: "Analisando requisitos",
+    stage: "todo",
+    fit: 74,
     link: "https://www.linkedin.com/jobs/",
-    next: "Follow-up em 5 dias úteis se não houver retorno",
-    notes: "Vaga exemplo já aplicada. Aqui você acompanha o status das candidaturas que já enviou."
+    next: "Revisar currículo destacando experiência com PMEs",
+    notes: "Empresa em crescimento acelerado. Checar cultura antes de aplicar."
   },
   {
     id: 3,
-    company: "Scale-up Tech Exemplo",
-    role: "Head of Growth & Partnerships",
-    status: "Call com recrutadora agendada",
-    stage: "recruiter",
-    fit: 62,
+    company: "Pipefy",
+    role: "Account Executive, Enterprise",
+    status: "Pendente — aguardando abertura",
+    stage: "todo",
+    fit: 81,
     link: "https://www.linkedin.com/jobs/",
-    contacts: [{ name: "Ana Recrutadora", role: "Talent Acquisition", linkedin: "https://www.linkedin.com/in/" }],
-    next: "Preparar pitch sobre experiência com canais e parceiros",
-    notes: "Vaga exemplo em processo. No Kanban você visualiza todas as suas vagas por etapa — de 'Para Aplicar' até 'Oferta'."
+    next: "Monitorar abertura oficial da vaga",
+    notes: "Vaga indicada por contato. Empresa tem ótima reputação no mercado SaaS."
+  },
+  {
+    id: 4,
+    company: "Gupy",
+    role: "Regional Sales Manager",
+    status: "Pesquisando gestor da área",
+    stage: "todo",
+    fit: 69,
+    link: "https://www.linkedin.com/jobs/",
+    next: "Conectar com alguém da equipe de vendas no LinkedIn",
+    notes: "Fit parcial — focar nos pontos fortes em gestão de pipeline."
+  },
+  // ── Aplicada ──
+  {
+    id: 5,
+    company: "Totvs",
+    role: "Business Development Manager",
+    status: "Aplicada via LinkedIn",
+    stage: "applied",
+    fit: 77,
+    link: "https://www.linkedin.com/jobs/",
+    next: "Follow-up com recrutadora em 5 dias úteis",
+    notes: "Aplicação enviada. Aguardando retorno do RH."
+  },
+  {
+    id: 6,
+    company: "Vtex",
+    role: "Partner Success Manager, LATAM",
+    status: "CV enviado pelo site",
+    stage: "applied",
+    fit: 83,
+    link: "https://www.linkedin.com/jobs/",
+    next: "Checar status na plataforma em 1 semana",
+    notes: "Vaga com foco em LATAM — destacar experiência regional."
+  },
+  {
+    id: 7,
+    company: "Dock",
+    role: "Senior Account Executive",
+    status: "Indicada por contato interno",
+    stage: "applied",
+    fit: 79,
+    link: "https://www.linkedin.com/jobs/",
+    next: "Agradecer contato e pedir update sobre processo",
+    notes: "Indicação de ex-colega. Processo costuma ser rápido."
+  },
+  {
+    id: 8,
+    company: "CloudWalk",
+    role: "Commercial Manager — Fintech",
+    status: "Aplicada via referral",
+    stage: "applied",
+    fit: 72,
+    link: "https://www.linkedin.com/jobs/",
+    next: "Follow-up em 7 dias",
+    notes: "Empresa em expansão rápida. Fit sólido com background em fintech."
+  },
+  // ── Entrevista Recrutador ──
+  {
+    id: 9,
+    company: "Nuvemshop",
+    role: "Head of Partnerships",
+    status: "Call com RH agendada",
+    stage: "recruiter",
+    fit: 85,
+    link: "https://www.linkedin.com/jobs/",
+    contacts: [{ name: "Carla Mendes", role: "Talent Acquisition", linkedin: "https://www.linkedin.com/in/" }],
+    next: "Preparar storytelling sobre resultados em parcerias",
+    notes: "Entrevista marcada para essa semana. Pesquisar cultura e valores da empresa."
+  },
+  {
+    id: 10,
+    company: "Omie",
+    role: "Sales Director — Mid Market",
+    status: "Triagem com recrutadora",
+    stage: "recruiter",
+    fit: 78,
+    link: "https://www.linkedin.com/jobs/",
+    contacts: [{ name: "Pedro Alves", role: "HR Business Partner", linkedin: "https://www.linkedin.com/in/" }],
+    next: "Enviar exemplos de resultados de vendas antes da call",
+    notes: "Recrutadora pediu dados de quota atingida. Preparar com números."
+  },
+  {
+    id: 11,
+    company: "Merama",
+    role: "Country Manager Brazil",
+    status: "Entrevista comportamental agendada",
+    stage: "recruiter",
+    fit: 66,
+    link: "https://www.linkedin.com/jobs/",
+    contacts: [{ name: "Juliana Costa", role: "People & Culture", linkedin: "https://www.linkedin.com/in/" }],
+    next: "Revisar perguntas STAR para entrevista comportamental",
+    notes: "Fit parcial mas oportunidade estratégica. Foco em liderança e expansão."
+  },
+  {
+    id: 12,
+    company: "Olist",
+    role: "Enterprise Account Executive",
+    status: "Call de alinhamento feita",
+    stage: "recruiter",
+    fit: 80,
+    link: "https://www.linkedin.com/jobs/",
+    contacts: [{ name: "Rafael Lima", role: "Recruiter", linkedin: "https://www.linkedin.com/in/" }],
+    next: "Aguardar convite para entrevista com gestor",
+    notes: "Primeira etapa positiva. Recrutador sinalizou avanço para próxima fase."
+  },
+  // ── Entrevista Gestor ──
+  {
+    id: 13,
+    company: "Creditas",
+    role: "VP of Sales",
+    status: "Entrevista com VP marcada",
+    stage: "manager",
+    fit: 90,
+    link: "https://www.linkedin.com/jobs/",
+    contacts: [{ name: "Marcos Souza", role: "Chief Revenue Officer", linkedin: "https://www.linkedin.com/in/" }],
+    next: "Preparar apresentação de plano de 90 dias",
+    notes: "Oportunidade de alto impacto. Pesquisar estratégia atual da empresa."
+  },
+  {
+    id: 14,
+    company: "Loggi",
+    role: "Head of Commercial",
+    status: "Segunda entrevista agendada",
+    stage: "manager",
+    fit: 76,
+    link: "https://www.linkedin.com/jobs/",
+    contacts: [{ name: "Fernanda Rocha", role: "COO", linkedin: "https://www.linkedin.com/in/" }],
+    next: "Levar cases de estruturação de times comerciais",
+    notes: "Gestora muito técnica. Foco em dados e processos na apresentação."
+  },
+  {
+    id: 15,
+    company: "iFood",
+    role: "Senior Business Development Manager",
+    status: "Painel com 3 gestores",
+    stage: "manager",
+    fit: 84,
+    link: "https://www.linkedin.com/jobs/",
+    contacts: [{ name: "Bruno Martins", role: "Director of Partnerships", linkedin: "https://www.linkedin.com/in/" }],
+    next: "Pesquisar cada gestor do painel no LinkedIn antes da reunião",
+    notes: "Formato painel com múltiplos stakeholders. Preparar para perguntas diversas."
+  },
+  {
+    id: 16,
+    company: "Movile",
+    role: "Regional Director — B2B",
+    status: "Entrevista técnica com gestor",
+    stage: "manager",
+    fit: 71,
+    link: "https://www.linkedin.com/jobs/",
+    contacts: [{ name: "Ana Paula Vieira", role: "VP of Business", linkedin: "https://www.linkedin.com/in/" }],
+    next: "Preparar análise de mercado B2B para apresentar",
+    notes: "Processo exigente. Diferencial será profundidade de análise estratégica."
   }
 ];
 
