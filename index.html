@@ -3313,35 +3313,48 @@ ${profile}
 DESCRIÇÃO DA VAGA-ALVO:
 ${jd}
 
-REGRAS DE OURO — siga à risca:
-
 IDIOMA: detecte o idioma da vaga e escreva o currículo inteiramente nesse idioma.
 
-ESTRUTURA (nesta ordem exata):
-1. Cabeçalho: Nome | Cargo desejado alinhado à vaga | E-mail | Telefone | LinkedIn
-2. RESUMO PROFISSIONAL — 3 linhas máximo, sem clichês ("profissional dedicado", "apaixonado por"), focado em resultados e alinhado à vaga
-3. EXPERIÊNCIA PROFISSIONAL — cronologia reversa, formato: Cargo | Empresa | Período
-4. FORMAÇÃO ACADÊMICA
-5. COMPETÊNCIAS TECNICAS — apenas skills presentes tanto no perfil quanto na vaga
+ESTRUTURA E FORMATAÇÃO — siga à risca:
 
-REGRAS DE ESCRITA:
-- Cada bullet de experiência segue a fórmula: verbo de impacto + ação + resultado mensurável. Ex: "Reduziu churn em 18% ao implementar programa de sucesso do cliente para contas enterprise"
-- Proibido: "participei de", "auxiliei em", "responsável por". Use: liderou, implementou, reduziu, aumentou, estruturou, fechou, expandiu
-- Priorize experiências e conquistas com maior sobreposição com a vaga-alvo
-- Inclua as keywords exatas da vaga que o perfil possui (para passar no ATS)
-- Máximo 1 página se menos de 8 anos de carreira, máximo 2 páginas se mais
-- Sem foto, estado civil, objetivo genérico ou informações pessoais além do contato
+BLOCO 1 — CABEÇALHO (cada item em uma linha separada):
+Linha 1: apenas o nome completo da pessoa (ex: Maria Silva)
+Linha 2: apenas o cargo desejado alinhado à vaga (ex: Gerente de Marketing Digital)
+Linha 3: e-mail | telefone | linkedin
 
-FORMATAÇÃO (crítico para renderização):
-- NÃO use asteriscos, markdown ou qualquer símbolo de formatação. Texto puro apenas.
-- Títulos de seção em MAIÚSCULAS, ex: EXPERIÊNCIA PROFISSIONAL
-- Cargo e empresa no formato: Cargo | Empresa | Período
-- Bullets com o símbolo •
-- NÃO use travessão (—) nem (–). Use vírgula ou dois-pontos.
+BLOCO 2 — RESUMO PROFISSIONAL
+Escreva o título exato: RESUMO PROFISSIONAL
+3 frases no máximo. Sem clichês ("profissional dedicado", "apaixonado por"). Foco em: quem é, o que entrega, e por que é o candidato certo para esta vaga específica. Use números e resultados reais do perfil.
 
-Ao terminar, releia como se tivesse 30 segundos para decidir se esse candidato avança. Se algo não ficou claro nesse tempo, reescreva.
+BLOCO 3 — EXPERIÊNCIA PROFISSIONAL
+Escreva o título exato: EXPERIÊNCIA PROFISSIONAL
+Para cada posição:
+- Primeira linha: Cargo | Empresa | Mês/Ano início - Mês/Ano fim
+- De 3 a 5 bullets com a fórmula obrigatória: verbo de impacto + contexto + resultado mensurável
+  Exemplos de bullets fortes:
+  • Escalou base de afiliados ativos de 120 para 999 em 6 meses, elevando GMV para R$5M
+  • Implementou estratégia de demand generation que reduziu CAC em 34% e aumentou MQL em 2x
+  • Liderou equipe de 8 pessoas na expansão LATAM, abrindo 3 novos mercados em 12 meses
+- PROIBIDO: "participei de", "auxiliei em", "responsável por", "suporte a". Use sempre: liderou, implementou, reduziu, aumentou, estruturou, fechou, expandiu, criou, triplicou, automatizou
 
-Responda APENAS com o texto do currículo. Nenhuma explicação, nenhum comentário.`;
+BLOCO 4 — FORMAÇÃO ACADEMICA
+Escreva o título exato: FORMACAO ACADEMICA
+Formato: Curso | Instituição | Ano de conclusão
+
+BLOCO 5 — COMPETENCIAS TECNICAS
+Escreva o título exato: COMPETENCIAS TECNICAS
+Liste apenas skills que aparecem tanto no perfil quanto na vaga. Uma linha por grupo temático.
+
+REGRAS ABSOLUTAS DE FORMATACAO:
+- NÃO use asteriscos (**texto**), markdown ou qualquer símbolo de formatação especial
+- NÃO use travessão (—) nem (–). Use vírgula ou dois-pontos
+- Títulos de seção em MAIÚSCULAS sem acentos
+- Bullets usam o símbolo • (ponto central)
+- Cargos e empresas usam o separador |
+
+TESTE FINAL: releia o currículo como se tivesse 30 segundos para decidir se avança ou não. Cada bullet precisa dizer claramente o que fez, como fez e qual foi o resultado. Se qualquer bullet não passa nesse teste, reescreva antes de responder.
+
+Responda APENAS com o texto do currículo. Zero explicações, zero comentários.`;
 
   try {
     const res = await fetch('/api/analyze', {
@@ -3411,35 +3424,48 @@ ${profile}
 DESCRIÇÃO DA VAGA-ALVO:
 ${jd}
 
-REGRAS DE OURO — siga à risca:
-
 IDIOMA: detecte o idioma da vaga e escreva o currículo inteiramente nesse idioma.
 
-ESTRUTURA (nesta ordem exata):
-1. Cabeçalho: Nome | Cargo desejado alinhado à vaga | E-mail | Telefone | LinkedIn
-2. RESUMO PROFISSIONAL — 3 linhas máximo, sem clichês ("profissional dedicado", "apaixonado por"), focado em resultados e alinhado à vaga
-3. EXPERIÊNCIA PROFISSIONAL — cronologia reversa, formato: Cargo | Empresa | Período
-4. FORMAÇÃO ACADÊMICA
-5. COMPETÊNCIAS TECNICAS — apenas skills presentes tanto no perfil quanto na vaga
+ESTRUTURA E FORMATAÇÃO — siga à risca:
 
-REGRAS DE ESCRITA:
-- Cada bullet de experiência segue a fórmula: verbo de impacto + ação + resultado mensurável. Ex: "Reduziu churn em 18% ao implementar programa de sucesso do cliente para contas enterprise"
-- Proibido: "participei de", "auxiliei em", "responsável por". Use: liderou, implementou, reduziu, aumentou, estruturou, fechou, expandiu
-- Priorize experiências e conquistas com maior sobreposição com a vaga-alvo
-- Inclua as keywords exatas da vaga que o perfil possui (para passar no ATS)
-- Máximo 1 página se menos de 8 anos de carreira, máximo 2 páginas se mais
-- Sem foto, estado civil, objetivo genérico ou informações pessoais além do contato
+BLOCO 1 — CABEÇALHO (cada item em uma linha separada):
+Linha 1: apenas o nome completo da pessoa (ex: Maria Silva)
+Linha 2: apenas o cargo desejado alinhado à vaga (ex: Gerente de Marketing Digital)
+Linha 3: e-mail | telefone | linkedin
 
-FORMATAÇÃO (crítico para renderização):
-- NÃO use asteriscos, markdown ou qualquer símbolo de formatação. Texto puro apenas.
-- Títulos de seção em MAIÚSCULAS, ex: EXPERIÊNCIA PROFISSIONAL
-- Cargo e empresa no formato: Cargo | Empresa | Período
-- Bullets com o símbolo •
-- NÃO use travessão (—) nem (–). Use vírgula ou dois-pontos.
+BLOCO 2 — RESUMO PROFISSIONAL
+Escreva o título exato: RESUMO PROFISSIONAL
+3 frases no máximo. Sem clichês ("profissional dedicado", "apaixonado por"). Foco em: quem é, o que entrega, e por que é o candidato certo para esta vaga específica. Use números e resultados reais do perfil.
 
-Ao terminar, releia como se tivesse 30 segundos para decidir se esse candidato avança. Se algo não ficou claro nesse tempo, reescreva.
+BLOCO 3 — EXPERIÊNCIA PROFISSIONAL
+Escreva o título exato: EXPERIÊNCIA PROFISSIONAL
+Para cada posição:
+- Primeira linha: Cargo | Empresa | Mês/Ano início - Mês/Ano fim
+- De 3 a 5 bullets com a fórmula obrigatória: verbo de impacto + contexto + resultado mensurável
+  Exemplos de bullets fortes:
+  • Escalou base de afiliados ativos de 120 para 999 em 6 meses, elevando GMV para R$5M
+  • Implementou estratégia de demand generation que reduziu CAC em 34% e aumentou MQL em 2x
+  • Liderou equipe de 8 pessoas na expansão LATAM, abrindo 3 novos mercados em 12 meses
+- PROIBIDO: "participei de", "auxiliei em", "responsável por", "suporte a". Use sempre: liderou, implementou, reduziu, aumentou, estruturou, fechou, expandiu, criou, triplicou, automatizou
 
-Responda APENAS com o texto do currículo. Nenhuma explicação, nenhum comentário.`;
+BLOCO 4 — FORMAÇÃO ACADEMICA
+Escreva o título exato: FORMACAO ACADEMICA
+Formato: Curso | Instituição | Ano de conclusão
+
+BLOCO 5 — COMPETENCIAS TECNICAS
+Escreva o título exato: COMPETENCIAS TECNICAS
+Liste apenas skills que aparecem tanto no perfil quanto na vaga. Uma linha por grupo temático.
+
+REGRAS ABSOLUTAS DE FORMATACAO:
+- NÃO use asteriscos (**texto**), markdown ou qualquer símbolo de formatação especial
+- NÃO use travessão (—) nem (–). Use vírgula ou dois-pontos
+- Títulos de seção em MAIÚSCULAS sem acentos
+- Bullets usam o símbolo • (ponto central)
+- Cargos e empresas usam o separador |
+
+TESTE FINAL: releia o currículo como se tivesse 30 segundos para decidir se avança ou não. Cada bullet precisa dizer claramente o que fez, como fez e qual foi o resultado. Se qualquer bullet não passa nesse teste, reescreva antes de responder.
+
+Responda APENAS com o texto do currículo. Zero explicações, zero comentários.`;
 
   try {
     const res = await fetch('/api/analyze', {
@@ -3572,7 +3598,17 @@ function downloadResumePDF() {
   bodyLineIndex = lineIdx;
   const bodyLines = lines.slice(bodyLineIndex);
 
-  const contactHTML = contactLines.map(c => `<span>${esc(c)}</span>`).join('<span style="margin:0 8px;color:#ccc">|</span>');
+  // Linha 1 de contactLines = cargo desejado (sem |), demais = contato (com |)
+  const titleLine = contactLines[0] && !contactLines[0].includes('@') && !contactLines[0].includes('+') && !(/\d{5,}/.test(contactLines[0])) ? contactLines[0] : null;
+  const infoLines = titleLine ? contactLines.slice(1) : contactLines;
+  const contactHTML = infoLines.map(c => {
+    // linha com pipes (email | tel | linkedin): renderiza os separadores em cor suave
+    if (c.includes('|')) {
+      const parts = c.split('|').map(p => `<span>${esc(p.trim())}</span>`);
+      return parts.join('<span style="margin:0 10px;color:#ddd">|</span>');
+    }
+    return `<span>${esc(c)}</span>`;
+  }).join('<br>');
 
   const html = `<!DOCTYPE html>
 <html>
@@ -3586,8 +3622,9 @@ function downloadResumePDF() {
 
   /* Header */
   .header { padding-bottom: 16px; margin-bottom: 4px; }
-  .name { font-size: 26pt; font-weight: 900; color: #0d0d0d; letter-spacing: -0.5px; margin-bottom: 2px; line-height: 1.1; }
-  .accent-bar { height: 4px; background: #e91e8c; width: 60px; margin: 8px 0 10px; border-radius: 2px; }
+  .name { font-size: 26pt; font-weight: 900; color: #0d0d0d; letter-spacing: -0.5px; margin-bottom: 4px; line-height: 1.1; }
+  .job-title { font-size: 12pt; font-weight: 400; color: #555; margin-bottom: 2px; letter-spacing: 0.2px; }
+  .accent-bar { height: 3px; background: #e91e8c; width: 50px; margin: 8px 0 10px; border-radius: 2px; }
   .contact { font-size: 9pt; color: #555; display: flex; gap: 0; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
 
   /* Sections */
@@ -3616,6 +3653,7 @@ function downloadResumePDF() {
 <div class="page">
   <div class="header">
     <div class="name">${esc(nameStr)}</div>
+    ${titleLine ? `<div class="job-title">${esc(titleLine)}</div>` : ''}
     <div class="accent-bar"></div>
     <div class="contact">${contactHTML}</div>
   </div>
