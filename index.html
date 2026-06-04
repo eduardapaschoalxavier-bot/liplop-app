@@ -3125,19 +3125,12 @@ function setProvider(p) {
 
 
 function initAnalyzer() {
-  const provider = localStorage.getItem(PROVIDER_KEY) || 'openai';
-  setProvider(provider);
   updateFreeCounter();
   const profile = localStorage.getItem(PROFILE_KEY);
   if (profile) {
     document.getElementById('fit-profile').value = profile;
     showProfileSaved(profile);
   }
-  const savedKey = localStorage.getItem(APIKEY_KEY + '-' + provider);
-  if (savedKey) {
-    showApiKeySaved(provider);
-  }
-  updateWarningBanner();
 }
 
 function showProfileSaved(text) {
