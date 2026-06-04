@@ -3401,7 +3401,7 @@ Responda APENAS com o texto do currículo. Zero explicações, zero comentários
     try { const p = JSON.parse(text); text = p.curriculo || p.resume || p.text || text; } catch(e) {}
     text = text.replace(/—/g, '-').replace(/–/g, '-');
     _resumeText = text;
-    _resumeOpp  = { company: 'Vaga', role: document.getElementById('fit-url')?.value || 'Analisada' };
+    _resumeOpp  = { company: '', role: 'Currículo Adaptado' };
     incFreeCount();
     showResumeModal(_resumeOpp, text);
   } catch(e) {
@@ -3575,7 +3575,7 @@ function stripMarkdown(t) {
 function showResumeModal(opp, text) {
   const clean = stripMarkdown(text);
   _resumeText = clean; // store cleaned version
-  document.getElementById('resume-modal-title').textContent = opp.role + ' — ' + opp.company;
+  document.getElementById('resume-modal-title').textContent = opp.company ? opp.role + ' — ' + opp.company : opp.role;
   document.getElementById('resume-modal-content').textContent = clean;
   document.getElementById('resume-modal').style.display = 'flex';
 }
