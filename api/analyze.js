@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  const { prompt } = req.body;
+  const { prompt, json_mode = true } = req.body;
 
   if (!prompt) {
     return res.status(400).json({ error: 'Prompt ausente' });
@@ -25,10 +25,10 @@ export default async function handler(req, res) {
         'Authorization': 'Bearer ' + process.env.OPENAI_API_KEY
       },
       body: JSON.stringify({
-        model:           'gpt-4o',
-        max_tokens:      1024,
-        messages:        [{ role: 'user', content: prompt }],
-        response_format: { type: 'json_object' }
+        model:      'gpt-4o',
+        max_tokens: 2048,
+        messages:   [{ role: 'user', content: prompt }],
+        ...(json_mode ? { response_format: { type: 'json_object' } } : {})
       })
     });
 

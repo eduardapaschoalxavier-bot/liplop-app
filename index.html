@@ -3331,7 +3331,7 @@ INSTRUÇÕES IMPORTANTES:
     const res = await fetch('/api/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
+      body: JSON.stringify({ prompt, json_mode: false })
     });
     if (!res.ok) { const err = await res.json().catch(()=>({})); throw new Error(err.error || 'Erro no servidor'); }
     const data = await res.json();
@@ -3409,7 +3409,7 @@ INSTRUÇÕES IMPORTANTES:
     const res = await fetch('/api/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
+      body: JSON.stringify({ prompt, json_mode: false })
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
