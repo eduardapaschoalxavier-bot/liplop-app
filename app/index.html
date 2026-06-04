@@ -3380,8 +3380,6 @@ async function generateResumeFromAnalysis() {
     st.textContent = '⚠ Nenhuma descrição de vaga encontrada.';
     return;
   }
-  if (!isAdmin() && getFreeRemaining() <= 0) { openPricing(); return; }
-
   btn.disabled = true;
   btn.textContent = '⏳ Gerando currículo...';
   st.style.display = 'none';
@@ -3521,10 +3519,6 @@ async function generateResume(retry = false) {
   }
 
   // Verifica cota (admin tem acesso ilimitado)
-  if (!isAdmin() && getFreeRemaining() <= 0) {
-    openPricing();
-    return;
-  }
 
   const btn = document.getElementById('btn-gen-resume');
   const st  = document.getElementById('resume-gen-status');
@@ -4019,10 +4013,6 @@ async function analyzeFit() {
   const jd       = document.getElementById('fit-jd-manual').value.trim() || _lastJD;
 
   // Verifica cota grátis (admin tem acesso ilimitado)
-  if (!isAdmin() && getFreeRemaining() <= 0) {
-    openPricing();
-    return;
-  }
 
   if (!profile) {
     showAnalyzeError('Configure seu perfil profissional primeiro — role até a seção <strong>Seu perfil profissional</strong>.');
