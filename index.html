@@ -3582,8 +3582,7 @@ Responda SOMENTE com um JSON válido neste formato exato (sem markdown, sem text
   ],
   "has": ["<ponto forte 1>", "<ponto forte 2>", "<ponto forte 3>"],
   "lacks": ["<gap 1>", "<gap 2>"],
-  "tips": ["<dica de adaptação 1>", "<dica 2>"],
-  "next": ["<próximo passo concreto 1>", "<próximo passo 2>"]
+  "tips": ["<dica específica de como adaptar o currículo ou posicionamento para passar na triagem do ATS e do recrutador para esta vaga — ex: quais keywords incluir, como reescrever o resumo, o que destacar>", "<dica 2>", "<dica 3>"]
 }`;
 
   try {
@@ -3656,8 +3655,7 @@ function renderAnalysisResult(r) {
   const blocks = [
     { key: 'has',   cls: 'has',   title: '✅ Você tem' },
     { key: 'lacks', cls: 'lacks', title: '❌ Gaps' },
-    { key: 'tips',  cls: 'tips',  title: '💡 Como adaptar' },
-    { key: 'next',  cls: 'next',  title: '🎯 Próximos passos' },
+    { key: 'tips',  cls: 'tips',  title: '💡 Como se posicionar para passar na triagem' },
   ];
   document.getElementById('result-blocks').innerHTML = blocks.map(b =>
     `<div class="fit-block ${b.cls}">
