@@ -3315,8 +3315,11 @@ INSTRUÇÕES IMPORTANTES:
 - Detecte o idioma da vaga e escreva o currículo nesse mesmo idioma
 - Destaque as keywords mais relevantes da vaga que aparecem no perfil
 - NÃO use o símbolo de travessão (—) em nenhuma parte do texto. Use vírgula, ponto ou dois-pontos no lugar
+- NÃO use asteriscos (**texto** ou *texto*) nem qualquer marcação markdown. Escreva texto puro.
 - Use marcadores (bullets com •) para listar responsabilidades e conquistas
 - Estrutura: Nome/Contato (placeholder), Resumo Profissional, Experiência, Competências, Formação
+- Nos títulos de seção escreva em MAIÚSCULAS sem asteriscos, ex: EXPERIÊNCIA PROFISSIONAL
+- Para cargo e empresa use o formato: Cargo | Empresa | Período
 - Resumo Profissional: 3 a 4 linhas destacando o que mais se conecta com a vaga
 - Experiência: reescreva as experiências priorizando as que têm mais relação com a vaga, com métricas e resultados
 - Competências: liste apenas as skills mencionadas na vaga que o perfil possui
@@ -3393,8 +3396,11 @@ INSTRUÇÕES IMPORTANTES:
 - Detecte o idioma da vaga e escreva o currículo nesse mesmo idioma
 - Destaque as keywords mais relevantes da vaga que aparecem no perfil
 - NÃO use o símbolo de travessão (—) em nenhuma parte do texto. Use vírgula, ponto ou dois-pontos no lugar
+- NÃO use asteriscos (**texto** ou *texto*) nem qualquer marcação markdown. Escreva texto puro.
 - Use marcadores (bullets com •) para listar responsabilidades e conquistas
 - Estrutura: Nome/Contato (placeholder), Resumo Profissional, Experiência, Competências, Formação
+- Nos títulos de seção escreva em MAIÚSCULAS sem asteriscos, ex: EXPERIÊNCIA PROFISSIONAL
+- Para cargo e empresa use o formato: Cargo | Empresa | Período
 - Resumo Profissional: 3 a 4 linhas destacando o que mais se conecta com a vaga
 - Experiência: reescreva as experiências priorizando as que têm mais relação com a vaga, com métricas e resultados
 - Competências: liste apenas as skills mencionadas na vaga que o perfil possui
@@ -3431,9 +3437,20 @@ INSTRUÇÕES IMPORTANTES:
   }
 }
 
+function stripMarkdown(t) {
+  return t
+    .replace(/\*\*\*(.+?)\*\*\*/g, '$1')
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/—/g, '-').replace(/–/g, '-');
+}
+
 function showResumeModal(opp, text) {
+  const clean = stripMarkdown(text);
+  _resumeText = clean; // store cleaned version
   document.getElementById('resume-modal-title').textContent = opp.role + ' — ' + opp.company;
-  document.getElementById('resume-modal-content').textContent = text;
+  document.getElementById('resume-modal-content').textContent = clean;
   document.getElementById('resume-modal').style.display = 'flex';
 }
 
@@ -3445,41 +3462,78 @@ document.getElementById('resume-modal').addEventListener('click', function(e) {
 });
 
 function downloadResumePDF() {
-  const text = _resumeText;
+  const rawText = _resumeText;
   const opp  = _resumeOpp;
+
+  // Strip any remaining markdown just in case
+  const text = stripMarkdown(rawText);
 
   // Parseia o texto em linhas e identifica seções
   const lines = text.split('\n');
-  const SECTION_KEYWORDS = /^(SUMMARY|RESUMO|EXPERIENCE|EXPERIÊNCIA|SKILLS|COMPETÊNCIAS|HABILIDADES|EDUCATION|FORMAÇÃO|OBJECTIVE|OBJETIVO|PROFILE|PERFIL|LANGUAGES|IDIOMAS|CERTIFICATIONS|CERTIFICAÇÕES)/i;
+  const SECTION_KEYWORDS = /^(SUMMARY|RESUMO|EXPERIENCE|EXPERIÊNCIA|SKILLS|COMPETÊNCIAS|HABILIDADES|EDUCATION|FORMAÇÃO|OBJECTIVE|OBJETIVO|PROFILE|PERFIL|LANGUAGES|IDIOMAS|CERTIFICATIONS|CERTIFICAÇÕES|PROFESSIONAL SUMMARY|PROFESSIONAL EXPERIENCE|EDUCATION AND TRAINING|KEY SKILLS)/i;
+
+  function esc(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
 
   function formatLines(lines) {
-    return lines.map(line => {
+    const out = [];
+    let inUl = false;
+    for (const line of lines) {
       const t = line.trim();
-      if (!t) return '<div style="height:8px"></div>';
-      if (SECTION_KEYWORDS.test(t)) {
-        return `<div class="section-title">${t}</div>`;
+      if (!t) {
+        if (inUl) { out.push('</ul>'); inUl = false; }
+        out.push('<div style="height:6px"></div>');
+        continue;
       }
-      // Linha de cargo/empresa (contém | ou · ou –)
-      if (/[|·]/.test(t) && t.length < 100 && !t.startsWith('•') && !t.startsWith('·')) {
-        return `<div class="job-header">${t.replace(/[|·]/g, '<span class="sep"> · </span>')}</div>`;
+      if (SECTION_KEYWORDS.test(t)) {
+        if (inUl) { out.push('</ul>'); inUl = false; }
+        out.push(`<div class="section-title">${esc(t)}</div>`);
+        continue;
+      }
+      // Linha de cargo/empresa (contém |)
+      if (/\|/.test(t) && t.length < 120 && !t.startsWith('•')) {
+        if (inUl) { out.push('</ul>'); inUl = false; }
+        const parts = t.split('|').map(p => esc(p.trim()));
+        out.push(`<div class="job-header">${parts.join('<span class="sep"> | </span>')}</div>`);
+        continue;
       }
       // Bullet
-      if (t.startsWith('•') || t.startsWith('-') || t.startsWith('n ')) {
-        const content = t.replace(/^[•\-n]\s*/, '');
-        return `<li>${content}</li>`;
+      if (t.startsWith('•') || t.startsWith('- ') || t.startsWith('* ')) {
+        if (!inUl) { out.push('<ul>'); inUl = true; }
+        const content = esc(t.replace(/^[•\-\*]\s*/, ''));
+        out.push(`<li>${content}</li>`);
+        continue;
       }
-      // Nome (primeira linha não vazia provavelmente é o nome)
-      return `<p>${t}</p>`;
-    }).join('');
+      if (inUl) { out.push('</ul>'); inUl = false; }
+      out.push(`<p>${esc(t)}</p>`);
+    }
+    if (inUl) out.push('</ul>');
+    return out.join('\n');
   }
 
   // Detecta nome (primeira linha não vazia)
-  const firstLine = lines.find(l => l.trim());
-  // Detecta linha de contato (segunda linha não vazia)
-  const secondLine = lines.filter(l => l.trim())[1] || '';
-  const thirdLine  = lines.filter(l => l.trim())[2] || '';
+  const nonEmpty = lines.filter(l => l.trim());
+  const firstLine  = nonEmpty[0] || '';
+  const secondLine = nonEmpty[1] || '';
+  const thirdLine  = nonEmpty[2] || '';
 
-  const bodyLines = lines.slice(lines.findIndex(l => l.trim() === thirdLine) + 1);
+  // Se a terceira linha parece contato (tem @ ou linkedin ou +), inclui no header
+  const isContact = (s) => /@|linkedin|github|\+\d|\d{8,}/i.test(s);
+  let headerLines = [firstLine];
+  let bodyStart = 1;
+  // Collect up to 3 contact-like lines
+  for (let i = 1; i < Math.min(4, nonEmpty.length); i++) {
+    if (isContact(nonEmpty[i]) || (i < 3 && !SECTION_KEYWORDS.test(nonEmpty[i]) && nonEmpty[i].length < 120)) {
+      headerLines.push(nonEmpty[i]);
+      bodyStart = i + 1;
+    } else break;
+  }
+  const contactLines = headerLines.slice(1);
+  const nameStr = headerLines[0];
+  const bodyLines = lines.slice(lines.findIndex(l => l.trim() === (nonEmpty[bodyStart] || '')) );
+
+  const contactHTML = contactLines.map(c => `<span>${esc(c)}</span>`).join('<span style="margin:0 8px;color:#ccc">|</span>');
 
   const html = `<!DOCTYPE html>
 <html>
@@ -3488,52 +3542,51 @@ function downloadResumePDF() {
 <title>Currículo</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10pt; color: #1a1a1a; background: #fff; }
-  .page { max-width: 780px; margin: 0 auto; padding: 36px 44px; }
+  body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10.5pt; color: #1a1a1a; background: #fff; }
+  .page { max-width: 800px; margin: 0 auto; padding: 40px 48px; }
 
   /* Header */
-  .header { border-bottom: 3px solid #e91e8c; padding-bottom: 14px; margin-bottom: 18px; }
-  .name { font-size: 22pt; font-weight: 800; color: #0d0d0d; letter-spacing: -0.5px; margin-bottom: 4px; }
-  .tagline { font-size: 10pt; color: #555; margin-bottom: 6px; }
-  .contact { font-size: 9pt; color: #666; display: flex; gap: 16px; flex-wrap: wrap; }
-  .contact span { display: flex; align-items: center; gap: 4px; }
+  .header { padding-bottom: 16px; margin-bottom: 4px; }
+  .name { font-size: 26pt; font-weight: 900; color: #0d0d0d; letter-spacing: -0.5px; margin-bottom: 2px; line-height: 1.1; }
+  .accent-bar { height: 4px; background: #e91e8c; width: 60px; margin: 8px 0 10px; border-radius: 2px; }
+  .contact { font-size: 9pt; color: #555; display: flex; gap: 0; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
 
   /* Sections */
   .section-title {
-    font-size: 9pt; font-weight: 800; letter-spacing: 1.5px;
+    font-size: 8.5pt; font-weight: 900; letter-spacing: 2px;
     text-transform: uppercase; color: #e91e8c;
-    border-bottom: 1px solid #f0d0e4; padding-bottom: 4px;
-    margin-top: 18px; margin-bottom: 8px;
+    border-bottom: 2px solid #e91e8c; padding-bottom: 4px;
+    margin-top: 22px; margin-bottom: 10px;
   }
-  .job-header { font-weight: 700; font-size: 10pt; color: #111; margin: 10px 0 3px; }
-  .sep { color: #e91e8c; font-weight: 400; }
-  p { margin: 3px 0; line-height: 1.55; color: #333; }
-  ul { padding-left: 16px; margin: 4px 0; }
-  li { margin: 3px 0; line-height: 1.5; color: #333; list-style: none; padding-left: 10px; position: relative; }
-  li::before { content: "•"; color: #e91e8c; position: absolute; left: 0; }
+  .job-header { font-weight: 700; font-size: 10.5pt; color: #111; margin: 12px 0 2px; }
+  .sep { color: #e91e8c; font-weight: 400; margin: 0 2px; }
+  p { margin: 4px 0; line-height: 1.6; color: #333; font-size: 10pt; }
+  ul { padding-left: 0; margin: 5px 0 8px; list-style: none; }
+  li { margin: 3px 0; line-height: 1.55; color: #333; font-size: 10pt; padding-left: 14px; position: relative; }
+  li::before { content: "•"; color: #e91e8c; position: absolute; left: 0; font-size: 12pt; line-height: 1.3; }
 
   /* Print */
   @media print {
-    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .page { padding: 20px 32px; }
-    .no-print { display: none; }
+    @page { margin: 15mm 18mm; }
+    body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    .no-print { display: none !important; }
   }
 </style>
 </head>
 <body>
 <div class="page">
   <div class="header">
-    <div class="name">${firstLine || ''}</div>
-    <div class="tagline">${thirdLine || ''}</div>
-    <div class="contact"><span>${secondLine || ''}</span></div>
+    <div class="name">${esc(nameStr)}</div>
+    <div class="accent-bar"></div>
+    <div class="contact">${contactHTML}</div>
   </div>
   <div class="body-content">
     ${formatLines(bodyLines)}
   </div>
-  <div class="no-print" style="margin-top:24px;text-align:center;padding:16px;background:#fdf0f7;border-radius:8px">
-    <p style="color:#555;font-size:9pt;margin-bottom:10px">Para salvar como PDF: <strong>Ctrl+P</strong> (ou Cmd+P) → Destino: <strong>Salvar como PDF</strong> → Salvar</p>
-    <button onclick="window.print()" style="background:#e91e8c;color:#fff;border:none;padding:10px 28px;border-radius:6px;font-size:10pt;font-weight:700;cursor:pointer">
-      Imprimir / Salvar PDF
+  <div class="no-print" style="margin-top:28px;text-align:center;padding:16px;background:#fdf0f7;border-radius:8px;border:1px solid #f9c8e5">
+    <p style="color:#555;font-size:9pt;margin-bottom:12px">Para salvar como PDF: <strong>Ctrl+P</strong> (Windows) ou <strong>Cmd+P</strong> (Mac) → Destino: <strong>Salvar como PDF</strong> → Sem margens → Salvar</p>
+    <button onclick="window.print()" style="background:#e91e8c;color:#fff;border:none;padding:10px 32px;border-radius:6px;font-size:10pt;font-weight:700;cursor:pointer;letter-spacing:0.5px">
+      ⬇ Salvar como PDF
     </button>
   </div>
 </div>
@@ -3541,6 +3594,7 @@ function downloadResumePDF() {
 </html>`;
 
   const win = window.open('', '_blank');
+  if (!win) { alert('Permita pop-ups para este site e tente novamente.'); return; }
   win.document.write(html);
   win.document.close();
 }
