@@ -2008,7 +2008,22 @@
     </button>
   </nav>
 
-  <div class="topbar-right">
+  <div class="topbar-right" style="display:flex;align-items:center;gap:8px">
+    <button onclick="exportData()" title="Exportar dados"
+      style="background:none;border:1px solid var(--border);color:var(--dim);border-radius:6px;padding:4px 10px;font-size:0.72rem;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:4px"
+      onmouseover="this.style.borderColor='var(--rose-s)';this.style.color='var(--text)'"
+      onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dim)'">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Exportar
+    </button>
+    <label title="Importar dados"
+      style="background:none;border:1px solid var(--border);color:var(--dim);border-radius:6px;padding:4px 10px;font-size:0.72rem;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:4px"
+      onmouseover="this.style.borderColor='var(--rose-s)';this.style.color='var(--text)'"
+      onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dim)'">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Importar
+      <input type="file" accept=".json" style="display:none" onchange="importData(this)">
+    </label>
     <span class="topbar-badge" id="topbar-count">— vagas</span>
   </div>
 </header>
@@ -3887,6 +3902,42 @@ function downloadResumePDF() {
 
 // ── Modal Boas-vindas ─────────────────────────────────────────
 const WELCOME_KEY = 'liplop_welcome_v1';
+
+function exportData() {
+  const data = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    opps: localStorage.getItem(STORAGE_KEY) || '[]',
+    profile: localStorage.getItem(PROFILE_KEY) || '',
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `liplop-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.opps) throw new Error('Arquivo inválido');
+      if (!confirm(`Importar ${JSON.parse(data.opps).length} vagas? Os dados atuais serão substituídos.`)) return;
+      localStorage.setItem(STORAGE_KEY, data.opps);
+      if (data.profile) localStorage.setItem(PROFILE_KEY, data.profile);
+      location.reload();
+    } catch (err) {
+      alert('Erro ao importar: arquivo inválido ou corrompido.');
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
 function showWelcomeIfNeeded() {
   if (!localStorage.getItem(WELCOME_KEY)) {
     const m = document.getElementById('welcome-modal');
