@@ -3512,26 +3512,31 @@ function downloadResumePDF() {
     return out.join('\n');
   }
 
-  // Detecta nome (primeira linha não vazia)
-  const nonEmpty = lines.filter(l => l.trim());
-  const firstLine  = nonEmpty[0] || '';
-  const secondLine = nonEmpty[1] || '';
-  const thirdLine  = nonEmpty[2] || '';
+  // Detecta nome e linhas de contato (primeiras linhas antes da primeira seção)
+  const isContact = (s) => /@|linkedin|github|\+\d|\d{8,}|\.com/i.test(s);
+  let nameStr = '';
+  let contactLines = [];
+  let bodyLineIndex = 0; // index in `lines` where body starts
 
-  // Se a terceira linha parece contato (tem @ ou linkedin ou +), inclui no header
-  const isContact = (s) => /@|linkedin|github|\+\d|\d{8,}/i.test(s);
-  let headerLines = [firstLine];
-  let bodyStart = 1;
-  // Collect up to 3 contact-like lines
-  for (let i = 1; i < Math.min(4, nonEmpty.length); i++) {
-    if (isContact(nonEmpty[i]) || (i < 3 && !SECTION_KEYWORDS.test(nonEmpty[i]) && nonEmpty[i].length < 120)) {
-      headerLines.push(nonEmpty[i]);
-      bodyStart = i + 1;
+  // Find first non-empty line (name)
+  let lineIdx = 0;
+  while (lineIdx < lines.length && !lines[lineIdx].trim()) lineIdx++;
+  if (lineIdx < lines.length) { nameStr = lines[lineIdx].trim(); lineIdx++; }
+
+  // Collect contact lines: non-section lines under 150 chars before first section keyword
+  let headerCount = 0;
+  while (lineIdx < lines.length && headerCount < 4) {
+    const t = lines[lineIdx].trim();
+    if (!t) { lineIdx++; continue; }
+    if (SECTION_KEYWORDS.test(t)) break; // reached body
+    if (t.length < 150 && !t.startsWith('•')) {
+      contactLines.push(t);
+      lineIdx++;
+      headerCount++;
     } else break;
   }
-  const contactLines = headerLines.slice(1);
-  const nameStr = headerLines[0];
-  const bodyLines = lines.slice(lines.findIndex(l => l.trim() === (nonEmpty[bodyStart] || '')) );
+  bodyLineIndex = lineIdx;
+  const bodyLines = lines.slice(bodyLineIndex);
 
   const contactHTML = contactLines.map(c => `<span>${esc(c)}</span>`).join('<span style="margin:0 8px;color:#ccc">|</span>');
 
