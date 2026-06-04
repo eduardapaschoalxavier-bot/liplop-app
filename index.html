@@ -1968,18 +1968,6 @@
       </div>
     </div>
 
-    <!-- Banner de aviso: chave não configurada -->
-    <div class="fit-banner-warn" id="fit-no-key-banner">
-      <div class="fit-banner-icon">⚠️</div>
-      <div class="fit-banner-body">
-        <strong>Configure sua chave de IA para usar esta função</strong>
-        <span>A análise de fit usa inteligência artificial externa. Você precisa de uma chave de API — é gratuito para começar e custa centavos por análise.</span>
-      </div>
-      <button class="fit-banner-cta" onclick="document.getElementById('fit-apikey-section').scrollIntoView({behavior:'smooth'});document.getElementById('fit-apikey').focus()">
-        Configurar agora →
-      </button>
-    </div>
-
     <!-- Vaga — PRIMEIRO -->
     <div class="fit-section">
       <div class="fit-section-header">
@@ -2091,55 +2079,6 @@
         </div>
       </div>
       <div class="fit-status" id="fit-profile-status"></div>
-    </div>
-
-    <!-- API Key + Provider -->
-    <div class="fit-section" id="fit-apikey-section">
-      <div class="fit-section-header">
-        <span class="fit-section-title">🔑 Chave de IA</span>
-        <span class="fit-info-icon" id="fit-info-icon">
-          ⓘ
-          <div class="fit-tooltip" id="fit-tooltip">
-            <strong id="tooltip-title">Como obter sua chave — OpenAI</strong>
-            <ol id="tooltip-steps">
-              <li>Acesse <strong>platform.openai.com</strong></li>
-              <li>Faça login ou crie uma conta gratuita</li>
-              <li>No menu lateral, clique em <strong>API Keys</strong></li>
-              <li>Clique em <strong>"Create new secret key"</strong></li>
-              <li>Copie a chave e cole no campo abaixo</li>
-            </ol>
-            <p class="tooltip-note">A chave começa com <code>sk-</code> e fica salva só no seu browser.</p>
-          </div>
-        </span>
-      </div>
-
-      <!-- Estado salvo (colapsado) -->
-      <div class="profile-saved" id="apikey-saved-view">
-        <div class="profile-saved-text">
-          <strong>✓ salvo</strong><span id="apikey-provider-label"></span>
-        </div>
-        <button class="btn-profile-edit" onclick="editApiKey()">✏️ Editar</button>
-      </div>
-
-      <!-- Estado editando -->
-      <div id="apikey-edit-view">
-        <!-- Provider toggle -->
-        <div class="provider-toggle">
-          <button class="provider-btn active" id="btn-provider-openai" onclick="setProvider('openai')">GPT-4o · OpenAI</button>
-          <button class="provider-btn" id="btn-provider-claude" onclick="setProvider('claude')">Claude · Anthropic</button>
-        </div>
-
-        <!-- Link de obter chave -->
-        <a class="btn-get-apikey" id="btn-get-apikey-link" href="https://platform.openai.com/api-keys" target="_blank">
-          🔗 Abrir painel da OpenAI e pegar minha chave
-        </a>
-
-        <div class="fit-api-row" style="margin-top:10px">
-          <input class="fit-input" id="fit-apikey" type="password" placeholder="sk-..." />
-          <button class="btn-fit-fetch" onclick="saveApiKey()">Salvar</button>
-        </div>
-        <div class="fit-status" id="fit-apikey-status"></div>
-      </div>
     </div>
 
   </div>
@@ -3442,14 +3381,11 @@ async function analyzeFit() {
   const prevErr = document.getElementById('analyze-error');
   if (prevErr) prevErr.style.display = 'none';
 
-  const provider = localStorage.getItem(PROVIDER_KEY) || 'openai';
-  const apiKey   = localStorage.getItem(APIKEY_KEY + '-' + provider);
-  const hasOwnKey = apiKey && !apiKey.startsWith('*');
   const profile  = localStorage.getItem(PROFILE_KEY) || document.getElementById('fit-profile').value.trim();
   const jd       = document.getElementById('fit-jd-manual').value.trim() || _lastJD;
 
-  // Sem chave própria: verifica cota grátis (admin tem acesso ilimitado)
-  if (!hasOwnKey && !isAdmin() && getFreeRemaining() <= 0) {
+  // Verifica cota grátis (admin tem acesso ilimitado)
+  if (!isAdmin() && getFreeRemaining() <= 0) {
     openPricing();
     return;
   }
@@ -3498,51 +3434,19 @@ Responda SOMENTE com um JSON válido neste formato exato (sem markdown, sem text
   try {
     let raw;
 
-    if (hasOwnKey) {
-      // Modo chave própria: chama API diretamente
-      const endpoint = provider === 'openai'
-        ? 'https://api.openai.com/v1/chat/completions'
-        : 'https://api.anthropic.com/v1/messages';
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(provider === 'openai'
-            ? { 'Authorization': 'Bearer ' + apiKey }
-            : { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' })
-        },
-        body: JSON.stringify(provider === 'openai' ? {
-          model: 'gpt-4o', max_tokens: 1024,
-          messages: [{ role: 'user', content: prompt }],
-          response_format: { type: 'json_object' }
-        } : {
-          model: 'claude-opus-4-5', max_tokens: 1024,
-          messages: [{ role: 'user', content: prompt }]
-        })
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error?.message || 'Erro na API (' + res.status + ')');
-      }
-      const data = await res.json();
-      raw = provider === 'openai'
-        ? data.choices[0].message.content.trim()
-        : data.content[0].text.trim();
-    } else {
-      // Modo grátis: chama backend Vercel
-      const res = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt })
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || 'Erro no servidor (' + res.status + ')');
-      }
-      const data = await res.json();
-      raw = data.result;
-      incFreeCount(); // só conta quando deu certo
+    // Sempre usa o backend Vercel
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Erro no servidor (' + res.status + ')');
     }
+    const data = await res.json();
+    raw = data.result;
+    incFreeCount(); // só conta quando deu certo
 
     const json = JSON.parse(raw.replace(/^```json?\n?/, '').replace(/\n?```$/, ''));
     _lastAnalysis = json;
