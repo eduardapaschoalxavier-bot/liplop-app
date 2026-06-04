@@ -2062,27 +2062,20 @@
       <div class="fit-step-header">
         <div class="fit-step-number" id="step2-num">2</div>
         <div>
-          <div class="fit-step-title">Cole a vaga</div>
-          <div class="fit-section-hint">Link do LinkedIn ou texto direto</div>
+          <div class="fit-step-title">Cole a descrição da vaga</div>
+          <div class="fit-section-hint">Copie do LinkedIn, Gupy ou qualquer portal</div>
         </div>
       </div>
 
-      <div class="fit-url-row">
-        <input class="fit-input" id="fit-url" type="url" placeholder="https://linkedin.com/jobs/view/..." />
-        <button class="btn-fit-fetch" id="btn-fetch-jd" onclick="fetchJobDescription()">Buscar</button>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:0.78rem;color:var(--dim);line-height:1.5">
+        📋 Abra a vaga no LinkedIn → selecione todo o texto da descrição → cole aqui
       </div>
-      <div class="fit-status" id="fit-fetch-status"></div>
-      <div class="fit-jd-preview" id="fit-jd-preview"></div>
 
-      <div id="manual-jd-toggle" style="margin-top:10px">
-        <button onclick="toggleManualJD()" style="background:none;border:none;color:var(--dim);font-size:0.78rem;cursor:pointer;padding:0;text-decoration:underline">
-          Ou cole o texto da vaga manualmente
-        </button>
-      </div>
-      <div id="manual-jd-wrap" style="display:none;margin-top:8px">
-        <textarea class="fit-textarea" id="fit-jd-manual" rows="4"
-          placeholder="Cole aqui a descrição completa da vaga..."></textarea>
-      </div>
+      <textarea class="fit-textarea" id="fit-jd-manual" rows="6"
+        placeholder="Cole aqui a descrição completa da vaga..."></textarea>
+
+      <div class="fit-status" id="fit-fetch-status"></div>
+      <div id="fit-jd-preview" style="display:none"></div>
     </div>
 
     <!-- Contador de análises grátis -->
@@ -4020,8 +4013,8 @@ async function analyzeFit() {
     return;
   }
   if (!jd) {
-    showAnalyzeError('Busque ou cole a descrição da vaga antes de analisar.');
-    document.getElementById('fit-url').focus();
+    showAnalyzeError('Cole a descrição da vaga antes de analisar.');
+    document.getElementById('fit-jd-manual').focus();
     return;
   }
 
