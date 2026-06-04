@@ -3272,8 +3272,10 @@ async function extractProfilePDF(input) {
     ta.value = fullText;
     ta.style.display = 'block';
     document.getElementById('profile-save-btn').style.display = 'flex';
+    // Auto-salva imediatamente
+    localStorage.setItem(PROFILE_KEY, fullText);
     st.className = 'fit-status ok';
-    st.textContent = '✓ PDF extraído! Confira o texto e clique em Salvar perfil.';
+    st.textContent = '✓ PDF extraído e perfil salvo automaticamente! Você pode editar abaixo se quiser.';
   } catch(e) {
     st.className = 'fit-status error';
     st.textContent = '✗ Não foi possível ler o PDF: ' + e.message;
