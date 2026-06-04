@@ -1990,11 +1990,17 @@
       <!-- Blocos -->
       <div class="fit-blocks" id="result-blocks"></div>
 
-      <!-- Salvar no kanban -->
-      <div class="fit-save-row">
+      <!-- Salvar no kanban + Gerar currículo -->
+      <div class="fit-save-row" style="display:flex;flex-direction:column;gap:10px">
         <button class="btn-fit-save" id="btn-save-to-kanban" onclick="saveAnalysisToKanban()">
           + Salvar no Kanban com esse score
         </button>
+        <button class="btn-fit-save" id="btn-gen-resume-from-analysis" onclick="generateResumeFromAnalysis()"
+          style="background:transparent;border:2px solid #f472b6;color:#f472b6"
+          onmouseover="this.style.background='rgba(244,114,182,0.1)'" onmouseout="this.style.background='transparent'">
+          ✨ Gerar currículo adaptado para esta vaga
+        </button>
+        <div id="resume-analysis-status" style="font-size:12px;color:#718096;text-align:center;display:none"></div>
       </div>
     </div>
 
@@ -3275,6 +3281,73 @@ async function extractProfilePDF(input) {
   input.value = '';
 }
 
+
+// Geração de currículo a partir da tela de análise de fit
+async function generateResumeFromAnalysis() {
+  const jd = document.getElementById('fit-jd-manual').value.trim() || _lastJD;
+  const profile = localStorage.getItem(PROFILE_KEY);
+  const btn = document.getElementById('btn-gen-resume-from-analysis');
+  const st  = document.getElementById('resume-analysis-status');
+
+  if (!profile) {
+    st.style.display = 'block';
+    st.textContent = '⚠ Configure seu perfil primeiro em Configurações.';
+    return;
+  }
+  if (!jd) {
+    st.style.display = 'block';
+    st.textContent = '⚠ Nenhuma descrição de vaga encontrada.';
+    return;
+  }
+  if (!isAdmin() && getFreeRemaining() <= 0) { openPricing(); return; }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Gerando currículo...';
+  st.style.display = 'none';
+
+  const prompt = `Você é um especialista em carreira e recrutamento. Gere um currículo profissional adaptado especificamente para a vaga abaixo.
+
+PERFIL DA CANDIDATA:
+${profile}
+
+DESCRIÇÃO DA VAGA:
+${jd}
+
+INSTRUÇÕES IMPORTANTES:
+- Detecte o idioma da vaga e escreva o currículo nesse mesmo idioma
+- Destaque as keywords mais relevantes da vaga que aparecem no perfil
+- NÃO use o símbolo de travessão (—) em nenhuma parte do texto. Use vírgula, ponto ou dois-pontos no lugar
+- Use marcadores (bullets com •) para listar responsabilidades e conquistas
+- Estrutura: Nome/Contato (placeholder), Resumo Profissional, Experiência, Competências, Formação
+- Resumo Profissional: 3 a 4 linhas destacando o que mais se conecta com a vaga
+- Experiência: reescreva as experiências priorizando as que têm mais relação com a vaga, com métricas e resultados
+- Competências: liste apenas as skills mencionadas na vaga que o perfil possui
+- Tom: direto, profissional, sem floreios
+- Responda APENAS com o texto do currículo, sem explicações adicionais`;
+
+  try {
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+    if (!res.ok) { const err = await res.json().catch(()=>({})); throw new Error(err.error || 'Erro no servidor'); }
+    const data = await res.json();
+    let text = data.result || '';
+    try { const p = JSON.parse(text); text = p.curriculo || p.resume || p.text || text; } catch(e) {}
+    text = text.replace(/—/g, '-').replace(/–/g, '-');
+    _resumeText = text;
+    _resumeOpp  = { company: 'Vaga', role: document.getElementById('fit-url')?.value || 'Analisada' };
+    incFreeCount();
+    showResumeModal(_resumeOpp, text);
+  } catch(e) {
+    st.style.display = 'block';
+    st.textContent = '✗ Erro: ' + e.message;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '✨ Gerar currículo adaptado para esta vaga';
+  }
+}
 
 // ── Geração de Currículo Adaptado ─────────────────────────────
 let _resumeText = '';
