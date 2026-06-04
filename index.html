@@ -1970,7 +1970,7 @@
     </div>
 
     <!-- Contador de análises grátis -->
-    <div class="free-counter" id="free-counter" style="display:none"></div>
+    <div id="free-counter" style="display:none"></div>
 
     <!-- Botão analisar -->
     <button class="btn-fit-analyze" id="btn-analyze" onclick="analyzeFit()">
@@ -2253,8 +2253,8 @@ const STORAGE_KEY_V1 = 'job-crm-opps-v1';
 const APIKEY_KEY    = 'liplop-apikey';
 const PROFILE_KEY   = 'liplop-profile';
 const PROVIDER_KEY  = 'liplop-provider';
-const FREE_KEY      = 'liplop-free-count';
-const FREE_LIMIT    = 3;
+const FREE_KEY      = 'liplop-free-count'; // mantido por compatibilidade
+const FREE_LIMIT    = 0; // free trial desativado
 const ADMIN_KEY     = 'liplop-admin';
 
 // Modo admin — acesso via ?admin=duda2026
@@ -3896,25 +3896,12 @@ function showAnalyzeError(msg) {
   errEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-function getFreeCount() { return parseInt(localStorage.getItem(FREE_KEY) || '0'); }
-function incFreeCount() { localStorage.setItem(FREE_KEY, getFreeCount() + 1); updateFreeCounter(); }
-function getFreeRemaining() { return Math.max(0, FREE_LIMIT - getFreeCount()); }
-
+function getFreeCount() { return 0; }
+function incFreeCount() {}
+function getFreeRemaining() { return 0; }
 function updateFreeCounter() {
   const el = document.getElementById('free-counter');
-  if (!el) return;
-  const rem = getFreeRemaining();
-  const apiKey = localStorage.getItem(APIKEY_KEY + '-' + (localStorage.getItem(PROVIDER_KEY) || 'openai'));
-  const hasOwnKey = apiKey && !apiKey.startsWith('*');
-  if (hasOwnKey || isAdmin()) { el.style.display = 'none'; return; }
-  el.style.display = 'flex';
-  if (rem > 0) {
-    el.innerHTML = `<span>✦ <strong>${rem} análise${rem > 1 ? 's' : ''} grátis</strong> restante${rem > 1 ? 's' : ''}</span>`;
-    el.className = 'free-counter free-counter-ok';
-  } else {
-    el.innerHTML = `<span>Suas análises grátis acabaram — <a href="mailto:liplop@app.com" style="color:var(--rose)">entre em contato para continuar</a> ou configure sua própria chave abaixo.</span>`;
-    el.className = 'free-counter free-counter-empty';
-  }
+  if (el) el.style.display = 'none';
 }
 
 async function analyzeFit() {
