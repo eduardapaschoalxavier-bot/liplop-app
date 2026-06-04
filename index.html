@@ -3303,9 +3303,9 @@ async function generateResumeFromAnalysis() {
   btn.textContent = '⏳ Gerando currículo...';
   st.style.display = 'none';
 
-  const prompt = `Você é um especialista em recrutamento com mais de 15 anos de experiência triando currículos para empresas de médio e grande porte. Você já avaliou mais de 50.000 currículos e sabe exatamente o que faz um recrutador parar de ler — e o que faz ele ligar.
+  const prompt = `Você é um especialista em carreira e recrutamento com 15+ anos de experiência. Você já avaliou mais de 50.000 currículos e sabe exatamente o que faz um recrutador parar de ler — e o que faz ele ligar.
 
-Sua missão agora é gerar um currículo que: (1) passe pelo filtro do ATS e (2) prenda a atenção humana nos primeiros 6 segundos.
+Sua missão é construir um currículo que funciona como um documento de vendas com evidências, não como um histórico de vida. Cada linha precisa responder à pergunta implícita do recrutador: "por que esse candidato vai resolver meu problema?"
 
 PERFIL DO CANDIDATO (extraído do LinkedIn):
 ${profile}
@@ -3315,49 +3315,77 @@ ${jd}
 
 IDIOMA: detecte o idioma da vaga e escreva o currículo inteiramente nesse idioma.
 
-ESTRUTURA E FORMATAÇÃO — siga à risca:
+=== PIPELINE DE CONSTRUÇÃO — execute em ordem ===
 
-BLOCO 1 — CABEÇALHO (cada item em uma linha separada):
-Linha 1: apenas o nome completo da pessoa (ex: Maria Silva)
-Linha 2: apenas o cargo desejado alinhado à vaga (ex: Gerente de Marketing Digital)
+PASSO 1 — LEIA A VAGA POR INTENÇÃO, NÃO SÓ POR KEYWORDS
+Pergunte-se antes de escrever:
+- O que o recrutador realmente precisa resolver?
+- Qual é o perfil implícito que eles buscam? (player-coach? estrategista? executor?)
+- O que elimina um candidato nessa vaga? (só gestão sem resultado? falta de escala?)
+
+PASSO 2 — MAPEIE O PERFIL PELO QUE ELE PROVA, NÃO PELO QUE DIZ
+- Ignore os títulos, leia as conquistas reais
+- Separe o que é responsabilidade do que é resultado
+- Identifique o padrão de carreira dominante (constrói do zero? escala? lidera transformação?)
+
+PASSO 3 — FAÇA O MATCHING POR EVIDÊNCIA
+Para cada requisito da vaga, encontre a prova mais forte no perfil:
+- Priorize experiências com maior densidade de evidência para essa vaga específica
+- Se há um resultado que responde diretamente a um KPI da vaga, ele vai para o topo
+- Corte tudo que não responde a nenhuma necessidade da vaga
+
+PASSO 4 — MONTE O CURRÍCULO NESTA ESTRUTURA EXATA:
+
+BLOCO 1 — CABEÇALHO (cada item em uma linha separada, sem misturar):
+Linha 1: apenas o nome completo
+Linha 2: apenas o cargo alinhado à vaga (título exato ou próximo ao da JD)
 Linha 3: e-mail | telefone | linkedin
 
-BLOCO 2 — RESUMO PROFISSIONAL
-Escreva o título exato: RESUMO PROFISSIONAL
-3 frases no máximo. Sem clichês ("profissional dedicado", "apaixonado por"). Foco em: quem é, o que entrega, e por que é o candidato certo para esta vaga específica. Use números e resultados reais do perfil.
+BLOCO 2 — título exato: RESUMO PROFISSIONAL
+3 frases. Primeira frase: o número ou resultado mais forte do perfil que conecta com a vaga. Segunda: padrão de carreira + escopo de atuação. Terceira: fit implícito com o que a vaga precisa resolver.
+Sem clichês ("profissional dedicado", "apaixonado por", "vasta experiência").
 
-BLOCO 3 — EXPERIÊNCIA PROFISSIONAL
-Escreva o título exato: EXPERIÊNCIA PROFISSIONAL
+BLOCO 3 — título exato: EXPERIÊNCIA PROFISSIONAL
+Ordem por relevância para a vaga (não puramente cronológica se uma experiência mais recente conecta melhor).
 Para cada posição:
-- Primeira linha: Cargo | Empresa | Mês/Ano início - Mês/Ano fim
-- De 3 a 5 bullets por posição. Fórmula obrigatória: verbo direto + o que fez + resultado com número
+- Cargo | Empresa | Mês/Ano - Mês/Ano
+- 3 a 5 bullets. Fórmula obrigatória: [verbo de impacto] + [escala ou contexto] + [resultado mensurável]
   Exemplos CERTOS:
-  • Escalou base de afiliados de 120 para 999 em 6 meses, elevando GMV para R$5M
-  • Implementou estratégia de demand generation que reduziu CAC em 34% e dobrou MQL
-  • Liderou equipe de 8 na expansão LATAM, abrindo 3 novos mercados em 12 meses
-  Exemplos ERRADOS (não escreva assim):
-  • "Atuou de forma proativa no desenvolvimento de iniciativas estratégicas visando alavancar resultados"
-  • "Responsável pela coordenação das atividades relacionadas ao crescimento da base"
-- Tom: formal, direto, claro. Sem palavras rebuscadas. Escreva como uma pessoa inteligente que fala com segurança, não como um robô corporativo.
-- PROIBIDO usar: "participei de", "auxiliei em", "responsável por", "visando alavancar", "como evidenciado", "mediante", "haja vista", "no intuito de", "com vistas a", "outrossim", "mormente"
-- Use verbos diretos: liderou, implementou, reduziu, aumentou, estruturou, fechou, criou, automatizou, expandiu, negociou
+  • Construiu do zero o programa de afiliados: escalou para 879 parceiros e 70+ contratos fixos em 14 meses
+  • Implementou estratégia de demand generation que reduziu CAC em 34% e dobrou MQL em 6 meses
+  • Liderou equipe de 20 pessoas na expansão LATAM, abrindo 3 mercados e crescendo receita 53%
+  Exemplos ERRADOS (jamais escreva assim):
+  • "Atuou de forma proativa no desenvolvimento de iniciativas estratégicas"
+  • "Responsável pela coordenação das atividades relacionadas ao crescimento"
+  • "Participou ativamente de projetos de transformação digital"
+- Se não há número exato, use proxy: tamanho do time, tempo para resultado, marco concreto
+- Verbos: construiu, escalou, liderou, estruturou, implementou, reduziu, aumentou, fechou, criou, dobrou, triplicou, automatizou, negociou, expandiu
 
-BLOCO 4 — FORMAÇÃO ACADÊMICA
-Escreva o título exato: FORMAÇÃO ACADÊMICA
-Formato: Curso | Instituição | Ano de conclusão
+BLOCO 4 — título exato: FORMAÇÃO ACADÊMICA
+Formato: Curso | Instituição | Ano
+Inclua apenas o que agrega ao cargo-alvo. Corte o resto.
 
-BLOCO 5 — COMPETÊNCIAS TÉCNICAS
-Escreva o título exato: COMPETÊNCIAS TÉCNICAS
-Liste apenas skills que aparecem tanto no perfil quanto na vaga. Uma linha por grupo temático.
+BLOCO 5 — título exato: COMPETÊNCIAS TÉCNICAS
+Apenas skills presentes tanto no perfil quanto na vaga. Uma linha por grupo temático.
 
-REGRAS ABSOLUTAS DE FORMATACAO:
-- NÃO use asteriscos (**texto**), markdown ou qualquer símbolo de formatação especial
-- NÃO use travessão (—) nem (–). Use vírgula ou dois-pontos
-- Títulos de seção em MAIÚSCULAS sem acentos
-- Bullets usam o símbolo • (ponto central)
-- Cargos e empresas usam o separador |
+=== REGRAS DE TOM E ESCRITA ===
+- Formal, direto, claro. Sem rebuscamento. Escreva como uma pessoa inteligente que fala com segurança.
+- PROIBIDO: "participei de", "auxiliei em", "responsável por", "visando alavancar", "como evidenciado", "mediante", "haja vista", "no intuito de", "com vistas a", "outrossim"
+- PROIBIDO: descrições de empresa ("X é uma plataforma que...") — o recrutador já conhece
 
-TESTE FINAL: releia o currículo como se tivesse 30 segundos para decidir se avança ou não. Cada bullet precisa dizer claramente o que fez, como fez e qual foi o resultado. Se qualquer bullet não passa nesse teste, reescreva antes de responder.
+=== REGRAS DE FORMATAÇÃO (crítico para ATS) ===
+- NÃO use asteriscos, markdown ou qualquer símbolo de formatação. Texto puro apenas.
+- NÃO use travessão (—) nem (–). Use vírgula ou dois-pontos.
+- Títulos de seção em MAIÚSCULAS com acentos corretos
+- Bullets usam o símbolo •
+- Cargos e empresas separados por |
+- Sem tabelas, colunas ou formatação em grid
+
+=== VALIDAÇÃO FINAL — antes de responder, confirme ===
+1. Cada seção responde a algum requisito explícito ou implícito da JD?
+2. Há número ou prova concreta em cada bullet?
+3. O resumo começa com um número forte, não com um adjetivo?
+4. Releia como se tivesse 30 segundos para decidir se avança o candidato. Se algo não ficou claro, reescreva.
 
 Responda APENAS com o texto do currículo. Zero explicações, zero comentários.`;
 
@@ -3419,9 +3447,9 @@ async function generateResume(retry = false) {
   btn.textContent = '⏳ Gerando currículo...';
   st.style.display = 'none';
 
-  const prompt = `Você é um especialista em recrutamento com mais de 15 anos de experiência triando currículos para empresas de médio e grande porte. Você já avaliou mais de 50.000 currículos e sabe exatamente o que faz um recrutador parar de ler — e o que faz ele ligar.
+  const prompt = `Você é um especialista em carreira e recrutamento com 15+ anos de experiência. Você já avaliou mais de 50.000 currículos e sabe exatamente o que faz um recrutador parar de ler — e o que faz ele ligar.
 
-Sua missão agora é gerar um currículo que: (1) passe pelo filtro do ATS e (2) prenda a atenção humana nos primeiros 6 segundos.
+Sua missão é construir um currículo que funciona como um documento de vendas com evidências, não como um histórico de vida. Cada linha precisa responder à pergunta implícita do recrutador: "por que esse candidato vai resolver meu problema?"
 
 PERFIL DO CANDIDATO (extraído do LinkedIn):
 ${profile}
@@ -3431,49 +3459,77 @@ ${jd}
 
 IDIOMA: detecte o idioma da vaga e escreva o currículo inteiramente nesse idioma.
 
-ESTRUTURA E FORMATAÇÃO — siga à risca:
+=== PIPELINE DE CONSTRUÇÃO — execute em ordem ===
 
-BLOCO 1 — CABEÇALHO (cada item em uma linha separada):
-Linha 1: apenas o nome completo da pessoa (ex: Maria Silva)
-Linha 2: apenas o cargo desejado alinhado à vaga (ex: Gerente de Marketing Digital)
+PASSO 1 — LEIA A VAGA POR INTENÇÃO, NÃO SÓ POR KEYWORDS
+Pergunte-se antes de escrever:
+- O que o recrutador realmente precisa resolver?
+- Qual é o perfil implícito que eles buscam? (player-coach? estrategista? executor?)
+- O que elimina um candidato nessa vaga? (só gestão sem resultado? falta de escala?)
+
+PASSO 2 — MAPEIE O PERFIL PELO QUE ELE PROVA, NÃO PELO QUE DIZ
+- Ignore os títulos, leia as conquistas reais
+- Separe o que é responsabilidade do que é resultado
+- Identifique o padrão de carreira dominante (constrói do zero? escala? lidera transformação?)
+
+PASSO 3 — FAÇA O MATCHING POR EVIDÊNCIA
+Para cada requisito da vaga, encontre a prova mais forte no perfil:
+- Priorize experiências com maior densidade de evidência para essa vaga específica
+- Se há um resultado que responde diretamente a um KPI da vaga, ele vai para o topo
+- Corte tudo que não responde a nenhuma necessidade da vaga
+
+PASSO 4 — MONTE O CURRÍCULO NESTA ESTRUTURA EXATA:
+
+BLOCO 1 — CABEÇALHO (cada item em uma linha separada, sem misturar):
+Linha 1: apenas o nome completo
+Linha 2: apenas o cargo alinhado à vaga (título exato ou próximo ao da JD)
 Linha 3: e-mail | telefone | linkedin
 
-BLOCO 2 — RESUMO PROFISSIONAL
-Escreva o título exato: RESUMO PROFISSIONAL
-3 frases no máximo. Sem clichês ("profissional dedicado", "apaixonado por"). Foco em: quem é, o que entrega, e por que é o candidato certo para esta vaga específica. Use números e resultados reais do perfil.
+BLOCO 2 — título exato: RESUMO PROFISSIONAL
+3 frases. Primeira frase: o número ou resultado mais forte do perfil que conecta com a vaga. Segunda: padrão de carreira + escopo de atuação. Terceira: fit implícito com o que a vaga precisa resolver.
+Sem clichês ("profissional dedicado", "apaixonado por", "vasta experiência").
 
-BLOCO 3 — EXPERIÊNCIA PROFISSIONAL
-Escreva o título exato: EXPERIÊNCIA PROFISSIONAL
+BLOCO 3 — título exato: EXPERIÊNCIA PROFISSIONAL
+Ordem por relevância para a vaga (não puramente cronológica se uma experiência mais recente conecta melhor).
 Para cada posição:
-- Primeira linha: Cargo | Empresa | Mês/Ano início - Mês/Ano fim
-- De 3 a 5 bullets por posição. Fórmula obrigatória: verbo direto + o que fez + resultado com número
+- Cargo | Empresa | Mês/Ano - Mês/Ano
+- 3 a 5 bullets. Fórmula obrigatória: [verbo de impacto] + [escala ou contexto] + [resultado mensurável]
   Exemplos CERTOS:
-  • Escalou base de afiliados de 120 para 999 em 6 meses, elevando GMV para R$5M
-  • Implementou estratégia de demand generation que reduziu CAC em 34% e dobrou MQL
-  • Liderou equipe de 8 na expansão LATAM, abrindo 3 novos mercados em 12 meses
-  Exemplos ERRADOS (não escreva assim):
-  • "Atuou de forma proativa no desenvolvimento de iniciativas estratégicas visando alavancar resultados"
-  • "Responsável pela coordenação das atividades relacionadas ao crescimento da base"
-- Tom: formal, direto, claro. Sem palavras rebuscadas. Escreva como uma pessoa inteligente que fala com segurança, não como um robô corporativo.
-- PROIBIDO usar: "participei de", "auxiliei em", "responsável por", "visando alavancar", "como evidenciado", "mediante", "haja vista", "no intuito de", "com vistas a", "outrossim", "mormente"
-- Use verbos diretos: liderou, implementou, reduziu, aumentou, estruturou, fechou, criou, automatizou, expandiu, negociou
+  • Construiu do zero o programa de afiliados: escalou para 879 parceiros e 70+ contratos fixos em 14 meses
+  • Implementou estratégia de demand generation que reduziu CAC em 34% e dobrou MQL em 6 meses
+  • Liderou equipe de 20 pessoas na expansão LATAM, abrindo 3 mercados e crescendo receita 53%
+  Exemplos ERRADOS (jamais escreva assim):
+  • "Atuou de forma proativa no desenvolvimento de iniciativas estratégicas"
+  • "Responsável pela coordenação das atividades relacionadas ao crescimento"
+  • "Participou ativamente de projetos de transformação digital"
+- Se não há número exato, use proxy: tamanho do time, tempo para resultado, marco concreto
+- Verbos: construiu, escalou, liderou, estruturou, implementou, reduziu, aumentou, fechou, criou, dobrou, triplicou, automatizou, negociou, expandiu
 
-BLOCO 4 — FORMAÇÃO ACADÊMICA
-Escreva o título exato: FORMAÇÃO ACADÊMICA
-Formato: Curso | Instituição | Ano de conclusão
+BLOCO 4 — título exato: FORMAÇÃO ACADÊMICA
+Formato: Curso | Instituição | Ano
+Inclua apenas o que agrega ao cargo-alvo. Corte o resto.
 
-BLOCO 5 — COMPETÊNCIAS TÉCNICAS
-Escreva o título exato: COMPETÊNCIAS TÉCNICAS
-Liste apenas skills que aparecem tanto no perfil quanto na vaga. Uma linha por grupo temático.
+BLOCO 5 — título exato: COMPETÊNCIAS TÉCNICAS
+Apenas skills presentes tanto no perfil quanto na vaga. Uma linha por grupo temático.
 
-REGRAS ABSOLUTAS DE FORMATACAO:
-- NÃO use asteriscos (**texto**), markdown ou qualquer símbolo de formatação especial
-- NÃO use travessão (—) nem (–). Use vírgula ou dois-pontos
-- Títulos de seção em MAIÚSCULAS sem acentos
-- Bullets usam o símbolo • (ponto central)
-- Cargos e empresas usam o separador |
+=== REGRAS DE TOM E ESCRITA ===
+- Formal, direto, claro. Sem rebuscamento. Escreva como uma pessoa inteligente que fala com segurança.
+- PROIBIDO: "participei de", "auxiliei em", "responsável por", "visando alavancar", "como evidenciado", "mediante", "haja vista", "no intuito de", "com vistas a", "outrossim"
+- PROIBIDO: descrições de empresa ("X é uma plataforma que...") — o recrutador já conhece
 
-TESTE FINAL: releia o currículo como se tivesse 30 segundos para decidir se avança ou não. Cada bullet precisa dizer claramente o que fez, como fez e qual foi o resultado. Se qualquer bullet não passa nesse teste, reescreva antes de responder.
+=== REGRAS DE FORMATAÇÃO (crítico para ATS) ===
+- NÃO use asteriscos, markdown ou qualquer símbolo de formatação. Texto puro apenas.
+- NÃO use travessão (—) nem (–). Use vírgula ou dois-pontos.
+- Títulos de seção em MAIÚSCULAS com acentos corretos
+- Bullets usam o símbolo •
+- Cargos e empresas separados por |
+- Sem tabelas, colunas ou formatação em grid
+
+=== VALIDAÇÃO FINAL — antes de responder, confirme ===
+1. Cada seção responde a algum requisito explícito ou implícito da JD?
+2. Há número ou prova concreta em cada bullet?
+3. O resumo começa com um número forte, não com um adjetivo?
+4. Releia como se tivesse 30 segundos para decidir se avança o candidato. Se algo não ficou claro, reescreva.
 
 Responda APENAS com o texto do currículo. Zero explicações, zero comentários.`;
 
