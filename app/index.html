@@ -1896,7 +1896,22 @@
       <h3 id="resume-modal-title" style="color:#fff;margin:0;font-size:1.1rem"></h3>
     </div>
     <div id="resume-modal-content" style="flex:1;overflow-y:auto;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:20px;font-size:13px;color:#cbd5e0;line-height:1.8;white-space:pre-wrap;font-family:Georgia,serif"></div>
-    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+    <!-- Feedback para ajuste -->
+    <div style="margin-top:16px;border-top:1px solid rgba(255,255,255,0.07);padding-top:16px">
+      <div style="font-size:0.75rem;color:var(--dim);margin-bottom:6px">Quer ajustar algo? Descreva o que mudar:</div>
+      <div style="display:flex;gap:8px">
+        <input id="resume-feedback" type="text" placeholder="Ex: coloque o cargo como Manager, destaque mais a experiência com parceiros..."
+          style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 12px;color:#e2e8f0;font-size:0.82rem;outline:none"
+          onkeydown="if(event.key==='Enter') regenerateWithFeedback()" />
+        <button onclick="regenerateWithFeedback()"
+          style="padding:8px 16px;background:rgba(244,114,182,0.15);border:1px solid rgba(244,114,182,0.4);border-radius:8px;color:#f472b6;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:background 0.15s"
+          onmouseover="this.style.background='rgba(244,114,182,0.25)'" onmouseout="this.style.background='rgba(244,114,182,0.15)'">
+          Refazer →
+        </button>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
       <button onclick="downloadResumePDF()"
         style="flex:1;padding:12px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s"
         onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
@@ -3412,7 +3427,7 @@ PASSO 4 — MONTE O CURRÍCULO NESTA ESTRUTURA EXATA:
 
 BLOCO 1 — CABEÇALHO (cada item em uma linha separada, sem misturar):
 Linha 1: apenas o nome completo
-Linha 2: apenas o cargo alinhado à vaga (título exato ou próximo ao da JD)
+Linha 2: use EXATAMENTE o título da vaga como cargo (ex: se a vaga é "Senior Partner Marketing Manager", escreva "Senior Partner Marketing Manager"). NUNCA use um cargo inferior ao da vaga.
 Linha 3: e-mail | telefone | linkedin
 
 BLOCO 2 — título exato: RESUMO PROFISSIONAL
@@ -3463,7 +3478,9 @@ Liste todas as skills relevantes do perfil. Agrupe por categoria (ex: GTM & Aqui
 3. O resumo começa com um número forte, não com um adjetivo?
 4. Releia como se tivesse 30 segundos para decidir se avança o candidato. Se algo não ficou claro, reescreva.
 
-Responda APENAS com o texto do currículo. Zero explicações, zero comentários.`;
+Responda APENAS com o texto do currículo. Zero explicações, zero comentários.`  + (window._resumeFeedback ? `\n\n=== AJUSTE SOLICITADO ===\nO usuário pediu a seguinte alteração: "${window._resumeFeedback}"\nAplique essa alteração mantendo todas as outras regras.` : '');
+
+  window._resumeFeedback = null;
 
   try {
     const res = await fetch('/api/analyze', {
@@ -3492,6 +3509,15 @@ Responda APENAS com o texto do currículo. Zero explicações, zero comentários
 // ── Geração de Currículo Adaptado ─────────────────────────────
 let _resumeText = '';
 let _resumeOpp  = null;
+
+async function regenerateWithFeedback() {
+  const feedback = document.getElementById('resume-feedback').value.trim();
+  if (!feedback) { generateResume(true); return; }
+  // Append feedback instruction to the prompt via a flag picked up in generateResume
+  window._resumeFeedback = feedback;
+  document.getElementById('resume-feedback').value = '';
+  generateResume(true);
+}
 
 async function generateResume(retry = false) {
   const opp = _modalOpp;
@@ -3554,7 +3580,7 @@ PASSO 4 — MONTE O CURRÍCULO NESTA ESTRUTURA EXATA:
 
 BLOCO 1 — CABEÇALHO (cada item em uma linha separada, sem misturar):
 Linha 1: apenas o nome completo
-Linha 2: apenas o cargo alinhado à vaga (título exato ou próximo ao da JD)
+Linha 2: use EXATAMENTE o título da vaga como cargo (ex: se a vaga é "Senior Partner Marketing Manager", escreva "Senior Partner Marketing Manager"). NUNCA use um cargo inferior ao da vaga.
 Linha 3: e-mail | telefone | linkedin
 
 BLOCO 2 — título exato: RESUMO PROFISSIONAL
@@ -3605,7 +3631,9 @@ Liste todas as skills relevantes do perfil. Agrupe por categoria (ex: GTM & Aqui
 3. O resumo começa com um número forte, não com um adjetivo?
 4. Releia como se tivesse 30 segundos para decidir se avança o candidato. Se algo não ficou claro, reescreva.
 
-Responda APENAS com o texto do currículo. Zero explicações, zero comentários.`;
+Responda APENAS com o texto do currículo. Zero explicações, zero comentários.`  + (window._resumeFeedback ? `\n\n=== AJUSTE SOLICITADO ===\nO usuário pediu a seguinte alteração: "${window._resumeFeedback}"\nAplique essa alteração mantendo todas as outras regras.` : '');
+
+  window._resumeFeedback = null;
 
   try {
     const res = await fetch('/api/analyze', {
