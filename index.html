@@ -3303,28 +3303,45 @@ async function generateResumeFromAnalysis() {
   btn.textContent = '⏳ Gerando currículo...';
   st.style.display = 'none';
 
-  const prompt = `Você é um especialista em carreira e recrutamento. Gere um currículo profissional adaptado especificamente para a vaga abaixo.
+  const prompt = `Você é um especialista em recrutamento com mais de 15 anos de experiência triando currículos para empresas de médio e grande porte. Você já avaliou mais de 50.000 currículos e sabe exatamente o que faz um recrutador parar de ler — e o que faz ele ligar.
 
-PERFIL DA CANDIDATA:
+Sua missão agora é gerar um currículo que: (1) passe pelo filtro do ATS e (2) prenda a atenção humana nos primeiros 6 segundos.
+
+PERFIL DO CANDIDATO (extraído do LinkedIn):
 ${profile}
 
-DESCRIÇÃO DA VAGA:
+DESCRIÇÃO DA VAGA-ALVO:
 ${jd}
 
-INSTRUÇÕES IMPORTANTES:
-- Detecte o idioma da vaga e escreva o currículo nesse mesmo idioma
-- Destaque as keywords mais relevantes da vaga que aparecem no perfil
-- NÃO use o símbolo de travessão (—) em nenhuma parte do texto. Use vírgula, ponto ou dois-pontos no lugar
-- NÃO use asteriscos (**texto** ou *texto*) nem qualquer marcação markdown. Escreva texto puro.
-- Use marcadores (bullets com •) para listar responsabilidades e conquistas
-- Estrutura: Nome/Contato (placeholder), Resumo Profissional, Experiência, Competências, Formação
-- Nos títulos de seção escreva em MAIÚSCULAS sem asteriscos, ex: EXPERIÊNCIA PROFISSIONAL
-- Para cargo e empresa use o formato: Cargo | Empresa | Período
-- Resumo Profissional: 3 a 4 linhas destacando o que mais se conecta com a vaga
-- Experiência: reescreva as experiências priorizando as que têm mais relação com a vaga, com métricas e resultados
-- Competências: liste apenas as skills mencionadas na vaga que o perfil possui
-- Tom: direto, profissional, sem floreios
-- Responda APENAS com o texto do currículo, sem explicações adicionais`;
+REGRAS DE OURO — siga à risca:
+
+IDIOMA: detecte o idioma da vaga e escreva o currículo inteiramente nesse idioma.
+
+ESTRUTURA (nesta ordem exata):
+1. Cabeçalho: Nome | Cargo desejado alinhado à vaga | E-mail | Telefone | LinkedIn
+2. RESUMO PROFISSIONAL — 3 linhas máximo, sem clichês ("profissional dedicado", "apaixonado por"), focado em resultados e alinhado à vaga
+3. EXPERIÊNCIA PROFISSIONAL — cronologia reversa, formato: Cargo | Empresa | Período
+4. FORMAÇÃO ACADÊMICA
+5. COMPETÊNCIAS TECNICAS — apenas skills presentes tanto no perfil quanto na vaga
+
+REGRAS DE ESCRITA:
+- Cada bullet de experiência segue a fórmula: verbo de impacto + ação + resultado mensurável. Ex: "Reduziu churn em 18% ao implementar programa de sucesso do cliente para contas enterprise"
+- Proibido: "participei de", "auxiliei em", "responsável por". Use: liderou, implementou, reduziu, aumentou, estruturou, fechou, expandiu
+- Priorize experiências e conquistas com maior sobreposição com a vaga-alvo
+- Inclua as keywords exatas da vaga que o perfil possui (para passar no ATS)
+- Máximo 1 página se menos de 8 anos de carreira, máximo 2 páginas se mais
+- Sem foto, estado civil, objetivo genérico ou informações pessoais além do contato
+
+FORMATAÇÃO (crítico para renderização):
+- NÃO use asteriscos, markdown ou qualquer símbolo de formatação. Texto puro apenas.
+- Títulos de seção em MAIÚSCULAS, ex: EXPERIÊNCIA PROFISSIONAL
+- Cargo e empresa no formato: Cargo | Empresa | Período
+- Bullets com o símbolo •
+- NÃO use travessão (—) nem (–). Use vírgula ou dois-pontos.
+
+Ao terminar, releia como se tivesse 30 segundos para decidir se esse candidato avança. Se algo não ficou claro nesse tempo, reescreva.
+
+Responda APENAS com o texto do currículo. Nenhuma explicação, nenhum comentário.`;
 
   try {
     const res = await fetch('/api/analyze', {
@@ -3384,28 +3401,45 @@ async function generateResume(retry = false) {
   btn.textContent = '⏳ Gerando currículo...';
   st.style.display = 'none';
 
-  const prompt = `Você é um especialista em carreira e recrutamento. Gere um currículo profissional adaptado especificamente para a vaga abaixo.
+  const prompt = `Você é um especialista em recrutamento com mais de 15 anos de experiência triando currículos para empresas de médio e grande porte. Você já avaliou mais de 50.000 currículos e sabe exatamente o que faz um recrutador parar de ler — e o que faz ele ligar.
 
-PERFIL DA CANDIDATA:
+Sua missão agora é gerar um currículo que: (1) passe pelo filtro do ATS e (2) prenda a atenção humana nos primeiros 6 segundos.
+
+PERFIL DO CANDIDATO (extraído do LinkedIn):
 ${profile}
 
-DESCRIÇÃO DA VAGA:
+DESCRIÇÃO DA VAGA-ALVO:
 ${jd}
 
-INSTRUÇÕES IMPORTANTES:
-- Detecte o idioma da vaga e escreva o currículo nesse mesmo idioma
-- Destaque as keywords mais relevantes da vaga que aparecem no perfil
-- NÃO use o símbolo de travessão (—) em nenhuma parte do texto. Use vírgula, ponto ou dois-pontos no lugar
-- NÃO use asteriscos (**texto** ou *texto*) nem qualquer marcação markdown. Escreva texto puro.
-- Use marcadores (bullets com •) para listar responsabilidades e conquistas
-- Estrutura: Nome/Contato (placeholder), Resumo Profissional, Experiência, Competências, Formação
-- Nos títulos de seção escreva em MAIÚSCULAS sem asteriscos, ex: EXPERIÊNCIA PROFISSIONAL
-- Para cargo e empresa use o formato: Cargo | Empresa | Período
-- Resumo Profissional: 3 a 4 linhas destacando o que mais se conecta com a vaga
-- Experiência: reescreva as experiências priorizando as que têm mais relação com a vaga, com métricas e resultados
-- Competências: liste apenas as skills mencionadas na vaga que o perfil possui
-- Tom: direto, profissional, sem floreios
-- Responda APENAS com o texto do currículo, sem explicações adicionais`;
+REGRAS DE OURO — siga à risca:
+
+IDIOMA: detecte o idioma da vaga e escreva o currículo inteiramente nesse idioma.
+
+ESTRUTURA (nesta ordem exata):
+1. Cabeçalho: Nome | Cargo desejado alinhado à vaga | E-mail | Telefone | LinkedIn
+2. RESUMO PROFISSIONAL — 3 linhas máximo, sem clichês ("profissional dedicado", "apaixonado por"), focado em resultados e alinhado à vaga
+3. EXPERIÊNCIA PROFISSIONAL — cronologia reversa, formato: Cargo | Empresa | Período
+4. FORMAÇÃO ACADÊMICA
+5. COMPETÊNCIAS TECNICAS — apenas skills presentes tanto no perfil quanto na vaga
+
+REGRAS DE ESCRITA:
+- Cada bullet de experiência segue a fórmula: verbo de impacto + ação + resultado mensurável. Ex: "Reduziu churn em 18% ao implementar programa de sucesso do cliente para contas enterprise"
+- Proibido: "participei de", "auxiliei em", "responsável por". Use: liderou, implementou, reduziu, aumentou, estruturou, fechou, expandiu
+- Priorize experiências e conquistas com maior sobreposição com a vaga-alvo
+- Inclua as keywords exatas da vaga que o perfil possui (para passar no ATS)
+- Máximo 1 página se menos de 8 anos de carreira, máximo 2 páginas se mais
+- Sem foto, estado civil, objetivo genérico ou informações pessoais além do contato
+
+FORMATAÇÃO (crítico para renderização):
+- NÃO use asteriscos, markdown ou qualquer símbolo de formatação. Texto puro apenas.
+- Títulos de seção em MAIÚSCULAS, ex: EXPERIÊNCIA PROFISSIONAL
+- Cargo e empresa no formato: Cargo | Empresa | Período
+- Bullets com o símbolo •
+- NÃO use travessão (—) nem (–). Use vírgula ou dois-pontos.
+
+Ao terminar, releia como se tivesse 30 segundos para decidir se esse candidato avança. Se algo não ficou claro nesse tempo, reescreva.
+
+Responda APENAS com o texto do currículo. Nenhuma explicação, nenhum comentário.`;
 
   try {
     const res = await fetch('/api/analyze', {
