@@ -2097,7 +2097,8 @@
         <textarea class="fit-textarea" id="fit-profile" rows="6" style="display:none"
           placeholder="Texto extraído do PDF — você pode editar antes de salvar."></textarea>
         <div id="profile-save-btn" style="display:none;justify-content:flex-end;margin-top:10px">
-          <button class="btn-fit-fetch" onclick="saveProfile()">Salvar perfil</button>
+          <button onclick="saveProfile()" style="background:#E04478;border:none;color:#fff;font-weight:700;font-size:0.85rem;padding:10px 24px;border-radius:8px;cursor:pointer;transition:background 0.15s"
+            onmouseover="this.style.background='#c73060'" onmouseout="this.style.background='#E04478'">Salvar perfil</button>
         </div>
       </div>
       <div class="fit-status" id="fit-profile-status"></div>
