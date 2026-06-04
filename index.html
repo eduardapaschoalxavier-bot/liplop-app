@@ -1780,6 +1780,79 @@
 </head>
 <body>
 
+<!-- ── Gate Modal ─────────────────────────────────────────────────────────── -->
+<div id="gate-modal" style="display:flex;position:fixed;inset:0;z-index:99999;background:#0C0509;align-items:center;justify-content:center;padding:24px">
+  <div style="background:#110810;border:1px solid #221018;border-radius:16px;max-width:420px;width:100%;padding:40px 36px">
+
+    <!-- Logo -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:32px">
+      <div style="width:28px;height:28px;border-radius:50%;background:#E04478;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff;flex-shrink:0">L</div>
+      <span style="font-weight:700;font-size:17px;color:#EDE0E8;letter-spacing:-.01em">Liplop</span>
+    </div>
+
+    <h2 style="font-size:22px;font-weight:700;line-height:1.25;letter-spacing:-.02em;color:#EDE0E8;margin-bottom:8px">Bem-vindo ao acesso antecipado.</h2>
+    <p style="font-size:14px;color:#9B7389;line-height:1.6;margin-bottom:28px">Você está entre os primeiros a testar o Liplop. Deixa seu nome e email para continuar.</p>
+
+    <form id="gate-form" onsubmit="submitGate(event)" style="display:flex;flex-direction:column;gap:12px">
+      <input
+        id="gate-name" type="text" placeholder="Seu nome" required
+        style="background:#0C0509;border:1px solid #221018;border-radius:8px;padding:12px 14px;font-size:14px;color:#EDE0E8;outline:none;width:100%;font-family:inherit;transition:border-color .15s"
+        onfocus="this.style.borderColor='#A8305A'" onblur="this.style.borderColor='#221018'"
+      />
+      <input
+        id="gate-email" type="email" placeholder="Seu melhor email" required
+        style="background:#0C0509;border:1px solid #221018;border-radius:8px;padding:12px 14px;font-size:14px;color:#EDE0E8;outline:none;width:100%;font-family:inherit;transition:border-color .15s"
+        onfocus="this.style.borderColor='#A8305A'" onblur="this.style.borderColor='#221018'"
+      />
+      <button type="submit" id="gate-btn"
+        style="background:#E04478;color:#fff;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px;font-family:inherit;transition:opacity .15s"
+        onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'"
+      >
+        Acessar o Liplop →
+      </button>
+    </form>
+
+    <p id="gate-error" style="display:none;margin-top:12px;font-size:12px;color:#E04478;text-align:center"></p>
+    <p style="margin-top:20px;font-size:11px;color:#4A2C3D;text-align:center">Seus dados não serão compartilhados com terceiros.</p>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // Se já passou pelo gate, esconde imediatamente
+    if (localStorage.getItem('liplop-access') === 'true') {
+      document.getElementById('gate-modal').style.display = 'none';
+    }
+  })();
+
+  async function submitGate(e) {
+    e.preventDefault();
+    const btn   = document.getElementById('gate-btn');
+    const error = document.getElementById('gate-error');
+    const name  = document.getElementById('gate-name').value.trim();
+    const email = document.getElementById('gate-email').value.trim();
+
+    btn.textContent = 'Entrando...';
+    btn.disabled = true;
+    error.style.display = 'none';
+
+    try {
+      await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email }),
+      });
+    } catch(err) {
+      // Mesmo se a API falhar, deixa entrar (não bloqueia o usuário)
+    }
+
+    localStorage.setItem('liplop-access', 'true');
+    localStorage.setItem('liplop-user-name', name);
+    localStorage.setItem('liplop-user-email', email);
+    document.getElementById('gate-modal').style.display = 'none';
+  }
+</script>
+
 <!-- ── Modal Pricing ───────────────────────────────────────── -->
 <div id="pricing-modal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
   <div style="background:#0f0f13;border:1px solid rgba(255,255,255,0.1);border-radius:20px;max-width:760px;width:100%;padding:40px 32px;position:relative;max-height:90vh;overflow-y:auto">
