@@ -1,5 +1,10 @@
 {
   "rewrites": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "app.myliplop.com" }],
+      "destination": "/app/$1"
+    },
     { "source": "/api/(.*)", "destination": "/api/$1" }
   ]
 }
