@@ -1969,6 +1969,13 @@
       </svg>
       Método
     </button>
+    <button class="tab-btn" onclick="switchTab('tarefas')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="2" y="2" width="12" height="12" rx="2"/>
+        <path d="M5 8l2 2 4-4"/>
+      </svg>
+      Tarefas
+    </button>
     <button class="tab-btn" onclick="switchTab('analyzer')">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
         <circle cx="8" cy="8" r="6"/>
@@ -2183,6 +2190,10 @@
 <!-- MÉTODO TAB -->
 <div class="tab-view active" id="tab-metodo" style="display:block">
   <div id="metodo-wrap" style="max-width:720px;margin:0 auto;padding:24px 16px 60px"></div>
+</div>
+
+<div class="tab-view" id="tab-tarefas">
+  <div id="tarefas-wrap" style="max-width:720px;margin:0 auto;padding:24px 16px 60px"></div>
 </div>
 
 <div class="tab-view" id="tab-marca">
@@ -3117,7 +3128,7 @@ function switchTab(tab) {
   _currentTab = tab;
 
   // Esconde todas as abas explicitamente
-  ['analyzer','kanban','ranking','interview','marca','metodo'].forEach(id => {
+  ['analyzer','kanban','ranking','interview','marca','metodo','tarefas'].forEach(id => {
     const el = document.getElementById('tab-' + id);
     if (el) { el.style.display = 'none'; el.classList.remove('active'); }
   });
@@ -3142,6 +3153,7 @@ function switchTab(tab) {
   if (tab === 'interview') renderInterviewTab();
   if (tab === 'marca')     renderMarcaTab();
   if (tab === 'metodo')    renderMetodoTab();
+  if (tab === 'tarefas')   renderTarefasTab();
 }
 
 // ── Ranking ──────────────────────────────────────────────────
@@ -4348,9 +4360,6 @@ function renderMetodoTab() {
     { label: 'Veja seus resultados',sub: 'Ranking',      tab: 'ranking',  icon: '◆', color: '#68d391' },
   ];
 
-  // Tarefas do dia
-  const tasks = buildDailyTasks();
-
   wrap.innerHTML = `
     <!-- Hero -->
     <div style="position:relative;overflow:hidden;padding:48px 32px 40px;margin-bottom:32px;border-radius:18px;border:1px solid rgba(224,68,120,0.14);background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(224,68,120,0.08) 0%,transparent 70%),var(--surface);text-align:center">
@@ -4393,26 +4402,35 @@ function renderMetodoTab() {
       </div>
     </div>
 
-    <!-- Plano do dia -->
-    <div>
-      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px">Seu plano para hoje</div>
-      ${tasks.length ? `
-        <div style="display:flex;flex-direction:column;gap:8px">
-          ${tasks.map(t => `
-            <div onclick="switchTab('${t.tab}')" style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);cursor:pointer;transition:border-color .15s"
-              onmouseover="this.style.borderColor='rgba(244,114,182,0.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'">
-              <div style="width:8px;height:8px;border-radius:50%;background:${t.color};flex-shrink:0"></div>
-              <div style="flex:1">
-                <div style="font-size:13px;font-weight:600;color:var(--text)">${t.title}</div>
-                ${t.sub ? `<div style="font-size:11px;color:var(--dim);margin-top:2px">${t.sub}</div>` : ''}
-              </div>
-              <div style="font-size:12px;color:var(--dim)">›</div>
-            </div>`).join('')}
-        </div>` : `
-        <div style="text-align:center;padding:32px;border:1px solid rgba(255,255,255,0.06);border-radius:12px;color:var(--dim);font-size:13px">
-          Nenhuma tarefa pendente. Você está em dia! ✓
-        </div>`}
-    </div>`;
+    `;
+}
+
+function renderTarefasTab() {
+  const wrap = document.getElementById('tarefas-wrap');
+  const tasks = buildDailyTasks();
+  wrap.innerHTML = `
+    <div style="margin-bottom:28px">
+      <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">✦ Seu plano para hoje</div>
+      <h2 style="font-size:1.6rem;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.2">O que fazer agora</h2>
+      <p style="font-size:13px;color:var(--mid);line-height:1.6">Baseado no estado atual da sua busca, essas são as ações mais importantes hoje.</p>
+    </div>
+    ${tasks.length ? `
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${tasks.map(t => `
+          <div onclick="switchTab('${t.tab}')" style="display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:12px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);cursor:pointer;transition:border-color .15s"
+            onmouseover="this.style.borderColor='rgba(244,114,182,0.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'">
+            <div style="width:8px;height:8px;border-radius:50%;background:${t.color};flex-shrink:0"></div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600;color:var(--text)">${t.title}</div>
+              ${t.sub ? `<div style="font-size:11px;color:var(--dim);margin-top:2px">${t.sub}</div>` : ''}
+            </div>
+            <div style="font-size:14px;color:var(--dim)">›</div>
+          </div>`).join('')}
+      </div>` : `
+      <div style="text-align:center;padding:48px 32px;border:1px solid rgba(255,255,255,0.06);border-radius:14px;color:var(--dim);font-size:13px">
+        <div style="font-size:24px;margin-bottom:12px">✓</div>
+        Você está em dia! Nenhuma tarefa pendente.
+      </div>`}`;
 }
 
 function buildDailyTasks() {
