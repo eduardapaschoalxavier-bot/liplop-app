@@ -4605,34 +4605,32 @@ function renderMarcaTab() {
 
 function renderMarcaStep1(project) {
   const savedMsg = getMarcaMessage();
-  const messageBlock = `
-    <div style="margin-bottom:20px">
-      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Qual imagem você quer passar pro mercado?</div>
-      <textarea id="marca-message-input" placeholder='Ex: "Quero ser vista como alguém que transforma operações caóticas em processos escaláveis"'
-        onblur="saveMarcaMessage(this.value.trim())"
-        style="width:100%;min-height:64px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;color:#cbd5e0;font-size:13px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
-        onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="saveMarcaMessage(this.value.trim());this.style.borderColor='rgba(255,255,255,0.1)'"
-      >${savedMsg}</textarea>
-      <div style="font-size:11px;color:var(--dim);margin-top:4px">Esse posicionamento vai guiar a narrativa do seu case e do seu conteúdo.</div>
+  const msgConfirmed = !!savedMsg;
+
+  // Sub-passo A: posicionamento
+  const stepA = `
+    <div id="marca-step1a" style="border:1px solid ${msgConfirmed ? 'rgba(244,114,182,0.3)' : 'rgba(255,255,255,0.08)'};border-radius:14px;padding:20px;margin-bottom:12px;background:${msgConfirmed ? 'rgba(244,114,182,0.04)' : 'rgba(255,255,255,0.02)'}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${msgConfirmed ? '10px' : '6px'}">
+        <div style="font-size:11px;font-weight:700;color:${msgConfirmed ? '#f472b6' : 'var(--dim)'};text-transform:uppercase;letter-spacing:.08em">Como você quer ser enxergada?</div>
+        ${msgConfirmed ? `<button onclick="resetMarcaMessage()" style="background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer;text-decoration:underline">editar</button>` : ''}
+      </div>
+      ${msgConfirmed
+        ? `<div style="font-size:13px;color:#cbd5e0;line-height:1.6;font-style:italic">"${savedMsg}"</div>`
+        : `
+          <p style="font-size:13px;color:var(--mid);margin-bottom:12px;line-height:1.6">Antes de construir seu case, defina a imagem que você quer projetar. Isso vai guiar toda a narrativa.</p>
+          <textarea id="marca-message-input" placeholder='Ex: "Quero ser vista como alguém que transforma operações caóticas em processos escaláveis"'
+            style="width:100%;min-height:72px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;color:#cbd5e0;font-size:13px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
+            onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"
+          ></textarea>
+          <button onclick="confirmMarcaMessage()" style="margin-top:10px;width:100%;padding:10px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Continuar →</button>
+        `
+      }
     </div>`;
 
-  if (project?.approved) {
-    return `
-      <div style="border:1px solid rgba(244,114,182,0.3);border-radius:14px;padding:20px;margin-bottom:20px;background:rgba(244,114,182,0.04)">
-        ${messageBlock}
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.08em">Seu projeto / case</div>
-          <button onclick="confirmResetProject()" style="background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer;text-decoration:underline">refazer</button>
-        </div>
-        <div>${renderProjectCase(project.text)}</div>
-      </div>`;
-  }
-
-  return `
-    <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:20px;background:rgba(255,255,255,0.02)">
-      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">1. Projeto ou case</div>
-      ${messageBlock}
-      <p style="font-size:13px;color:var(--mid);margin-bottom:16px;line-height:1.6">Agora escolha: você tem algo que quer estruturar, ou quer sugestões de projeto?</p>
+  // Sub-passo B: projeto (só aparece se mensagem confirmada)
+  const stepB = msgConfirmed ? `
+    <div id="marca-step1b" style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:20px;background:rgba(255,255,255,0.02)">
+      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">Agora o projeto</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
         <button onclick="showMarcaPath('existing')" id="btn-path-existing"
           style="padding:14px 12px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:var(--text);font-size:12px;font-weight:600;cursor:pointer;line-height:1.4;text-align:left;transition:border-color .15s">
@@ -4648,7 +4646,33 @@ function renderMarcaStep1(project) {
         </button>
       </div>
       <div id="marca-path-content"></div>
-    </div>`;
+    </div>` : '';
+
+  if (project?.approved) {
+    return `
+      ${stepA}
+      <div style="border:1px solid rgba(244,114,182,0.3);border-radius:14px;padding:20px;margin-bottom:20px;background:rgba(244,114,182,0.04)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.08em">Seu projeto / case</div>
+          <button onclick="confirmResetProject()" style="background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer;text-decoration:underline">refazer</button>
+        </div>
+        <div>${renderProjectCase(project.text)}</div>
+      </div>`;
+  }
+
+  return `${stepA}${stepB}`;
+}
+
+function confirmMarcaMessage() {
+  const val = document.getElementById('marca-message-input')?.value?.trim();
+  if (!val) return;
+  saveMarcaMessage(val);
+  document.getElementById('marca-step1').innerHTML = renderMarcaStep1(getMarcaProject());
+}
+
+function resetMarcaMessage() {
+  localStorage.removeItem(MARCA_MESSAGE_KEY);
+  document.getElementById('marca-step1').innerHTML = renderMarcaStep1(getMarcaProject());
 }
 
 function showMarcaPath(path) {
