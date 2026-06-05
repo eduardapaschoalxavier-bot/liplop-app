@@ -3946,7 +3946,7 @@ Sugira exatamente 5 perfis de pessoas para contatar no LinkedIn nessa empresa. P
 - Sugestão de abertura da mensagem (2 linhas, direto, sem enrolação)
 - URL de busca no LinkedIn (formato: https://www.linkedin.com/search/results/people/?keywords=NOME+EMPRESA)
 
-Responda em JSON com este formato exato:
+Responda SOMENTE com JSON válido, sem markdown, sem texto extra, sem blocos de código:
 {
   "contacts": [
     {
@@ -3966,7 +3966,8 @@ Responda em JSON com este formato exato:
       body: JSON.stringify({ prompt, json_mode: true })
     });
     const data = await res.json();
-    const parsed = JSON.parse(data.result);
+    const clean = data.result.replace(/^```json?\n?/,'').replace(/\n?```$/,'').trim();
+    const parsed = JSON.parse(clean);
     const contacts = parsed.contacts || [];
 
     if (!contacts.length) throw new Error('Nenhum contato encontrado');
