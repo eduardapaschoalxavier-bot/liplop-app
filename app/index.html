@@ -4884,14 +4884,19 @@ Escreva UM parágrafo curto — no máximo 4 frases — descrevendo o tom de voz
     const data = await res.json();
     const summary = data.result?.trim().replace(/^#+\s*/gm,'').replace(/\*\*/g,'').replace(/\|.*\|/g,'').replace(/---+/g,'').trim();
     status.style.display = 'none';
-    // Mostra para aprovação
     document.getElementById('marca-step2').innerHTML = `
-      <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:20px">
+      <div style="border:1px solid rgba(244,114,182,0.3);border-radius:14px;padding:20px;margin-bottom:20px;background:rgba(244,114,182,0.04)">
         <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">2. Seu tom de voz</div>
-        <div style="font-size:14px;color:#cbd5e0;line-height:1.9;margin-bottom:16px;font-style:italic">${summary}</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <span style="font-size:20px">✓</span>
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--text)">Tom de voz identificado</div>
+            <div style="font-size:12px;color:var(--mid);margin-top:2px">A IA vai usar esse perfil para escrever no seu estilo.</div>
+          </div>
+        </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <button onclick="approveMarcaTone(${JSON.stringify(summary).replace(/"/g,'&quot;')})" style="padding:10px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Aprovar e salvar</button>
-          <button onclick="renderMarcaTab()" style="padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:var(--mid);font-size:13px;cursor:pointer">Não gostei, gerar outro</button>
+          <button onclick="approveMarcaTone(${JSON.stringify(summary).replace(/"/g,'&quot;')})" style="padding:10px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Confirmar e continuar</button>
+          <button onclick="renderMarcaTab()" style="padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:var(--mid);font-size:13px;cursor:pointer">Refazer</button>
         </div>
       </div>`;
   } catch(e) {
