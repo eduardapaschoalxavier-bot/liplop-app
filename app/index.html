@@ -4209,7 +4209,7 @@ function renderInterviewTab() {
   wrap.innerHTML = `
     <div style="margin-bottom:28px">
       <h2 style="font-size:1.25rem;font-weight:800;color:var(--text);margin-bottom:4px">Prep de Entrevista</h2>
-      <p style="font-size:0.85rem;color:var(--mid)">Dicas personalizadas para cada processo em andamento. A IA analisa sua experiência, a vaga e a empresa para te ajudar a contar as histórias certas.</p>
+      <p style="font-size:0.85rem;color:var(--mid)">Dicas personalizadas para cada processo em andamento. A IA analisa sua experiência, a vaga e a empresa.</p>
     </div>
     ${recruiterOpps.map(opp => `
       <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:16px;background:rgba(255,255,255,0.02)" id="icard-${opp.id}">
@@ -4253,9 +4253,6 @@ Gere um prep completo de entrevista. Responda SOMENTE em JSON válido, sem markd
 
 {
   "abertura": "1 frase de contexto: o que essa entrevista provavelmente vai avaliar dado o cargo e a empresa",
-  "pontos_fortes": [
-    "ponto forte específico do perfil do candidato que se conecta diretamente a um requisito ou desafio dessa vaga — seja concreto, cite a experiência real"
-  ],
   "empresa": [
     "dica específica sobre a cultura/contexto/momento da empresa ${opp.company} relevante para a entrevista"
   ],
@@ -4268,7 +4265,7 @@ Gere um prep completo de entrevista. Responda SOMENTE em JSON válido, sem markd
   "pergunta_para_fazer": "1 pergunta inteligente que o candidato pode fazer ao final da entrevista, específica para essa vaga"
 }
 
-Gere exatamente 4 pontos_fortes, 3 dicas de empresa, 3 dicas de cargo/senioridade, 3 evites. Seja direto, prático e específico. Sem genéricos. Português brasileiro correto com todos os acentos.`;
+Gere exatamente 3 dicas de empresa, 3 dicas de cargo/senioridade, 3 evites. Seja direto, prático e específico. Sem genéricos. Português brasileiro correto com todos os acentos.`;
 
   try {
     const res = await fetch('/api/analyze', {
@@ -4285,39 +4282,31 @@ Gere exatamente 4 pontos_fortes, 3 dicas de empresa, 3 dicas de cargo/senioridad
         ${prep.abertura}
       </div>
 
-      <!-- Pontos fortes -->
-      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Seus pontos fortes para essa vaga</div>
-      <div style="border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px;margin-bottom:4px">
-        ${prep.pontos_fortes.map(p => `<div style="font-size:12px;color:#cbd5e0;line-height:1.6;padding:6px 0 6px 14px;position:relative;border-bottom:1px solid rgba(255,255,255,0.04)"><span style="position:absolute;left:0;color:#f472b6;font-weight:700">+</span>${p}</div>`).join('')}
-      </div>
-
       <!-- Empresa -->
-      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin:18px 0 10px">🏢 Sobre a ${opp.company}</div>
-      <div style="border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px">
-        ${prep.empresa.map(d => `<div style="font-size:12px;color:#cbd5e0;line-height:1.6;padding:5px 0 5px 14px;position:relative"><span style="position:absolute;left:0;color:#f472b6">•</span>${d}</div>`).join('')}
+      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Sobre a ${opp.company}</div>
+      <div style="border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px;margin-bottom:16px">
+        ${prep.empresa.map(d => `<div style="font-size:12px;color:#cbd5e0;line-height:1.6;padding:5px 0 5px 16px;position:relative"><span style="position:absolute;left:0;color:#f472b6;font-size:10px;top:7px">›</span>${d}</div>`).join('')}
       </div>
 
       <!-- Cargo e senioridade -->
-      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin:18px 0 10px">🎯 O que avaliam nesse cargo</div>
-      <div style="border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px">
-        ${prep.cargo_senioridade.map(d => `<div style="font-size:12px;color:#cbd5e0;line-height:1.6;padding:5px 0 5px 14px;position:relative"><span style="position:absolute;left:0;color:#f472b6">•</span>${d}</div>`).join('')}
+      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">O que avaliam nesse cargo</div>
+      <div style="border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px;margin-bottom:16px">
+        ${prep.cargo_senioridade.map(d => `<div style="font-size:12px;color:#cbd5e0;line-height:1.6;padding:5px 0 5px 16px;position:relative"><span style="position:absolute;left:0;color:#f472b6;font-size:10px;top:7px">›</span>${d}</div>`).join('')}
       </div>
 
       <!-- Evite -->
-      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin:18px 0 10px">⚠️ Evite</div>
-      <div style="border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px">
-        ${prep.evite.map(d => `<div style="font-size:12px;color:#cbd5e0;line-height:1.6;padding:5px 0 5px 14px;position:relative"><span style="position:absolute;left:0;color:#e53e3e">•</span>${d}</div>`).join('')}
+      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Evite</div>
+      <div style="border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px;margin-bottom:16px">
+        ${prep.evite.map(d => `<div style="font-size:12px;color:#cbd5e0;line-height:1.6;padding:5px 0 5px 16px;position:relative"><span style="position:absolute;left:0;color:#f472b6;font-size:10px;top:7px">›</span>${d}</div>`).join('')}
       </div>
 
       <!-- Pergunta para fazer -->
-      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin:18px 0 10px">❓ Pergunta para fazer ao final</div>
-      <div style="border:1px solid rgba(244,114,182,0.25);border-radius:10px;padding:14px;background:rgba(244,114,182,0.04)">
+      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Pergunta para fazer ao final</div>
+      <div style="border:1px solid rgba(244,114,182,0.2);border-radius:10px;padding:14px;background:rgba(244,114,182,0.04)">
         <div style="font-size:13px;color:#f472b6;font-style:italic;line-height:1.6">"${prep.pergunta_para_fazer}"</div>
       </div>
 
-      <button onclick="generateInterviewPrep(${oppId})" style="margin-top:16px;width:100%;padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--mid);font-size:12px;cursor:pointer">
-        🔄 Regenerar prep
-      </button>`;
+      <button onclick="generateInterviewPrep(${oppId})" style="margin-top:16px;width:100%;padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--mid);font-size:12px;cursor:pointer">Regenerar prep</button>`;
 
   } catch(e) {
     resultEl.innerHTML = `
