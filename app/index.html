@@ -4570,26 +4570,21 @@ async function searchJobs() {
   btn.disabled = true; btn.textContent = '⏳ Analisando perfil...';
   status.style.display = 'block'; status.textContent = 'Gerando palavras-chave ideais para o seu perfil...';
 
-  const profile    = localStorage.getItem(PROFILE_KEY) || '';
-  const objectives = getProfileObjectives();
-  const roles      = getProfileRoles();
+  const profile    = (localStorage.getItem(PROFILE_KEY) || '').slice(0, 300);
+  const objectives = (getProfileObjectives() || '').slice(0, 150);
+  const roles      = (getProfileRoles() || '').slice(0, 150);
 
-  const prompt = `Você é um especialista em recrutamento no mercado brasileiro.
-
-PERFIL:
-${profile.slice(0, 800)}
+  const prompt = `Especialista em recrutamento BR. Sugira 15 termos de busca de vagas para:
+PERFIL: ${profile}
 OBJETIVOS: ${objectives || 'não informado'}
-CARGOS DESEJADOS: ${roles || 'não informado'}
+CARGOS: ${roles || 'não informado'}
 
-Gere 15 termos de busca para essa pessoa encontrar vagas no LinkedIn, Google Jobs e Gupy. Varie entre: cargos exatos, variações do cargo, cargos alternativos com fit, combinações com área/setor. Ordene por prioridade.
-
-Responda SOMENTE em JSON válido:
-{"keywords":[{"termo":"Head of Partnerships","descricao":"Por que esse termo: busca direta pelo cargo principal","prioridade":"Alta"}]}
-
-prioridade: "Alta", "Média" ou "Baixa". Gere exatamente 15 termos.`;
+Varie: cargo exato, variações, cargos alternativos com fit, combinações setor/área.
+JSON SOMENTE: {"keywords":[{"termo":"Head of Partnerships","descricao":"motivo curto","prioridade":"Alta"}]}
+prioridade: Alta/Média/Baixa. Exatamente 15 itens.`;
 
   try {
-    const res = await fetch('/api/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt, json_mode:true}) });
+    const res = await fetch('/api/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt, json_mode:true, model:'claude-haiku-4-5'}) });
     const data = await res.json();
     if (!data.result) throw new Error(data.error || 'Resposta vazia');
     const jsonMatch = data.result.match(/\{[\s\S]*"keywords"[\s\S]*\}/);
