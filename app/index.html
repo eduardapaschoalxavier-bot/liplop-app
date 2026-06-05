@@ -4478,14 +4478,15 @@ function renderProjectCase(text) {
   let current = null;
 
   for (const line of lines) {
-    const match = line.match(/^\*\*([^*]+):\*\*\s*(.*)/);
+    const trimmed = line.trim();
+    // Ignora separadores e linhas de comentário/meta fora do formato
+    if (!trimmed || trimmed === '--' || trimmed === '---' || /^\*[^*].*[^*]\*$/.test(trimmed)) continue;
+    const match = trimmed.match(/^\*\*([^*]+):\*\*\s*(.*)/);
     if (match) {
       if (current) blocks.push(current);
       current = { label: match[1].trim(), lines: match[2] ? [match[2]] : [] };
-    } else if (current && line.trim()) {
-      current.lines.push(line.trim());
-    } else if (!current && line.trim()) {
-      blocks.push({ label: null, lines: [line.trim()] });
+    } else if (current) {
+      current.lines.push(trimmed);
     }
   }
   if (current) blocks.push(current);
@@ -4711,7 +4712,7 @@ async function generateMarcaCase() {
   const vagas = opps.slice(0,5).map(o => o.role + ' em ' + o.company).join(', ');
   const mensagem = document.getElementById('marca-message-input')?.value?.trim() || getMarcaMessage();
 
-  const prompt = `Você é um especialista em posicionamento de carreira e marca pessoal.
+  const prompt = `Você é um especialista sênior em marca pessoal e gestão de carreira. Sua função é transformar experiências reais em narrativas que posicionam profissionais de forma precisa no mercado.
 
 PERFIL DO CANDIDATO:
 ${profile.slice(0,800)}
@@ -4720,19 +4721,21 @@ VAGAS QUE ESTÁ PERSEGUINDO: ${vagas || 'não informado'}
 
 IMAGEM QUE QUER PASSAR: ${mensagem || 'não informado'}
 
-O candidato descreveu o seguinte projeto/experiência:
+EXPERIÊNCIA DESCRITA PELO CANDIDATO:
 "${input}"
 
-Transforme isso em um case estruturado e poderoso para LinkedIn. A narrativa deve reforçar a imagem que a pessoa quer passar. Use EXATAMENTE este formato (com os asteriscos):
+Sua tarefa: estruture isso como um case poderoso que reforce EXATAMENTE a imagem que a pessoa quer passar. Cada campo deve ser escolhido estrategicamente para construir esse posicionamento.
 
-**PROJETO:** [nome curto e marcante]
-**PROBLEMA:** [qual dor ou desafio existia]
-**CONTEXTO:** [empresa, área, momento]
-**O QUE FEZ:** [ações concretas, em 2-3 linhas]
-**RESULTADO:** [números, impacto, antes e depois]
-**O QUE PROVA:** [qual competência ou perfil isso demonstra para o mercado]
+Use EXATAMENTE este formato — sem nenhum texto fora dos campos, sem comentários, sem asteriscos extras, sem separadores:
 
-Seja direto, concreto, sem adjetivos vazios. Português brasileiro correto com todos os acentos. Máximo 200 palavras.`;
+**PROJETO:** nome curto e marcante que já comunica o posicionamento
+**PROBLEMA:** a dor real que existia — relevante para o mercado que ela quer atrair
+**CONTEXTO:** empresa, área, momento — dá credibilidade
+**O QUE FEZ:** 2-3 ações concretas que mostram o perfil desejado em ação
+**RESULTADO:** números ou impacto real — o mais específico possível
+**O QUE PROVA:** 1-2 frases diretas sobre qual competência isso demonstra e por que é relevante para as vagas que persegue
+
+Português brasileiro com todos os acentos. Sem adjetivos vazios. Sem texto fora dos 6 campos acima.`;
 
   try {
     const res = await fetch('/api/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt, json_mode:false}) });
