@@ -4927,18 +4927,26 @@ function renderMarcaStep3(calendar, enabled) {
     </div>`;
 
   // Renderiza calendário
+  const estrategia = localStorage.getItem('liplop-marca-estrategia-v1') || '';
   const statusColors = { pending:'rgba(255,255,255,0.06)', draft:'rgba(245,158,11,0.12)', written:'rgba(99,179,237,0.12)', published:'rgba(72,187,120,0.12)' };
   const statusLabels = { pending:'—', draft:'Rascunho', written:'Escrito', published:'Publicado' };
   const statusDot    = { pending:'var(--dim)', draft:'#f59e0b', written:'#63b3ed', published:'#68d391' };
 
   return `
     <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;background:rgba(255,255,255,0.02)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${estrategia ? '12px' : '16px'}">
         <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em">3. Calendário 30 dias</div>
         <div style="display:flex;gap:10px;font-size:10px;color:var(--dim)">
           ${Object.entries(statusLabels).map(([k,v]) => `<span><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${statusDot[k]};margin-right:3px;vertical-align:middle"></span>${v}</span>`).join('')}
         </div>
       </div>
+      ${estrategia ? `
+      <div style="background:rgba(244,114,182,0.06);border:1px solid rgba(244,114,182,0.2);border-radius:10px;padding:14px 16px;margin-bottom:16px">
+        <div style="font-size:10px;font-weight:800;color:#f472b6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+          <span style="display:inline-block;width:3px;height:10px;background:#f472b6;border-radius:2px"></span>Estratégia editorial
+        </div>
+        <div style="font-size:13px;color:#cbd5e0;line-height:1.7">${estrategia}</div>
+      </div>` : ''}
       <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:16px">
         ${calendar.map((day, i) => `
           <div onclick="openMarcaDay(${i})" style="padding:8px 6px;border-radius:8px;border:1px solid rgba(255,255,255,0.07);background:${statusColors[day.status] || statusColors.pending};cursor:pointer;transition:border-color .15s"
@@ -4966,29 +4974,34 @@ async function generateMarcaCalendar() {
   const project = getMarcaProject();
   const tone    = getMarcaTone();
   const vagas   = opps.slice(0,5).map(o => o.role + ' em ' + o.company).join(', ');
+  const mensagem = getMarcaMessage();
 
   const prompt = `Você é estrategista de conteúdo para LinkedIn especializado em marca pessoal para quem busca emprego.
 
+IMAGEM QUE QUER PASSAR: ${mensagem || 'não informado'}
 PROJETO/CASE: ${project?.text || ''}
 TOM DE VOZ: ${tone?.summary || ''}
 VAGAS PERSEGUIDAS: ${vagas || ''}
 
-Monte um calendário editorial de 30 dias para LinkedIn. Objetivo: gerar inbound de vagas — que as melhores oportunidades cheguem até a pessoa, não o contrário.
+Sua tarefa tem duas partes:
 
-Cada post deve ter um tema distinto e um ângulo específico. Varie os formatos: reflexão, bastidor do projeto, aprendizado, opinião de mercado, resultado, processo, erro, dica prática.
+1. Escreva uma ESTRATÉGIA EDITORIAL em 3-4 frases explicando como os 30 dias vão construir a imagem desejada — quais pilares de conteúdo serão usados, por quê essa sequência funciona, e o que a pessoa vai transmitir ao final do mês.
+
+2. Monte um CALENDÁRIO de 30 dias para LinkedIn. Cada post deve ter tema distinto e ângulo específico. Varie os formatos: reflexão, bastidor do projeto, aprendizado, opinião de mercado, resultado, processo, erro, dica prática. Tudo alinhado à imagem que a pessoa quer passar.
 
 Responda SOMENTE em JSON:
-{"dias":[{"tema":"tema curto","angulo":"como abordar esse tema em 1 frase"}]}
+{"estrategia":"texto da estratégia aqui","dias":[{"tema":"tema curto","angulo":"como abordar esse tema em 1 frase"}]}
 
-Gere exatamente 30 itens.`;
+Gere exatamente 30 itens em dias.`;
 
   try {
     const res = await fetch('/api/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt, json_mode:true}) });
     const data = await res.json();
     const clean = data.result.replace(/^```json?\n?/,'').replace(/\n?```$/,'').trim();
-    const { dias } = JSON.parse(clean);
+    const { dias, estrategia } = JSON.parse(clean);
     const calendar = dias.map(d => ({ theme: d.tema, angle: d.angulo, draft: '', status: 'pending', feedback: '' }));
     saveMarcaCalendar(calendar);
+    if (estrategia) localStorage.setItem('liplop-marca-estrategia-v1', estrategia);
     renderMarcaTab();
   } catch(e) {
     btn.disabled = false; btn.textContent = '✨ Gerar meu calendário de 30 dias';
