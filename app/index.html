@@ -4253,12 +4253,8 @@ Gere um prep completo de entrevista. Responda SOMENTE em JSON válido, sem markd
 
 {
   "abertura": "1 frase de contexto: o que essa entrevista provavelmente vai avaliar dado o cargo e a empresa",
-  "stories": [
-    {
-      "pergunta": "pergunta provável que o recrutador vai fazer",
-      "historia": "qual experiência do perfil contar e como estruturá-la (situação, ação, resultado)",
-      "dica": "o que destacar ou evitar nessa resposta"
-    }
+  "pontos_fortes": [
+    "ponto forte específico do perfil do candidato que se conecta diretamente a um requisito ou desafio dessa vaga — seja concreto, cite a experiência real"
   ],
   "empresa": [
     "dica específica sobre a cultura/contexto/momento da empresa ${opp.company} relevante para a entrevista"
@@ -4272,7 +4268,7 @@ Gere um prep completo de entrevista. Responda SOMENTE em JSON válido, sem markd
   "pergunta_para_fazer": "1 pergunta inteligente que o candidato pode fazer ao final da entrevista, específica para essa vaga"
 }
 
-Gere exatamente 4 stories, 3 dicas de empresa, 3 dicas de cargo/senioridade, 3 evites. Seja direto, prático e específico. Sem genéricos. Português brasileiro correto com todos os acentos.`;
+Gere exatamente 4 pontos_fortes, 3 dicas de empresa, 3 dicas de cargo/senioridade, 3 evites. Seja direto, prático e específico. Sem genéricos. Português brasileiro correto com todos os acentos.`;
 
   try {
     const res = await fetch('/api/analyze', {
@@ -4289,20 +4285,11 @@ Gere exatamente 4 stories, 3 dicas de empresa, 3 dicas de cargo/senioridade, 3 e
         ${prep.abertura}
       </div>
 
-      <!-- Stories -->
-      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">🎤 Histórias para contar</div>
-      ${prep.stories.map((s, i) => `
-        <details style="border:1px solid rgba(255,255,255,0.07);border-radius:10px;margin-bottom:8px;overflow:hidden">
-          <summary style="padding:12px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text);list-style:none;display:flex;justify-content:space-between;align-items:center">
-            <span>${s.pergunta}</span>
-            <span style="color:#f472b6;font-size:16px;flex-shrink:0;margin-left:8px">›</span>
-          </summary>
-          <div style="padding:0 14px 14px">
-            <div style="font-size:12px;color:#cbd5e0;line-height:1.7;margin-bottom:10px">${s.historia}</div>
-            <div style="font-size:11px;color:#f472b6;background:rgba(244,114,182,0.07);border-radius:6px;padding:8px 10px">💡 ${s.dica}</div>
-          </div>
-        </details>
-      `).join('')}
+      <!-- Pontos fortes -->
+      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Seus pontos fortes para essa vaga</div>
+      <div style="border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px;margin-bottom:4px">
+        ${prep.pontos_fortes.map(p => `<div style="font-size:12px;color:#cbd5e0;line-height:1.6;padding:6px 0 6px 14px;position:relative;border-bottom:1px solid rgba(255,255,255,0.04)"><span style="position:absolute;left:0;color:#f472b6;font-weight:700">+</span>${p}</div>`).join('')}
+      </div>
 
       <!-- Empresa -->
       <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin:18px 0 10px">🏢 Sobre a ${opp.company}</div>
