@@ -4568,7 +4568,11 @@ function renderJobsList(jobs) {
               <button onclick="analyzeJob(${idx})" style="padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;background:transparent;border:1px solid rgba(99,179,237,0.3);color:#63b3ed;cursor:pointer">Fazer análise</button>
             `
           }
-          ${job.url ? `<a href="${job.url}" target="_blank" rel="noopener" style="padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;background:transparent;border:1px solid rgba(255,255,255,0.12);color:var(--mid);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px">${/google\.com\/search/i.test(job.url) ? '🔍 Buscar vaga' : '🔗 Ver vaga'} →</a>` : ''}
+          ${job.links ? `
+            ${job.links.gupy ? `<a href="${job.links.gupy}" target="_blank" rel="noopener" style="padding:7px 12px;border-radius:8px;font-size:11px;font-weight:600;background:rgba(99,179,237,0.08);border:1px solid rgba(99,179,237,0.25);color:#63b3ed;cursor:pointer;text-decoration:none">Gupy →</a>` : ''}
+            <a href="${job.links.google}" target="_blank" rel="noopener" style="padding:7px 12px;border-radius:8px;font-size:11px;font-weight:600;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:var(--mid);cursor:pointer;text-decoration:none">Google Jobs →</a>
+            <a href="${job.links.linkedin}" target="_blank" rel="noopener" style="padding:7px 12px;border-radius:8px;font-size:11px;font-weight:600;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:var(--mid);cursor:pointer;text-decoration:none">LinkedIn →</a>
+          ` : ''}
         </div>
         ${job.analysis ? `
           <div style="margin-top:12px;padding:12px;background:rgba(99,179,237,0.06);border:1px solid rgba(99,179,237,0.2);border-radius:8px;font-size:12px;color:#cbd5e0;line-height:1.6">${job.analysis}</div>
@@ -4590,31 +4594,20 @@ async function searchJobs() {
   const prompt = `Você é um especialista em recrutamento e mercado de trabalho brasileiro.
 
 PERFIL DO CANDIDATO:
-${profile.slice(0, 1000)}
+${profile.slice(0, 800)}
 
-OBJETIVOS PROFISSIONAIS: ${objectives || 'não informado'}
+OBJETIVOS: ${objectives || 'não informado'}
 CARGOS DESEJADOS: ${roles || 'não informado'}
 
-Pesquise na internet e liste exatamente 20 vagas reais e abertas atualmente que têm alto fit com esse perfil.
+Liste 20 combinações empresa+cargo com alto fit para esse perfil. Use empresas reais do mercado brasileiro (startups, fintechs, scale-ups, consultorias, grandes empresas). Para cada uma, informe o slug da empresa no Gupy se souber (ex: "nubank" para nubank.gupy.io).
 
-COMO BUSCAR:
-- Acesse diretamente os sites de carreiras das empresas: empresa.com/carreiras, jobs.empresa.com, empresa.gupy.io, empresa.inhire.io, empresa.solides.com.br, etc.
-- Faça scraping das páginas de vagas abertas e leia o conteúdo real de cada listagem
-- Confirme que a vaga está aberta antes de incluir (não inclua vagas fechadas ou expiradas)
-- Priorize empresas brasileiras: startups, scale-ups, fintechs, healthtechs, consultorias, grandes corporações
+Responda SOMENTE em JSON válido:
+{"vagas":[{"empresa":"Nubank","cargo":"Product Manager","localizacao":"São Paulo / Remoto","descricao":"2-3 frases sobre o tipo de vaga e requisitos esperados","fit":90,"fit_label":"Alto fit","gupy_slug":"nubank"}]}
 
-SOBRE OS LINKS:
-- Use o link direto da vaga NO SITE DA EMPRESA (não LinkedIn)
-- Ex: https://empresa.gupy.io/jobs/123456 ou https://careers.empresa.com/vaga/titulo
-- Se só tiver a página geral de carreiras, use ela: https://empresa.com/trabalhe-conosco
-
-Responda SOMENTE em JSON válido (sem markdown):
-{"vagas":[{"empresa":"","cargo":"","localizacao":"cidade ou Remoto","descricao":"resumo real da vaga com requisitos principais","fit":85,"fit_label":"Alto fit","url":"https://link-da-vaga-no-site-da-empresa"}]}
-
-fit deve ser número entre 0-100. fit_label deve ser "Alto fit" (>=80), "Bom fit" (>=60), "Fit parcial" (<60). Gere exatamente 20 vagas.`;
+fit: 0-100. fit_label: "Alto fit"(>=80), "Bom fit"(>=60), "Fit parcial"(<60). gupy_slug: slug da empresa no Gupy se souber, senão null. Gere exatamente 20 vagas.`;
 
   try {
-    const res = await fetch('/api/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt, json_mode:true, mode:'job_search'}) });
+    const res = await fetch('/api/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt, json_mode:true}) });
     const data = await res.json();
 
     if (!data.result) {
@@ -4629,15 +4622,18 @@ fit deve ser número entre 0-100. fit_label deve ser "Alto fit" (>=80), "Bom fit
     if (!Array.isArray(vagas) || !vagas.length) throw new Error('Lista de vagas vazia');
 
     const jobs = vagas.map(v => {
-      // Se não tiver URL ou vier do LinkedIn (expira), gera busca no Google pela vaga
-      let url = v.url || null;
-      if (!url || /linkedin\.com\/(jobs\/view|in\/)/i.test(url)) {
-        url = `https://www.google.com/search?q=${encodeURIComponent(`${v.cargo} ${v.empresa} vaga aberta`)}`;
-      }
+      // Gera links de busca estáveis a partir de empresa + cargo
+      const cargo = encodeURIComponent(v.cargo);
+      const empresa = encodeURIComponent(v.empresa);
+      const links = {
+        gupy: v.gupy_slug ? `https://${v.gupy_slug}.gupy.io` : null,
+        google: `https://www.google.com/search?q=${encodeURIComponent(`${v.cargo} ${v.empresa} vaga`)}&ibp=htl;jobs`,
+        linkedin: `https://www.linkedin.com/jobs/search/?keywords=${cargo}+${empresa}`,
+      };
       return {
         company: v.empresa, role: v.cargo, location: v.localizacao,
         description: v.descricao, fit: v.fit, fit_label: v.fit_label,
-        url,
+        links,
         status: 'none', analysis: null
       };
     });
