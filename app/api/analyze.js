@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  const { prompt, json_mode = true, mode = 'standard', model = 'claude-opus-4-5' } = req.body;
+  const { prompt, json_mode = true, mode = 'standard', model = 'claude-sonnet-4-5' } = req.body;
 
   if (!prompt) {
     return res.status(400).json({ error: 'Prompt ausente' });
@@ -100,7 +100,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model,
-        max_tokens: 1024,
+        max_tokens: 4096,
         system: systemPrompt,
         messages: [{ role: 'user', content: prompt }]
       })
