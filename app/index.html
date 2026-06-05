@@ -4523,10 +4523,13 @@ function renderProjectCase(text) {
 const MARCA_PROJECT_KEY  = 'liplop-marca-project-v1';
 const MARCA_TONE_KEY     = 'liplop-marca-tone-v1';
 const MARCA_CALENDAR_KEY = 'liplop-marca-calendar-v1';
+const MARCA_MESSAGE_KEY  = 'liplop-marca-message-v1';
 
 function getMarcaProject()  { try { return JSON.parse(localStorage.getItem(MARCA_PROJECT_KEY))  || null; } catch(e) { return null; } }
 function getMarcaTone()     { try { return JSON.parse(localStorage.getItem(MARCA_TONE_KEY))     || null; } catch(e) { return null; } }
 function getMarcaCalendar() { try { return JSON.parse(localStorage.getItem(MARCA_CALENDAR_KEY)) || []; }  catch(e) { return []; } }
+function getMarcaMessage()  { return localStorage.getItem(MARCA_MESSAGE_KEY) || ''; }
+function saveMarcaMessage(m){ localStorage.setItem(MARCA_MESSAGE_KEY, m); }
 function saveMarcaProject(p)  { localStorage.setItem(MARCA_PROJECT_KEY,  JSON.stringify(p)); }
 function saveMarcaTone(t)     { localStorage.setItem(MARCA_TONE_KEY,     JSON.stringify(t)); }
 function saveMarcaCalendar(c) { localStorage.setItem(MARCA_CALENDAR_KEY, JSON.stringify(c)); }
@@ -4601,9 +4604,22 @@ function renderMarcaTab() {
 }
 
 function renderMarcaStep1(project) {
+  const savedMsg = getMarcaMessage();
+  const messageBlock = `
+    <div style="margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Qual imagem você quer passar pro mercado?</div>
+      <textarea id="marca-message-input" placeholder='Ex: "Quero ser vista como alguém que transforma operações caóticas em processos escaláveis"'
+        onblur="saveMarcaMessage(this.value.trim())"
+        style="width:100%;min-height:64px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;color:#cbd5e0;font-size:13px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
+        onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="saveMarcaMessage(this.value.trim());this.style.borderColor='rgba(255,255,255,0.1)'"
+      >${savedMsg}</textarea>
+      <div style="font-size:11px;color:var(--dim);margin-top:4px">Esse posicionamento vai guiar a narrativa do seu case e do seu conteúdo.</div>
+    </div>`;
+
   if (project?.approved) {
     return `
       <div style="border:1px solid rgba(244,114,182,0.3);border-radius:14px;padding:20px;margin-bottom:20px;background:rgba(244,114,182,0.04)">
+        ${messageBlock}
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.08em">Seu projeto / case</div>
           <button onclick="confirmResetProject()" style="background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer;text-decoration:underline">refazer</button>
@@ -4615,7 +4631,8 @@ function renderMarcaStep1(project) {
   return `
     <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:20px;background:rgba(255,255,255,0.02)">
       <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">1. Projeto ou case</div>
-      <p style="font-size:13px;color:var(--mid);margin-bottom:16px;line-height:1.6">Antes de postar, você precisa ter algo concreto para mostrar. Pode ser algo que você <strong style="color:var(--text)">já fez</strong> e quer estruturar melhor, ou um <strong style="color:var(--text)">projeto novo</strong> para construir agora.</p>
+      ${messageBlock}
+      <p style="font-size:13px;color:var(--mid);margin-bottom:16px;line-height:1.6">Agora escolha: você tem algo que quer estruturar, ou quer sugestões de projeto?</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
         <button onclick="showMarcaPath('existing')" id="btn-path-existing"
           style="padding:14px 12px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:var(--text);font-size:12px;font-weight:600;cursor:pointer;line-height:1.4;text-align:left;transition:border-color .15s">
@@ -4667,6 +4684,7 @@ async function generateMarcaCase() {
 
   const profile = localStorage.getItem(PROFILE_KEY) || '';
   const vagas = opps.slice(0,5).map(o => o.role + ' em ' + o.company).join(', ');
+  const mensagem = document.getElementById('marca-message-input')?.value?.trim() || getMarcaMessage();
 
   const prompt = `Você é um especialista em posicionamento de carreira e marca pessoal.
 
@@ -4675,10 +4693,12 @@ ${profile.slice(0,800)}
 
 VAGAS QUE ESTÁ PERSEGUINDO: ${vagas || 'não informado'}
 
+IMAGEM QUE QUER PASSAR: ${mensagem || 'não informado'}
+
 O candidato descreveu o seguinte projeto/experiência:
 "${input}"
 
-Transforme isso em um case estruturado e poderoso para LinkedIn. Use EXATAMENTE este formato (com os asteriscos):
+Transforme isso em um case estruturado e poderoso para LinkedIn. A narrativa deve reforçar a imagem que a pessoa quer passar. Use EXATAMENTE este formato (com os asteriscos):
 
 **PROJETO:** [nome curto e marcante]
 **PROBLEMA:** [qual dor ou desafio existia]
@@ -4718,11 +4738,13 @@ async function generateMarcaProjectIdeas() {
 
   const profile = localStorage.getItem(PROFILE_KEY) || '';
   const vagas = opps.slice(0,5).map(o => o.role + ' em ' + o.company).join(', ');
+  const mensagem = getMarcaMessage();
 
   const prompt = `Você é especialista em posicionamento de carreira.
 
 PERFIL: ${profile.slice(0,800)}
 VAGAS PERSEGUIDAS: ${vagas || 'não informado'}
+IMAGEM QUE QUER PASSAR: ${mensagem || 'não informado'}
 
 Sugira exatamente 3 projetos plug and play — factíveis em 2 a 4 semanas, que a pessoa pode executar agora com o que já sabe. Cada projeto deve provar exatamente o perfil que as vagas exigem.
 
