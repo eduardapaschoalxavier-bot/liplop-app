@@ -4838,21 +4838,20 @@ function renderMarcaStep2(tone, enabled) {
     </div>`;
 
   const questions = [
-    { id:'q1', label:'Como você escreve naturalmente?', placeholder:'Ex: direto, sem firula, às vezes uso humor, odeio texto longo...' },
-    { id:'q2', label:'Que tipo de post no LinkedIn você detesta ver?', placeholder:'Ex: motivacional vazio, aqueles de "hoje aprendi que...", storytelling forçado...' },
-    { id:'q3', label:'Escreva 2-3 frases do jeito que você falaria com um colega de trabalho.', placeholder:'Pode ser sobre qualquer coisa do seu dia, da sua área, do mercado...' },
-    { id:'q4', label:'Qual adjetivo você nunca usaria para se descrever?', placeholder:'Ex: apaixonado, proativo, disruptivo...' },
+    { id:'q1', label:'Se você fosse explicar o que você faz pro seu melhor amigo em 2-3 frases, como seria?', placeholder:'Escreve do jeito que você fala mesmo, sem pensar em parecer profissional...', hint:'Essa resposta vai me dizer mais sobre como você escreve do que qualquer outra pergunta. A IA vai replicar esse tom nos seus posts.' },
+    { id:'q2', label:'Que tipo de post no LinkedIn você detesta ver?', placeholder:'Ex: motivacional vazio, aqueles de "hoje aprendi que...", storytelling forçado, frases soltas com muito espaço...' },
   ];
 
   return `
     <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:20px;background:rgba(255,255,255,0.02)">
       <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">2. Tom de voz</div>
-      <p style="font-size:13px;color:var(--mid);margin-bottom:20px;line-height:1.6">A IA vai melhorar e dar feedback nos seus posts, mas o texto começa sempre com você. Responda essas 4 perguntas para eu entender como você escreve.</p>
+      <p style="font-size:13px;color:var(--mid);margin-bottom:20px;line-height:1.6">Para replicar como você escreve, preciso te ouvir de verdade — não do jeito "LinkedIn formal", mas do jeito que você fala.</p>
       ${questions.map(q => `
         <div style="margin-bottom:16px">
           <label style="font-size:12px;font-weight:600;color:var(--text);display:block;margin-bottom:6px">${q.label}</label>
+          ${q.hint ? `<div style="font-size:11px;color:#f472b6;margin-bottom:8px;line-height:1.5">${q.hint}</div>` : ''}
           <textarea id="marca-${q.id}" placeholder="${q.placeholder}"
-            style="width:100%;min-height:64px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;color:#cbd5e0;font-size:12px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
+            style="width:100%;min-height:${q.hint ? '80px' : '64px'};background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;color:#cbd5e0;font-size:12px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
             onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></textarea>
         </div>`).join('')}
       <button onclick="generateToneProfile()" style="width:100%;padding:11px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
