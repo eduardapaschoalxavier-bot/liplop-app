@@ -2203,7 +2203,7 @@
       <select id="f-stage">
         <option value="todo">Para Aplicar</option>
         <option value="applied">Aplicada</option>
-        <option value="recruiter">Entrevista c/ Recrutador</option>
+        <option value="recruiter">Primeira Entrevista Agendada</option>
         <option value="waiting">Aguardando Retorno</option>
         <option value="decision">Entrevista c/ Decisor</option>
         <option value="offer">Oferta</option>
@@ -2320,7 +2320,7 @@
         <select class="modal-edit-select" id="e-stage">
           <option value="todo">Para Aplicar</option>
           <option value="applied">Aplicada</option>
-          <option value="recruiter">Entrevista c/ Recrutador</option>
+          <option value="recruiter">Primeira Entrevista Agendada</option>
           <option value="waiting">Aguardando Retorno</option>
           <option value="decision">Entrevista c/ Decisor</option>
           <option value="offer">Oferta</option>
@@ -2443,7 +2443,7 @@ const defaultOpps = [
     next: "Agradecer contato e pedir update sobre processo",
     notes: "Indicação de ex-colega. Processo costuma ser rápido."
   },
-  // ── Entrevista Recrutador ──
+  // ── Primeira Entrevista Agendada ──
   {
     id: 6,
     company: "Nuvemshop",
@@ -2514,7 +2514,7 @@ const opps = loadOpps();
 const columns = [
   { id: "todo",       label: "Para Aplicar",           cls: "col-todo" },
   { id: "applied",    label: "Aplicada",               cls: "col-applied" },
-  { id: "recruiter",  label: "Entrevista c/ Recrutador", cls: "col-recruiter" },
+  { id: "recruiter",  label: "Primeira Entrevista Agendada", cls: "col-recruiter" },
   { id: "waiting",    label: "Aguardando Retorno",      cls: "col-waiting" },
   { id: "decision",   label: "Entrevista c/ Decisor",  cls: "col-decision" },
   { id: "offer",      label: "Oferta",                 cls: "col-offer" },
@@ -2533,7 +2533,7 @@ function renderFunnel() {
   const stages = [
     { id: "todo",      label: "Para Aplicar",       barCls: "bar-todo" },
     { id: "applied",   label: "Aplicada",           barCls: "bar-applied" },
-    { id: "recruiter", label: "Entrev. Recrutador", barCls: "bar-recruiter" },
+    { id: "recruiter", label: "1ª Entrevista", barCls: "bar-recruiter" },
     { id: "waiting",   label: "Aguardando",         barCls: "bar-waiting" },
     { id: "decision",  label: "Entrev. Decisor",    barCls: "bar-decision" },
     { id: "offer",     label: "Oferta",             barCls: "bar-offer" },
@@ -3137,7 +3137,7 @@ function switchTab(tab) {
 const stageLabel = {
   todo:      'Para Aplicar',
   applied:   'Aplicada',
-  recruiter: 'Entrevista Recrutador',
+  recruiter: 'Primeira Entrevista Agendada',
   waiting:   'Aguardando Retorno',
   decision:  'Entrevista Decisor',
   offer:     'Oferta',
@@ -4210,7 +4210,7 @@ function renderInterviewTab() {
       <div style="text-align:center;padding:60px 20px">
         <div style="font-size:2.5rem;margin-bottom:16px">🎯</div>
         <div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px">Nenhuma entrevista ativa</div>
-        <div style="font-size:0.88rem;color:var(--mid)">Quando uma vaga chegar na coluna <strong style="color:#f472b6">Entrevista com Recrutador</strong> no Kanban, ela aparece aqui com seu prep personalizado.</div>
+        <div style="font-size:0.88rem;color:var(--mid)">Quando uma vaga chegar na coluna <strong style="color:#f472b6">Primeira Entrevista Agendada</strong> no Kanban, ela aparece aqui com seu prep personalizado.</div>
       </div>`;
     return;
   }
