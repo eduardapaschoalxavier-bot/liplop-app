@@ -2624,8 +2624,8 @@ function buildCard(opp) {
       <strong>Próximo passo</strong>
       ${opp.next ? `<div style="margin-bottom:8px">${opp.next}</div>` : ''}
       ${opp.stage === 'todo'      ? `<button class="card-action-btn primary card-btn-resume">✨ Gerar currículo adaptado</button>` : ''}
-      ${opp.stage === 'applied'   ? `<button class="card-action-btn ghost card-btn-contacts">🤝 Buscar contatos no LinkedIn</button>` : ''}
-      ${opp.stage === 'recruiter' ? `<button class="card-action-btn ghost card-btn-interview">🎤 Preparação para entrevista</button>` : ''}
+      ${opp.stage === 'applied'   ? `<button class="card-action-btn ghost card-btn-contacts">Buscar contatos no LinkedIn</button>` : ''}
+      ${opp.stage === 'recruiter' ? `<button class="card-action-btn ghost card-btn-interview">Preparação para entrevista</button>` : ''}
     </div>
     ${(opp.contacts || []).length ? `
       <div class="card-contacts">
