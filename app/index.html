@@ -1963,7 +1963,21 @@
   </a>
 
   <nav class="tab-nav">
-    <button class="tab-btn active" onclick="switchTab('analyzer')">
+    <button class="tab-btn active" onclick="switchTab('metodo')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M2 4h12M2 8h8M2 12h10"/>
+      </svg>
+      Método
+    </button>
+    <button class="tab-btn" onclick="switchTab('marca')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M8 2C5 2 2 4 2 7c0 2 1.5 3.5 3 4.5V13h6v-1.5C12.5 10.5 14 9 14 7c0-3-3-5-6-5z"/>
+        <line x1="6" y1="13" x2="10" y2="13"/>
+        <line x1="7" y1="15" x2="9" y2="15"/>
+      </svg>
+      Marca
+    </button>
+    <button class="tab-btn" onclick="switchTab('analyzer')">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
         <circle cx="8" cy="8" r="6"/>
         <path d="M8 5v3.5l2 2"/>
@@ -1985,14 +1999,6 @@
         <path d="M11 9.5l1.5 1.5-1.5 1.5"/>
       </svg>
       Entrevistas
-    </button>
-    <button class="tab-btn" onclick="switchTab('marca')">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M8 2C5 2 2 4 2 7c0 2 1.5 3.5 3 4.5V13h6v-1.5C12.5 10.5 14 9 14 7c0-3-3-5-6-5z"/>
-        <line x1="6" y1="13" x2="10" y2="13"/>
-        <line x1="7" y1="15" x2="9" y2="15"/>
-      </svg>
-      Marca
     </button>
     <button class="tab-btn" onclick="switchTab('ranking')">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -2025,7 +2031,7 @@
 <div class="page-content">
 
 <!-- ANALISAR FIT TAB -->
-<div class="tab-view active" id="tab-analyzer" style="display:block">
+<div class="tab-view" id="tab-analyzer">
   <div class="fit-wrap">
 
     <!-- Hero -->
@@ -2189,6 +2195,11 @@
 </div>
 
 <!-- MARCA TAB -->
+<!-- MÉTODO TAB -->
+<div class="tab-view active" id="tab-metodo" style="display:block">
+  <div id="metodo-wrap" style="max-width:720px;margin:0 auto;padding:24px 16px 60px"></div>
+</div>
+
 <div class="tab-view" id="tab-marca">
   <div id="marca-wrap" style="max-width:720px;margin:0 auto;padding:24px 16px 60px"></div>
 </div>
@@ -3115,13 +3126,13 @@ renderBoard();
 updateTopbarCount();
 
 // ── Tab switching ────────────────────────────────────────────
-let _currentTab = 'analyzer';
+let _currentTab = 'metodo';
 
 function switchTab(tab) {
   _currentTab = tab;
 
   // Esconde todas as abas explicitamente
-  ['analyzer','kanban','ranking','interview','marca'].forEach(id => {
+  ['analyzer','kanban','ranking','interview','marca','metodo'].forEach(id => {
     const el = document.getElementById('tab-' + id);
     if (el) { el.style.display = 'none'; el.classList.remove('active'); }
   });
@@ -3145,6 +3156,7 @@ function switchTab(tab) {
   if (tab === 'analyzer')  initAnalyzer();
   if (tab === 'interview') renderInterviewTab();
   if (tab === 'marca')     renderMarcaTab();
+  if (tab === 'metodo')    renderMetodoTab();
 }
 
 // ── Ranking ──────────────────────────────────────────────────
@@ -4336,6 +4348,142 @@ Gere exatamente 3 dicas de empresa, 3 dicas de cargo/senioridade, 3 evites. Seja
       <div style="color:#fc8181;font-size:12px;margin-bottom:10px">Erro ao gerar preparação: ${e.message}</div>
       <button onclick="generateInterviewPrep(${oppId})" style="padding:8px 16px;background:transparent;border:1px solid #f472b6;border-radius:7px;color:#f472b6;font-size:12px;cursor:pointer">Tentar novamente</button>`;
   }
+}
+
+// ── Aba Método ───────────────────────────────────────────────────
+function renderMetodoTab() {
+  const wrap = document.getElementById('metodo-wrap');
+
+  // Fluxo
+  const fluxo = [
+    { label: 'Construa presença',   sub: 'Marca',       tab: 'marca',    icon: '◈', color: '#f472b6' },
+    { label: 'Analise as vagas',    sub: 'Analisar Fit', tab: 'analyzer', icon: '◎', color: '#c9974a' },
+    { label: 'Gerencie o pipeline', sub: 'Kanban',       tab: 'kanban',   icon: '▦', color: '#63b3ed' },
+    { label: 'Prepare entrevistas', sub: 'Entrevistas',  tab: 'interview',icon: '◷', color: '#a78bfa' },
+    { label: 'Veja seus resultados',sub: 'Ranking',      tab: 'ranking',  icon: '◆', color: '#68d391' },
+  ];
+
+  // Tarefas do dia
+  const tasks = buildDailyTasks();
+
+  wrap.innerHTML = `
+    <!-- Hero -->
+    <div style="position:relative;overflow:hidden;padding:48px 32px 40px;margin-bottom:32px;border-radius:18px;border:1px solid rgba(224,68,120,0.14);background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(224,68,120,0.08) 0%,transparent 70%),var(--surface);text-align:center">
+      <div style="position:absolute;top:-60px;left:30%;width:420px;height:280px;background:radial-gradient(ellipse at center,rgba(224,68,120,0.18) 0%,transparent 70%);border-radius:50%;pointer-events:none;animation:heroGlow 4s ease-in-out infinite;transform-origin:0 0"></div>
+      <div style="position:relative;z-index:2">
+        <div style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;background:rgba(224,68,120,0.12);border:1px solid rgba(224,68,120,0.28);border-radius:20px;font-size:0.72rem;font-weight:700;color:var(--rose);letter-spacing:.04em;text-transform:uppercase;margin-bottom:20px">✦ Método Liplop</div>
+        <h2 style="font-size:2.2rem;font-weight:800;line-height:1.12;letter-spacing:-.03em;color:var(--text);margin-bottom:14px">Duas frentes.<br><span style="background:linear-gradient(90deg,#E04478,#C9974A,#E04478);background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradientText 4s linear infinite">Um objetivo.</span></h2>
+        <p style="font-size:0.95rem;color:var(--mid);line-height:1.6;max-width:460px;margin:0 auto">Enquanto você aplica ativamente para as vagas certas, sua marca trabalha por você atraindo oportunidades. Os dois lados juntos é o que acelera.</p>
+      </div>
+    </div>
+
+    <!-- Duas frentes -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:32px">
+      <div style="padding:20px;border-radius:14px;border:1px solid rgba(244,114,182,0.2);background:rgba(244,114,182,0.04)">
+        <div style="font-size:10px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Inbound · Marca</div>
+        <div style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:6px">As vagas vêm até você</div>
+        <div style="font-size:12px;color:var(--mid);line-height:1.6">Construa presença no LinkedIn com projeto real, tom de voz próprio e consistência. Recrutadores passam a te encontrar.</div>
+      </div>
+      <div style="padding:20px;border-radius:14px;border:1px solid rgba(99,179,237,0.2);background:rgba(99,179,237,0.04)">
+        <div style="font-size:10px;font-weight:700;color:#63b3ed;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Outbound · Pipeline</div>
+        <div style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:6px">Você vai atrás das certas</div>
+        <div style="font-size:12px;color:var(--mid);line-height:1.6">Analise fit com IA, adapte currículo, gerencie aplicações e chegue preparado em cada entrevista.</div>
+      </div>
+    </div>
+
+    <!-- Fluxo -->
+    <div style="margin-bottom:32px">
+      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px">O fluxo do método</div>
+      <div style="display:flex;align-items:center;gap:0;overflow-x:auto;padding-bottom:4px">
+        ${fluxo.map((s, i) => `
+          <div style="display:flex;align-items:center;flex-shrink:0">
+            <div onclick="switchTab('${s.tab}')" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;padding:14px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);min-width:110px;transition:border-color .15s;text-align:center"
+              onmouseover="this.style.borderColor='${s.color}';this.style.background='rgba(255,255,255,0.05)'"
+              onmouseout="this.style.borderColor='rgba(255,255,255,0.07)';this.style.background='rgba(255,255,255,0.02)'">
+              <div style="font-size:22px;color:${s.color}">${s.icon}</div>
+              <div style="font-size:11px;font-weight:700;color:var(--text);line-height:1.3">${s.label}</div>
+              <div style="font-size:10px;color:var(--dim)">${s.sub}</div>
+            </div>
+            ${i < fluxo.length - 1 ? `<div style="font-size:16px;color:var(--dim);margin:0 4px;flex-shrink:0;padding-bottom:20px">›</div>` : ''}
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Plano do dia -->
+    <div>
+      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px">Seu plano para hoje</div>
+      ${tasks.length ? `
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${tasks.map(t => `
+            <div onclick="switchTab('${t.tab}')" style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);cursor:pointer;transition:border-color .15s"
+              onmouseover="this.style.borderColor='rgba(244,114,182,0.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'">
+              <div style="width:8px;height:8px;border-radius:50%;background:${t.color};flex-shrink:0"></div>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:600;color:var(--text)">${t.title}</div>
+                ${t.sub ? `<div style="font-size:11px;color:var(--dim);margin-top:2px">${t.sub}</div>` : ''}
+              </div>
+              <div style="font-size:12px;color:var(--dim)">›</div>
+            </div>`).join('')}
+        </div>` : `
+        <div style="text-align:center;padding:32px;border:1px solid rgba(255,255,255,0.06);border-radius:12px;color:var(--dim);font-size:13px">
+          Nenhuma tarefa pendente. Você está em dia! ✓
+        </div>`}
+    </div>`;
+}
+
+function buildDailyTasks() {
+  const tasks = [];
+  const profile   = localStorage.getItem(PROFILE_KEY) || '';
+  const project   = getMarcaProject();
+  const tone      = getMarcaTone();
+  const calendar  = getMarcaCalendar();
+
+  // Perfil
+  if (!profile.trim()) {
+    tasks.push({ title: 'Complete seu perfil', sub: 'Necessário para todas as análises de IA', tab: 'analyzer', color: '#fc8181' });
+  }
+
+  // Marca: projeto
+  if (!project?.approved) {
+    tasks.push({ title: 'Defina seu projeto ou case', sub: 'Base da sua estratégia de marca pessoal', tab: 'marca', color: '#f472b6' });
+  } else if (!tone?.approved) {
+    tasks.push({ title: 'Defina seu tom de voz', sub: 'Para que a IA preserve sua forma de escrever', tab: 'marca', color: '#f472b6' });
+  } else if (!calendar.length) {
+    tasks.push({ title: 'Gere seu calendário editorial de 30 dias', sub: 'Plano completo de conteúdo para o LinkedIn', tab: 'marca', color: '#f472b6' });
+  } else {
+    // Post do dia
+    const dayIndex = calendar.findIndex(d => d.status === 'pending' || d.status === 'draft');
+    if (dayIndex !== -1) {
+      const day = calendar[dayIndex];
+      tasks.push({ title: `Escreva o post do dia ${dayIndex + 1}`, sub: day.theme, tab: 'marca', color: '#f472b6' });
+    }
+  }
+
+  // Vagas para aplicar com currículo
+  const todoOpps = opps.filter(o => o.stage === 'todo');
+  if (todoOpps.length) {
+    tasks.push({ title: `Gere currículo adaptado para ${todoOpps.length} vaga${todoOpps.length > 1 ? 's' : ''}`, sub: todoOpps.map(o => o.company).join(', '), tab: 'kanban', color: '#c9974a' });
+  }
+
+  // Vagas aplicadas sem contatos buscados
+  const appliedOpps = opps.filter(o => o.stage === 'applied');
+  if (appliedOpps.length) {
+    tasks.push({ title: `Ative sua rede para ${appliedOpps.length} vaga${appliedOpps.length > 1 ? 's' : ''}`, sub: 'Busque contatos no LinkedIn', tab: 'kanban', color: '#63b3ed' });
+  }
+
+  // Entrevistas agendadas
+  const interviewOpps = opps.filter(o => o.stage === 'recruiter');
+  if (interviewOpps.length) {
+    tasks.push({ title: `Prepare ${interviewOpps.length} entrevista${interviewOpps.length > 1 ? 's' : ''} agendada${interviewOpps.length > 1 ? 's' : ''}`, sub: interviewOpps.map(o => o.company).join(', '), tab: 'interview', color: '#a78bfa' });
+  }
+
+  // Aguardando retorno
+  const waitingOpps = opps.filter(o => o.stage === 'waiting');
+  if (waitingOpps.length) {
+    tasks.push({ title: `Faça follow-up em ${waitingOpps.length} processo${waitingOpps.length > 1 ? 's' : ''}`, sub: waitingOpps.map(o => o.company).join(', '), tab: 'kanban', color: '#f59e0b' });
+  }
+
+  return tasks;
 }
 
 // ── Aba Marca ────────────────────────────────────────────────────
