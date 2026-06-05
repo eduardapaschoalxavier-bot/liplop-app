@@ -4450,63 +4450,87 @@ function renderPerfilTab() {
   const profile    = localStorage.getItem(PROFILE_KEY) || '';
   const objectives = getProfileObjectives();
   const roles      = getProfileRoles();
+  const isSaved    = !!(profile || objectives || roles);
 
   wrap.innerHTML = `
     <div style="margin-bottom:28px">
       <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">✦ Seu Perfil</div>
       <h2 style="font-size:1.6rem;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.2">Configure seu perfil uma vez.<br>Use em tudo.</h2>
-      <p style="font-size:13px;color:var(--mid);line-height:1.6">Seu perfil alimenta a análise de vagas, a busca de oportunidades e a construção da sua marca. Preencha uma vez e mantenha atualizado.</p>
+      <p style="font-size:13px;color:var(--mid);line-height:1.6">Seu perfil alimenta a análise de vagas, a busca de oportunidades e a construção da sua marca.</p>
     </div>
 
-    <!-- Bloco 1: LinkedIn PDF -->
-    <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:16px;background:rgba(255,255,255,0.02)">
-      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Perfil profissional</div>
-      <div style="font-size:12px;color:var(--mid);margin-bottom:14px;line-height:1.5">Importe seu LinkedIn como PDF ou cole seu currículo/resumo profissional.</div>
-      <div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:12px;color:#a0aec0;line-height:1.6">
-        <div style="font-weight:600;color:#e2e8f0;margin-bottom:8px;display:flex;align-items:center;gap:6px">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-          Como importar do LinkedIn
-        </div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <span>1. Acesse seu <a href="https://www.linkedin.com/in/me/" target="_blank" style="color:#a5b4fc;text-decoration:underline">perfil no LinkedIn ↗</a></span>
-          <span>2. Clique em <strong style="color:#e2e8f0">Mais</strong> → <strong style="color:#e2e8f0">Salvar como PDF</strong></span>
-          <div style="display:flex;align-items:center;gap:10px;margin-top:2px">
-            <span>3. Suba o PDF aqui:</span>
-            <label style="cursor:pointer;background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.5);color:#a5b4fc;padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;display:inline-block">
-              📎 Escolher PDF
-              <input type="file" accept=".pdf" style="display:none" onchange="extractProfilePDFPerfil(this)">
-            </label>
+    ${isSaved ? `
+    <!-- Vista salva -->
+    <div id="perfil-saved-view">
+      ${perfilSavedBlock('profile', 'Perfil profissional', profile ? profile.slice(0,120) + '…' : '—')}
+      ${perfilSavedBlock('objectives', 'Objetivos profissionais', objectives || '—')}
+      ${perfilSavedBlock('roles', 'Cargos desejados', roles || '—')}
+      <button onclick="editPerfilData()" style="margin-top:8px;background:none;border:1px solid rgba(255,255,255,0.12);color:var(--mid);padding:9px 20px;border-radius:8px;font-size:13px;cursor:pointer">Editar perfil</button>
+    </div>
+    ` : ''}
+
+    <!-- Formulário de edição -->
+    <div id="perfil-edit-view" style="${isSaved ? 'display:none' : ''}">
+      <!-- Bloco 1: LinkedIn PDF -->
+      <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:16px;background:rgba(255,255,255,0.02)">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Perfil profissional</div>
+        <div style="font-size:12px;color:var(--mid);margin-bottom:14px;line-height:1.5">Importe seu LinkedIn como PDF ou cole seu currículo/resumo profissional.</div>
+        <div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:12px;color:#a0aec0;line-height:1.6">
+          <div style="font-weight:600;color:#e2e8f0;margin-bottom:8px;display:flex;align-items:center;gap:6px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            Como importar do LinkedIn
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span>1. Acesse seu <a href="https://www.linkedin.com/in/me/" target="_blank" style="color:#a5b4fc;text-decoration:underline">perfil no LinkedIn ↗</a></span>
+            <span>2. Clique em <strong style="color:#e2e8f0">Mais</strong> → <strong style="color:#e2e8f0">Salvar como PDF</strong></span>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:2px">
+              <span>3. Suba o PDF aqui:</span>
+              <label style="cursor:pointer;background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.5);color:#a5b4fc;padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;display:inline-block">
+                📎 Escolher PDF
+                <input type="file" accept=".pdf" style="display:none" onchange="extractProfilePDFPerfil(this)">
+              </label>
+            </div>
           </div>
         </div>
+        <div id="perfil-pdf-status" style="font-size:12px;color:var(--mid);margin-bottom:8px;display:none"></div>
+        <textarea id="perfil-profile-input" placeholder="Cole aqui seu LinkedIn, currículo ou resumo profissional..."
+          style="width:100%;min-height:120px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;color:#cbd5e0;font-size:12px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
+          onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">${profile}</textarea>
       </div>
-      <div id="perfil-pdf-status" style="font-size:12px;color:var(--mid);margin-bottom:8px;display:none"></div>
-      <textarea id="perfil-profile-input" placeholder="Cole aqui seu LinkedIn, currículo ou resumo profissional..."
-        style="width:100%;min-height:120px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;color:#cbd5e0;font-size:12px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
-        onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">${profile}</textarea>
-    </div>
+      <!-- Bloco 2: Objetivos -->
+      <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:16px;background:rgba(255,255,255,0.02)">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Objetivos profissionais</div>
+        <div style="font-size:12px;color:var(--mid);margin-bottom:12px">O que você está buscando? Que tipo de empresa, cultura, desafio?</div>
+        <textarea id="perfil-objectives-input" placeholder="Ex: Quero trabalhar em startups de crescimento rápido..."
+          style="width:100%;min-height:80px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;color:#cbd5e0;font-size:12px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
+          onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">${objectives}</textarea>
+      </div>
+      <!-- Bloco 3: Cargos -->
+      <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:20px;background:rgba(255,255,255,0.02)">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Cargos que gostaria de ocupar</div>
+        <div style="font-size:12px;color:var(--mid);margin-bottom:12px">Liste os cargos, separados por vírgula.</div>
+        <textarea id="perfil-roles-input" placeholder="Ex: Head of Growth, Growth Manager, Product Marketing Manager..."
+          style="width:100%;min-height:60px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;color:#cbd5e0;font-size:12px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
+          onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">${roles}</textarea>
+      </div>
+      <button onclick="savePerfilData()" style="width:100%;padding:13px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer">
+        Salvar perfil
+      </button>
+      <div id="perfil-save-status" style="display:none;text-align:center;font-size:12px;color:#68d391;margin-top:10px">✓ Perfil salvo!</div>
+    </div>`;
+}
 
-    <!-- Bloco 2: Objetivos -->
-    <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:16px;background:rgba(255,255,255,0.02)">
-      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Objetivos profissionais</div>
-      <div style="font-size:12px;color:var(--mid);margin-bottom:12px">O que você está buscando? Que tipo de empresa, cultura, desafio?</div>
-      <textarea id="perfil-objectives-input" placeholder="Ex: Quero trabalhar em startups de crescimento rápido em posição de liderança de growth ou produto. Busco empresas com cultura orientada a dados e autonomia para experimentar..."
-        style="width:100%;min-height:80px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;color:#cbd5e0;font-size:12px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
-        onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">${objectives}</textarea>
-    </div>
+function perfilSavedBlock(id, label, value) {
+  return `
+    <div style="border:1px solid rgba(244,114,182,0.2);border-radius:12px;padding:16px 18px;margin-bottom:10px;background:rgba(244,114,182,0.03)">
+      <div style="font-size:10px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">${label}</div>
+      <div style="font-size:13px;color:#cbd5e0;line-height:1.6">${value}</div>
+    </div>`;
+}
 
-    <!-- Bloco 3: Cargos desejados -->
-    <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:20px;background:rgba(255,255,255,0.02)">
-      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Cargos que gostaria de ocupar</div>
-      <div style="font-size:12px;color:var(--mid);margin-bottom:12px">Liste os cargos, separados por vírgula.</div>
-      <textarea id="perfil-roles-input" placeholder="Ex: Head of Growth, Growth Manager, Product Marketing Manager, Head of Marketing..."
-        style="width:100%;min-height:60px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;color:#cbd5e0;font-size:12px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
-        onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">${roles}</textarea>
-    </div>
-
-    <button onclick="savePerfilData()" style="width:100%;padding:13px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer">
-      Salvar perfil
-    </button>
-    <div id="perfil-save-status" style="display:none;text-align:center;font-size:12px;color:#68d391;margin-top:10px">✓ Perfil salvo com sucesso!</div>`;
+function editPerfilData() {
+  document.getElementById('perfil-saved-view').style.display = 'none';
+  document.getElementById('perfil-edit-view').style.display = 'block';
 }
 
 function savePerfilData() {
@@ -4519,12 +4543,9 @@ function savePerfilData() {
   // Sincroniza com a aba Análise
   const fitProfileEl = document.getElementById('fit-profile');
   if (fitProfileEl && profile) fitProfileEl.value = profile;
-  // Feedback visual
-  const status = document.getElementById('perfil-save-status');
-  status.style.display = 'block';
-  setTimeout(() => { status.style.display = 'none'; }, 3000);
-  // Atualiza preview no Análise
   if (profile) { const p = document.getElementById('profile-preview-text'); if (p) p.textContent = profile.slice(0,80) + '…'; }
+  // Volta para vista salva
+  renderPerfilTab();
 }
 
 function extractProfilePDFPerfil(input) {
