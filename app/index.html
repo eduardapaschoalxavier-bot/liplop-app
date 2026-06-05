@@ -4568,7 +4568,7 @@ function renderJobsList(jobs) {
               <button onclick="analyzeJob(${idx})" style="padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;background:transparent;border:1px solid rgba(99,179,237,0.3);color:#63b3ed;cursor:pointer">Fazer análise</button>
             `
           }
-          ${job.url ? `<a href="${job.url}" target="_blank" rel="noopener" style="padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;background:transparent;border:1px solid rgba(255,255,255,0.12);color:var(--mid);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px">${/linkedin\.com\/jobs\/search/i.test(job.url) ? '🔍 Buscar no LinkedIn' : '🔗 Ver carreiras'} →</a>` : ''}
+          ${job.url ? `<a href="${job.url}" target="_blank" rel="noopener" style="padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;background:transparent;border:1px solid rgba(255,255,255,0.12);color:var(--mid);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px">${/google\.com\/search/i.test(job.url) ? '🔍 Buscar vaga' : '🔗 Ver vaga'} →</a>` : ''}
         </div>
         ${job.analysis ? `
           <div style="margin-top:12px;padding:12px;background:rgba(99,179,237,0.06);border:1px solid rgba(99,179,237,0.2);border-radius:8px;font-size:12px;color:#cbd5e0;line-height:1.6">${job.analysis}</div>
@@ -4595,17 +4595,21 @@ ${profile.slice(0, 1000)}
 OBJETIVOS PROFISSIONAIS: ${objectives || 'não informado'}
 CARGOS DESEJADOS: ${roles || 'não informado'}
 
-Pesquise na internet e liste exatamente 20 vagas reais e atuais que têm alto fit com esse perfil.
+Pesquise na internet e liste exatamente 20 vagas reais e abertas atualmente que têm alto fit com esse perfil.
 
-IMPORTANTE sobre os links:
-- Prefira o link da página de carreiras da empresa (ex: empresa.com/carreiras ou jobs.empresa.com) — esses links são estáveis e não expiram
-- Se encontrar o link direto da vaga no site da empresa (não LinkedIn), use esse
-- Evite links de vagas individuais do LinkedIn (ex: linkedin.com/jobs/view/...) pois expiram em dias
-- Para LinkedIn, use o link de busca: https://www.linkedin.com/jobs/search/?keywords=CARGO&f_C=ID_EMPRESA
-- Para Gupy, use o link da empresa: https://EMPRESA.gupy.io/
+COMO BUSCAR:
+- Acesse diretamente os sites de carreiras das empresas: empresa.com/carreiras, jobs.empresa.com, empresa.gupy.io, empresa.inhire.io, empresa.solides.com.br, etc.
+- Faça scraping das páginas de vagas abertas e leia o conteúdo real de cada listagem
+- Confirme que a vaga está aberta antes de incluir (não inclua vagas fechadas ou expiradas)
+- Priorize empresas brasileiras: startups, scale-ups, fintechs, healthtechs, consultorias, grandes corporações
+
+SOBRE OS LINKS:
+- Use o link direto da vaga NO SITE DA EMPRESA (não LinkedIn)
+- Ex: https://empresa.gupy.io/jobs/123456 ou https://careers.empresa.com/vaga/titulo
+- Se só tiver a página geral de carreiras, use ela: https://empresa.com/trabalhe-conosco
 
 Responda SOMENTE em JSON válido (sem markdown):
-{"vagas":[{"empresa":"","cargo":"","localizacao":"cidade ou Remoto","descricao":"resumo da vaga em 2-3 frases com requisitos principais","fit":85,"fit_label":"Alto fit","url":"https://link-estavel-de-carreiras"}]}
+{"vagas":[{"empresa":"","cargo":"","localizacao":"cidade ou Remoto","descricao":"resumo real da vaga com requisitos principais","fit":85,"fit_label":"Alto fit","url":"https://link-da-vaga-no-site-da-empresa"}]}
 
 fit deve ser número entre 0-100. fit_label deve ser "Alto fit" (>=80), "Bom fit" (>=60), "Fit parcial" (<60). Gere exatamente 20 vagas.`;
 
@@ -4615,11 +4619,11 @@ fit deve ser número entre 0-100. fit_label deve ser "Alto fit" (>=80), "Bom fit
     const clean = data.result.replace(/^```json?\n?/,'').replace(/\n?```$/,'').trim();
     const { vagas } = JSON.parse(clean);
     const jobs = vagas.map(v => {
-      // Se a URL for um link de vaga individual do LinkedIn (expira), substituir por busca estável
+      // Se não tiver URL ou vier do LinkedIn (expira), gera busca no Google pela vaga
       let url = v.url || null;
-      if (!url || /linkedin\.com\/jobs\/view\//i.test(url)) {
-        const q = encodeURIComponent(`${v.cargo} ${v.empresa}`);
-        url = `https://www.linkedin.com/jobs/search/?keywords=${q}`;
+      if (!url || /linkedin\.com\/(jobs\/view|in\/)/i.test(url)) {
+        const q = encodeURIComponent(`${v.cargo} ${v.empresa} vagas site:${v.empresa.toLowerCase().replace(/\s+/g,'')+'.com.br'} OR site:gupy.io OR site:inhire.io`);
+        url = `https://www.google.com/search?q=${encodeURIComponent(`${v.cargo} ${v.empresa} vaga aberta`)}`;
       }
       return {
         company: v.empresa, role: v.cargo, location: v.localizacao,
