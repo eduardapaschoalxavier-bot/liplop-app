@@ -1986,6 +1986,14 @@
       </svg>
       Entrevistas
     </button>
+    <button class="tab-btn" onclick="switchTab('marca')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M8 2C5 2 2 4 2 7c0 2 1.5 3.5 3 4.5V13h6v-1.5C12.5 10.5 14 9 14 7c0-3-3-5-6-5z"/>
+        <line x1="6" y1="13" x2="10" y2="13"/>
+        <line x1="7" y1="15" x2="9" y2="15"/>
+      </svg>
+      Marca
+    </button>
     <button class="tab-btn" onclick="switchTab('ranking')">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
         <path d="M8 2l1.5 3.5L13 6l-2.5 2.5.5 3.5L8 10.5 5 12l.5-3.5L3 6l3.5-.5z"/>
@@ -2178,6 +2186,11 @@
 <!-- INTERVIEW TAB -->
 <div class="tab-view" id="tab-interview">
   <div id="interview-wrap" style="max-width:720px;margin:0 auto;padding:24px 16px"></div>
+</div>
+
+<!-- MARCA TAB -->
+<div class="tab-view" id="tab-marca">
+  <div id="marca-wrap" style="max-width:720px;margin:0 auto;padding:24px 16px 60px"></div>
 </div>
 
 <!-- RANKING TAB -->
@@ -3108,7 +3121,7 @@ function switchTab(tab) {
   _currentTab = tab;
 
   // Esconde todas as abas explicitamente
-  ['analyzer','kanban','ranking','interview'].forEach(id => {
+  ['analyzer','kanban','ranking','interview','marca'].forEach(id => {
     const el = document.getElementById('tab-' + id);
     if (el) { el.style.display = 'none'; el.classList.remove('active'); }
   });
@@ -3131,6 +3144,7 @@ function switchTab(tab) {
   if (tab === 'ranking')   renderRanking();
   if (tab === 'analyzer')  initAnalyzer();
   if (tab === 'interview') renderInterviewTab();
+  if (tab === 'marca')     renderMarcaTab();
 }
 
 // ── Ranking ──────────────────────────────────────────────────
@@ -4323,6 +4337,516 @@ Gere exatamente 3 dicas de empresa, 3 dicas de cargo/senioridade, 3 evites. Seja
       <button onclick="generateInterviewPrep(${oppId})" style="padding:8px 16px;background:transparent;border:1px solid #f472b6;border-radius:7px;color:#f472b6;font-size:12px;cursor:pointer">Tentar novamente</button>`;
   }
 }
+
+// ── Aba Marca ────────────────────────────────────────────────────
+const MARCA_PROJECT_KEY  = 'liplop-marca-project-v1';
+const MARCA_TONE_KEY     = 'liplop-marca-tone-v1';
+const MARCA_CALENDAR_KEY = 'liplop-marca-calendar-v1';
+
+function getMarcaProject()  { try { return JSON.parse(localStorage.getItem(MARCA_PROJECT_KEY))  || null; } catch(e) { return null; } }
+function getMarcaTone()     { try { return JSON.parse(localStorage.getItem(MARCA_TONE_KEY))     || null; } catch(e) { return null; } }
+function getMarcaCalendar() { try { return JSON.parse(localStorage.getItem(MARCA_CALENDAR_KEY)) || []; }  catch(e) { return []; } }
+function saveMarcaProject(p)  { localStorage.setItem(MARCA_PROJECT_KEY,  JSON.stringify(p)); }
+function saveMarcaTone(t)     { localStorage.setItem(MARCA_TONE_KEY,     JSON.stringify(t)); }
+function saveMarcaCalendar(c) { localStorage.setItem(MARCA_CALENDAR_KEY, JSON.stringify(c)); }
+
+function renderMarcaTab() {
+  const wrap = document.getElementById('marca-wrap');
+  const project  = getMarcaProject();
+  const tone     = getMarcaTone();
+  const calendar = getMarcaCalendar();
+
+  // Calcula progresso
+  const step1done = project?.approved;
+  const step2done = tone?.approved;
+  const step3done = calendar?.length > 0;
+
+  wrap.innerHTML = `
+    <div style="margin-bottom:28px">
+      <h2 style="font-size:1.25rem;font-weight:800;color:var(--text);margin-bottom:4px">Marca Pessoal</h2>
+      <p style="font-size:0.85rem;color:var(--mid)">Construa autoridade real no LinkedIn. Não é sobre postar todo dia — é sobre ter algo a dizer e dizer do jeito certo.</p>
+    </div>
+
+    <!-- Steps -->
+    <div style="display:flex;gap:8px;margin-bottom:28px">
+      ${['Projeto', 'Tom de voz', 'Calendário'].map((s,i) => {
+        const done = [step1done, step2done, step3done][i];
+        return `<div style="flex:1;padding:10px 12px;border-radius:10px;border:1px solid ${done ? 'rgba(244,114,182,0.4)' : 'rgba(255,255,255,0.07)'};background:${done ? 'rgba(244,114,182,0.06)' : 'rgba(255,255,255,0.02)'}">
+          <div style="font-size:10px;font-weight:700;color:${done ? '#f472b6' : 'var(--dim)'};text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px">${done ? '✓ ' : (i+1)+'. '}${s}</div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <!-- Etapa 1: Projeto -->
+    <div id="marca-step1">${renderMarcaStep1(project)}</div>
+
+    <!-- Etapa 2: Tom de voz -->
+    <div id="marca-step2" style="${step1done ? '' : 'opacity:.4;pointer-events:none'}">${renderMarcaStep2(tone, step1done)}</div>
+
+    <!-- Etapa 3: Calendário -->
+    <div id="marca-step3" style="${step2done ? '' : 'opacity:.4;pointer-events:none'}">${renderMarcaStep3(calendar, step2done)}</div>
+  `;
+}
+
+function renderMarcaStep1(project) {
+  if (project?.approved) {
+    return `
+      <div style="border:1px solid rgba(244,114,182,0.3);border-radius:14px;padding:20px;margin-bottom:20px;background:rgba(244,114,182,0.04)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.08em">Seu projeto / case</div>
+          <button onclick="confirmResetProject()" style="background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer;text-decoration:underline">refazer</button>
+        </div>
+        <div style="font-size:13px;color:#cbd5e0;line-height:1.8;white-space:pre-wrap">${project.text}</div>
+      </div>`;
+  }
+
+  return `
+    <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:20px;background:rgba(255,255,255,0.02)">
+      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">1. Projeto ou case</div>
+      <p style="font-size:13px;color:var(--mid);margin-bottom:16px;line-height:1.6">Antes de postar, você precisa ter algo concreto para mostrar. Pode ser algo que você <strong style="color:var(--text)">já fez</strong> e quer estruturar melhor, ou um <strong style="color:var(--text)">projeto novo</strong> para construir agora.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        <button onclick="showMarcaPath('existing')" id="btn-path-existing"
+          style="padding:14px 12px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:var(--text);font-size:12px;font-weight:600;cursor:pointer;line-height:1.4;text-align:left;transition:border-color .15s">
+          <div style="color:#f472b6;font-size:18px;margin-bottom:6px">◈</div>
+          <div>Já tenho algo</div>
+          <div style="font-size:11px;color:var(--dim);font-weight:400;margin-top:2px">Quero estruturar como case</div>
+        </button>
+        <button onclick="showMarcaPath('new')" id="btn-path-new"
+          style="padding:14px 12px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:var(--text);font-size:12px;font-weight:600;cursor:pointer;line-height:1.4;text-align:left;transition:border-color .15s">
+          <div style="color:#f472b6;font-size:18px;margin-bottom:6px">◇</div>
+          <div>Preciso construir</div>
+          <div style="font-size:11px;color:var(--dim);font-weight:400;margin-top:2px">Quero sugestões de projetos</div>
+        </button>
+      </div>
+      <div id="marca-path-content"></div>
+    </div>`;
+}
+
+function showMarcaPath(path) {
+  document.getElementById('btn-path-existing').style.borderColor = path === 'existing' ? '#f472b6' : 'rgba(255,255,255,0.1)';
+  document.getElementById('btn-path-new').style.borderColor      = path === 'new'      ? '#f472b6' : 'rgba(255,255,255,0.1)';
+  const el = document.getElementById('marca-path-content');
+  if (path === 'existing') {
+    el.innerHTML = `
+      <div style="font-size:12px;color:var(--mid);margin-bottom:8px">Descreva o que você fez — pode ser um projeto, uma iniciativa, um resultado expressivo. Não precisa ser perfeito, a IA vai estruturar.</div>
+      <textarea id="marca-existing-input" placeholder="Ex: Montei do zero o time de inside sales da empresa, saímos de 0 para R$2M em ARR em 18 meses..."
+        style="width:100%;min-height:100px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;color:#cbd5e0;font-size:13px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
+        onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></textarea>
+      <button onclick="generateMarcaCase()" style="margin-top:10px;width:100%;padding:11px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
+        ✨ Estruturar meu case
+      </button>
+      <div id="marca-case-status" style="display:none;font-size:12px;color:var(--mid);text-align:center;margin-top:8px"></div>`;
+  } else {
+    el.innerHTML = `
+      <button onclick="generateMarcaProjectIdeas()" style="width:100%;padding:11px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
+        ✨ Sugerir projetos para mim
+      </button>
+      <div id="marca-ideas-result" style="margin-top:12px"></div>`;
+  }
+}
+
+async function generateMarcaCase() {
+  const input = document.getElementById('marca-existing-input')?.value?.trim();
+  if (!input) return;
+  const btn = document.querySelector('#marca-path-content button');
+  const status = document.getElementById('marca-case-status');
+  btn.disabled = true; btn.textContent = '⏳ Estruturando...';
+  status.style.display = 'block'; status.textContent = '';
+
+  const profile = localStorage.getItem(PROFILE_KEY) || '';
+  const vagas = opps.slice(0,5).map(o => o.role + ' em ' + o.company).join(', ');
+
+  const prompt = `Você é um especialista em posicionamento de carreira e marca pessoal.
+
+PERFIL DO CANDIDATO:
+${profile.slice(0,800)}
+
+VAGAS QUE ESTÁ PERSEGUINDO: ${vagas || 'não informado'}
+
+O candidato descreveu o seguinte projeto/experiência:
+"${input}"
+
+Transforme isso em um case estruturado e poderoso para LinkedIn. Use o formato:
+
+PROJETO: [nome curto e marcante]
+PROBLEMA: [qual dor ou desafio existia]
+CONTEXTO: [empresa, área, momento]
+O QUE FEZ: [ações concretas, em 2-3 linhas]
+RESULTADO: [números, impacto, antes e depois]
+O QUE PROVA: [qual competência ou perfil isso demonstra para o mercado]
+
+Seja direto, concreto, sem adjetivos vazios. Português brasileiro correto com todos os acentos. Máximo 200 palavras.`;
+
+  try {
+    const res = await fetch('/api/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt, json_mode:false}) });
+    const data = await res.json();
+    const text = data.result?.trim();
+    // Mostra preview para aprovação
+    status.style.display = 'none';
+    document.getElementById('marca-path-content').innerHTML = `
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:16px;margin-bottom:12px">
+        <div style="font-size:11px;color:var(--dim);margin-bottom:10px;text-transform:uppercase;letter-spacing:.08em">Seu case estruturado</div>
+        <div style="font-size:13px;color:#cbd5e0;line-height:1.8;white-space:pre-wrap">${text}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button onclick="approveMarcaProject(${JSON.stringify(text).replace(/"/g,'&quot;')})" style="padding:10px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Aprovar e salvar</button>
+        <button onclick="showMarcaPath('existing')" style="padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:var(--mid);font-size:13px;cursor:pointer">Refazer</button>
+      </div>`;
+  } catch(e) {
+    btn.disabled = false; btn.textContent = '✨ Estruturar meu case';
+    status.textContent = 'Erro: ' + e.message;
+  }
+}
+
+async function generateMarcaProjectIdeas() {
+  const btn = document.querySelector('#marca-path-content button');
+  const result = document.getElementById('marca-ideas-result');
+  btn.disabled = true; btn.textContent = '⏳ Gerando ideias...';
+  result.innerHTML = '';
+
+  const profile = localStorage.getItem(PROFILE_KEY) || '';
+  const vagas = opps.slice(0,5).map(o => o.role + ' em ' + o.company).join(', ');
+
+  const prompt = `Você é especialista em posicionamento de carreira.
+
+PERFIL: ${profile.slice(0,800)}
+VAGAS PERSEGUIDAS: ${vagas || 'não informado'}
+
+Sugira exatamente 3 projetos plug and play — factíveis em 2 a 4 semanas, que a pessoa pode executar agora com o que já sabe. Cada projeto deve provar exatamente o perfil que as vagas exigem.
+
+Para cada um:
+- NOME: nome curto e marcante
+- O QUE É: 1 frase
+- POR QUE PROVA: como conecta com o cargo desejado
+- COMO FAZER: 3 passos práticos e rápidos
+
+Responda SOMENTE em JSON:
+{"projetos":[{"nome":"","o_que_e":"","por_que_prova":"","como_fazer":["","",""]}]}`;
+
+  try {
+    const res = await fetch('/api/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt, json_mode:true}) });
+    const data = await res.json();
+    const clean = data.result.replace(/^```json?\n?/,'').replace(/\n?```$/,'').trim();
+    const { projetos } = JSON.parse(clean);
+    result.innerHTML = projetos.map((p, i) => `
+      <div style="border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:16px;margin-bottom:10px">
+        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px">${p.nome}</div>
+        <div style="font-size:12px;color:var(--mid);margin-bottom:8px">${p.o_que_e}</div>
+        <div style="font-size:11px;color:#f472b6;margin-bottom:8px">› ${p.por_que_prova}</div>
+        <div style="margin-bottom:12px">${p.como_fazer.map(s => `<div style="font-size:11px;color:#a0aec0;padding:3px 0 3px 12px;position:relative"><span style="position:absolute;left:0;color:#f472b6">·</span>${s}</div>`).join('')}</div>
+        <button onclick="approveMarcaProject('${(p.nome + '\n\n' + p.o_que_e + '\n\nPor que prova: ' + p.por_que_prova + '\n\nComo fazer:\n' + p.como_fazer.map((s,i)=>(i+1)+'. '+s).join('\n')).replace(/'/g,"\\'")}')
+          " style="width:100%;padding:8px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:7px;color:#fff;font-size:12px;font-weight:700;cursor:pointer">
+          Escolher este projeto
+        </button>
+      </div>`).join('');
+  } catch(e) {
+    result.innerHTML = `<div style="color:#fc8181;font-size:12px">Erro: ${e.message}</div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = '✨ Sugerir projetos para mim';
+  }
+}
+
+function approveMarcaProject(text) {
+  saveMarcaProject({ text, approved: true, createdAt: new Date().toISOString() });
+  renderMarcaTab();
+}
+
+function confirmResetProject() {
+  if (confirm('Tem certeza que quer refazer o projeto? O calendário atual também será apagado.')) {
+    localStorage.removeItem(MARCA_PROJECT_KEY);
+    localStorage.removeItem(MARCA_CALENDAR_KEY);
+    renderMarcaTab();
+  }
+}
+
+function renderMarcaStep2(tone, enabled) {
+  if (!enabled) return `
+    <div style="border:1px solid rgba(255,255,255,0.05);border-radius:14px;padding:20px;margin-bottom:20px;background:rgba(255,255,255,0.01)">
+      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em">2. Tom de voz</div>
+      <div style="font-size:12px;color:var(--dim);margin-top:4px">Disponível após definir seu projeto.</div>
+    </div>`;
+
+  if (tone?.approved) return `
+    <div style="border:1px solid rgba(244,114,182,0.3);border-radius:14px;padding:20px;margin-bottom:20px;background:rgba(244,114,182,0.04)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.08em">Seu tom de voz</div>
+        <button onclick="confirmResetTone()" style="background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer;text-decoration:underline">redefinir</button>
+      </div>
+      <div style="font-size:13px;color:#cbd5e0;line-height:1.8">${tone.summary}</div>
+    </div>`;
+
+  const questions = [
+    { id:'q1', label:'Como você escreve naturalmente?', placeholder:'Ex: direto, sem firula, às vezes uso humor, odeio texto longo...' },
+    { id:'q2', label:'Que tipo de post no LinkedIn você detesta ver?', placeholder:'Ex: motivacional vazio, aqueles de "hoje aprendi que...", storytelling forçado...' },
+    { id:'q3', label:'Escreva 2-3 frases do jeito que você falaria com um colega de trabalho.', placeholder:'Pode ser sobre qualquer coisa do seu dia, da sua área, do mercado...' },
+    { id:'q4', label:'Qual adjetivo você nunca usaria para se descrever?', placeholder:'Ex: apaixonado, proativo, disruptivo...' },
+  ];
+
+  return `
+    <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:20px;background:rgba(255,255,255,0.02)">
+      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">2. Tom de voz</div>
+      <p style="font-size:13px;color:var(--mid);margin-bottom:20px;line-height:1.6">A IA vai melhorar e dar feedback nos seus posts, mas o texto começa sempre com você. Responda essas 4 perguntas para eu entender como você escreve.</p>
+      ${questions.map(q => `
+        <div style="margin-bottom:16px">
+          <label style="font-size:12px;font-weight:600;color:var(--text);display:block;margin-bottom:6px">${q.label}</label>
+          <textarea id="marca-${q.id}" placeholder="${q.placeholder}"
+            style="width:100%;min-height:64px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;color:#cbd5e0;font-size:12px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
+            onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></textarea>
+        </div>`).join('')}
+      <button onclick="generateToneProfile()" style="width:100%;padding:11px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
+        ✨ Definir meu tom de voz
+      </button>
+      <div id="marca-tone-status" style="display:none;font-size:12px;color:var(--mid);text-align:center;margin-top:8px"></div>
+    </div>`;
+}
+
+async function generateToneProfile() {
+  const answers = ['q1','q2','q3','q4'].map(id => document.getElementById('marca-' + id)?.value?.trim() || '');
+  if (answers.every(a => !a)) return;
+  const btn = document.querySelector('#marca-step2 button[onclick="generateToneProfile()"]');
+  const status = document.getElementById('marca-tone-status');
+  btn.disabled = true; btn.textContent = '⏳ Analisando...';
+  status.style.display = 'block'; status.textContent = '';
+
+  const prompt = `Analise as respostas abaixo e crie um guia de tom de voz compacto para essa pessoa usar no LinkedIn.
+
+Como escreve: "${answers[0]}"
+O que detesta: "${answers[1]}"
+Exemplo de texto natural: "${answers[2]}"
+Adjetivo que nunca usaria: "${answers[3]}"
+
+Crie um parágrafo de 4-5 linhas descrevendo o tom de voz dela: como soa, o que evita, qual é a cadência, o que a diferencia. Escreva na segunda pessoa (você). Seja específico, não genérico. Português brasileiro correto com todos os acentos.`;
+
+  try {
+    const res = await fetch('/api/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt, json_mode:false}) });
+    const data = await res.json();
+    const summary = data.result?.trim();
+    status.style.display = 'none';
+    // Mostra para aprovação
+    document.getElementById('marca-step2').innerHTML = `
+      <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:20px">
+        <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">2. Seu tom de voz</div>
+        <div style="font-size:13px;color:#cbd5e0;line-height:1.8;margin-bottom:16px">${summary}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button onclick="approveMarcaTone(${JSON.stringify(summary).replace(/"/g,'&quot;')})" style="padding:10px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Aprovar e salvar</button>
+          <button onclick="renderMarcaTab()" style="padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:var(--mid);font-size:13px;cursor:pointer">Refazer</button>
+        </div>
+      </div>`;
+  } catch(e) {
+    btn.disabled = false; btn.textContent = '✨ Definir meu tom de voz';
+    status.textContent = 'Erro: ' + e.message;
+  }
+}
+
+function approveMarcaTone(summary) {
+  saveMarcaTone({ summary, approved: true, createdAt: new Date().toISOString() });
+  renderMarcaTab();
+}
+
+function confirmResetTone() {
+  if (confirm('Redefinir tom de voz? O calendário será mantido.')) {
+    localStorage.removeItem(MARCA_TONE_KEY);
+    renderMarcaTab();
+  }
+}
+
+function renderMarcaStep3(calendar, enabled) {
+  if (!enabled) return `
+    <div style="border:1px solid rgba(255,255,255,0.05);border-radius:14px;padding:20px;background:rgba(255,255,255,0.01)">
+      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em">3. Calendário editorial</div>
+      <div style="font-size:12px;color:var(--dim);margin-top:4px">Disponível após definir seu tom de voz.</div>
+    </div>`;
+
+  if (!calendar.length) return `
+    <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;background:rgba(255,255,255,0.02)">
+      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">3. Calendário editorial</div>
+      <p style="font-size:13px;color:var(--mid);margin-bottom:16px;line-height:1.6">30 dias, 1 post por dia. A IA monta a grade com temas e ângulos baseados no seu projeto e nas vagas que você está perseguindo. Você escreve, ela dá feedback.</p>
+      <button onclick="generateMarcaCalendar()" style="width:100%;padding:11px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
+        ✨ Gerar meu calendário de 30 dias
+      </button>
+      <div id="marca-cal-status" style="display:none;font-size:12px;color:var(--mid);text-align:center;margin-top:8px"></div>
+    </div>`;
+
+  // Renderiza calendário
+  const statusColors = { pending:'rgba(255,255,255,0.06)', draft:'rgba(245,158,11,0.12)', written:'rgba(99,179,237,0.12)', published:'rgba(72,187,120,0.12)' };
+  const statusLabels = { pending:'—', draft:'Rascunho', written:'Escrito', published:'Publicado' };
+  const statusDot    = { pending:'var(--dim)', draft:'#f59e0b', written:'#63b3ed', published:'#68d391' };
+
+  return `
+    <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;background:rgba(255,255,255,0.02)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em">3. Calendário 30 dias</div>
+        <div style="display:flex;gap:10px;font-size:10px;color:var(--dim)">
+          ${Object.entries(statusLabels).map(([k,v]) => `<span><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${statusDot[k]};margin-right:3px;vertical-align:middle"></span>${v}</span>`).join('')}
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:16px">
+        ${calendar.map((day, i) => `
+          <div onclick="openMarcaDay(${i})" style="padding:8px 6px;border-radius:8px;border:1px solid rgba(255,255,255,0.07);background:${statusColors[day.status] || statusColors.pending};cursor:pointer;transition:border-color .15s"
+            onmouseover="this.style.borderColor='rgba(244,114,182,0.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'">
+            <div style="font-size:9px;color:var(--dim);margin-bottom:3px">Dia ${i+1}</div>
+            <div style="font-size:10px;color:${statusDot[day.status] || 'var(--dim)'};font-weight:600;margin-bottom:3px">${statusLabels[day.status] || '—'}</div>
+            <div style="font-size:10px;color:var(--text);line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${day.theme}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <!-- Modal de post -->
+    <div id="marca-day-modal" style="display:none;position:fixed;inset:0;z-index:10003;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
+      <div style="background:#12091a;border:1px solid rgba(255,255,255,0.1);border-radius:16px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;padding:28px">
+        <div id="marca-day-content"></div>
+      </div>
+    </div>`;
+}
+
+async function generateMarcaCalendar() {
+  const btn = document.querySelector('#marca-step3 button[onclick="generateMarcaCalendar()"]');
+  const status = document.getElementById('marca-cal-status');
+  btn.disabled = true; btn.textContent = '⏳ Montando sua grade...';
+  status.style.display = 'block'; status.textContent = 'Isso leva alguns segundos...';
+
+  const project = getMarcaProject();
+  const tone    = getMarcaTone();
+  const vagas   = opps.slice(0,5).map(o => o.role + ' em ' + o.company).join(', ');
+
+  const prompt = `Você é estrategista de conteúdo para LinkedIn especializado em marca pessoal para quem busca emprego.
+
+PROJETO/CASE: ${project?.text || ''}
+TOM DE VOZ: ${tone?.summary || ''}
+VAGAS PERSEGUIDAS: ${vagas || ''}
+
+Monte um calendário editorial de 30 dias para LinkedIn. Objetivo: gerar inbound de vagas — que as melhores oportunidades cheguem até a pessoa, não o contrário.
+
+Cada post deve ter um tema distinto e um ângulo específico. Varie os formatos: reflexão, bastidor do projeto, aprendizado, opinião de mercado, resultado, processo, erro, dica prática.
+
+Responda SOMENTE em JSON:
+{"dias":[{"tema":"tema curto","angulo":"como abordar esse tema em 1 frase"}]}
+
+Gere exatamente 30 itens.`;
+
+  try {
+    const res = await fetch('/api/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt, json_mode:true}) });
+    const data = await res.json();
+    const clean = data.result.replace(/^```json?\n?/,'').replace(/\n?```$/,'').trim();
+    const { dias } = JSON.parse(clean);
+    const calendar = dias.map(d => ({ theme: d.tema, angle: d.angulo, draft: '', status: 'pending', feedback: '' }));
+    saveMarcaCalendar(calendar);
+    renderMarcaTab();
+  } catch(e) {
+    btn.disabled = false; btn.textContent = '✨ Gerar meu calendário de 30 dias';
+    status.textContent = 'Erro: ' + e.message;
+  }
+}
+
+function openMarcaDay(index) {
+  const calendar = getMarcaCalendar();
+  const day = calendar[index];
+  const modal = document.getElementById('marca-day-modal');
+  const content = document.getElementById('marca-day-content');
+  const statusOptions = ['pending','draft','written','published'];
+  const statusLabels  = { pending:'—', draft:'Rascunho', written:'Escrito', published:'Publicado' };
+
+  content.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+      <div>
+        <div style="font-size:11px;color:#f472b6;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Dia ${index+1}</div>
+        <div style="font-size:1rem;font-weight:800;color:var(--text);line-height:1.3">${day.theme}</div>
+        <div style="font-size:12px;color:var(--mid);margin-top:4px">${day.angle}</div>
+      </div>
+      <button onclick="closeMarcaDay()" style="background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;padding:0 4px">✕</button>
+    </div>
+
+    <div style="display:flex;gap:6px;margin-bottom:16px">
+      ${statusOptions.map(s => `<button onclick="setDayStatus(${index},'${s}')" id="ds-${s}"
+        style="padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid ${day.status===s ? '#f472b6' : 'rgba(255,255,255,0.1)'};background:${day.status===s ? 'rgba(244,114,182,0.12)' : 'transparent'};color:${day.status===s ? '#f472b6' : 'var(--dim)'}">${statusLabels[s]}</button>`).join('')}
+    </div>
+
+    <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Seu rascunho</div>
+    <textarea id="marca-draft-input" placeholder="Escreva seu post aqui. A IA vai dar feedback quando você pedir."
+      style="width:100%;min-height:160px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;color:#cbd5e0;font-size:13px;line-height:1.7;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
+      onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">${day.draft}</textarea>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+      <button onclick="saveDayDraft(${index})" style="padding:10px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Salvar rascunho</button>
+      <button onclick="getDayFeedback(${index})" style="padding:10px;background:transparent;border:1px solid rgba(244,114,182,0.4);border-radius:8px;color:#f472b6;font-size:13px;font-weight:600;cursor:pointer">Pedir feedback da IA</button>
+    </div>
+
+    ${day.feedback ? `
+      <div style="margin-top:16px;padding:14px;background:rgba(244,114,182,0.06);border:1px solid rgba(244,114,182,0.2);border-radius:10px">
+        <div style="font-size:11px;font-weight:700;color:#f472b6;margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em">Feedback da IA</div>
+        <div style="font-size:12px;color:#cbd5e0;line-height:1.7">${day.feedback}</div>
+      </div>` : ''}`;
+
+  modal.style.display = 'flex';
+}
+
+function closeMarcaDay() {
+  document.getElementById('marca-day-modal').style.display = 'none';
+}
+
+function setDayStatus(index, status) {
+  const calendar = getMarcaCalendar();
+  calendar[index].status = status;
+  saveMarcaCalendar(calendar);
+  openMarcaDay(index);
+  // Atualiza grid sem fechar modal
+  const step3 = document.getElementById('marca-step3');
+  if (step3) step3.innerHTML = renderMarcaStep3(calendar, true);
+}
+
+function saveDayDraft(index) {
+  const draft = document.getElementById('marca-draft-input')?.value || '';
+  const calendar = getMarcaCalendar();
+  calendar[index].draft = draft;
+  if (calendar[index].status === 'pending' && draft.trim()) calendar[index].status = 'draft';
+  saveMarcaCalendar(calendar);
+  openMarcaDay(index);
+  const step3 = document.getElementById('marca-step3');
+  if (step3) step3.innerHTML = renderMarcaStep3(calendar, true);
+}
+
+async function getDayFeedback(index) {
+  const draft = document.getElementById('marca-draft-input')?.value?.trim();
+  if (!draft) { alert('Escreva seu rascunho primeiro.'); return; }
+  const btn = document.querySelector('#marca-day-content button[onclick="getDayFeedback(' + index + ')"]');
+  btn.disabled = true; btn.textContent = '⏳ Lendo...';
+
+  const tone    = getMarcaTone();
+  const calendar = getMarcaCalendar();
+  const day = calendar[index];
+
+  const prompt = `Você é um editor especializado em conteúdo para LinkedIn.
+
+TOM DE VOZ DA PESSOA: ${tone?.summary || ''}
+TEMA DO POST: ${day.theme}
+ÂNGULO SUGERIDO: ${day.angle}
+
+RASCUNHO:
+"${draft}"
+
+Dê um feedback direto e útil. Aponte:
+1. O que está funcionando (seja específico)
+2. O que pode melhorar (máximo 2 pontos)
+3. Uma sugestão concreta de reescrita para a parte mais fraca
+
+Não reescreva o post inteiro. Preserve o tom de voz da pessoa. Seja direto, sem enrolação. Português brasileiro correto com todos os acentos.`;
+
+  try {
+    const res = await fetch('/api/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt, json_mode:false}) });
+    const data = await res.json();
+    const feedback = data.result?.trim();
+    calendar[index].draft    = draft;
+    calendar[index].feedback = feedback;
+    saveMarcaCalendar(calendar);
+    openMarcaDay(index);
+  } catch(e) {
+    btn.disabled = false; btn.textContent = 'Pedir feedback da IA';
+  }
+}
+
+document.addEventListener('click', e => {
+  const modal = document.getElementById('marca-day-modal');
+  if (modal && e.target === modal) closeMarcaDay();
+});
 
 function showAnalyzeError(msg) {
   const btn = document.getElementById('btn-analyze');
