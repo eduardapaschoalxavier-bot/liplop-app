@@ -4862,35 +4862,36 @@ function renderMarcaStep2(tone, enabled) {
 }
 
 async function generateToneProfile() {
-  const answers = ['q1','q2','q3','q4'].map(id => document.getElementById('marca-' + id)?.value?.trim() || '');
+  const answers = ['q1','q2'].map(id => document.getElementById('marca-' + id)?.value?.trim() || '');
   if (answers.every(a => !a)) return;
   const btn = document.querySelector('#marca-step2 button[onclick="generateToneProfile()"]');
   const status = document.getElementById('marca-tone-status');
   btn.disabled = true; btn.textContent = '⏳ Analisando...';
   status.style.display = 'block'; status.textContent = '';
 
-  const prompt = `Analise as respostas abaixo e crie um guia de tom de voz compacto para essa pessoa usar no LinkedIn.
+  const prompt = `Você é especialista em marca pessoal e comunicação. Analise como essa pessoa escreve e descreva o tom de voz dela para o LinkedIn.
 
-Como escreve: "${answers[0]}"
-O que detesta: "${answers[1]}"
-Exemplo de texto natural: "${answers[2]}"
-Adjetivo que nunca usaria: "${answers[3]}"
+Como ela descreveu o que faz (jeito natural de escrever):
+"${answers[0]}"
 
-Crie um parágrafo de 4-5 linhas descrevendo o tom de voz dela: como soa, o que evita, qual é a cadência, o que a diferencia. Escreva na segunda pessoa (você). Seja específico, não genérico. Português brasileiro correto com todos os acentos.`;
+O que ela detesta ver no LinkedIn:
+"${answers[1]}"
+
+Escreva UM parágrafo curto — no máximo 4 frases — descrevendo o tom de voz dela. Use segunda pessoa (você). Capture o jeito real que ela escreve: cadência, vocabulário, o que evita, o que a diferencia. Seja específico e direto. Sem títulos, sem markdown, sem listas, sem tabelas — apenas o parágrafo. Português brasileiro correto com todos os acentos.`;
 
   try {
     const res = await fetch('/api/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt, json_mode:false}) });
     const data = await res.json();
-    const summary = data.result?.trim();
+    const summary = data.result?.trim().replace(/^#+\s*/gm,'').replace(/\*\*/g,'').replace(/\|.*\|/g,'').replace(/---+/g,'').trim();
     status.style.display = 'none';
     // Mostra para aprovação
     document.getElementById('marca-step2').innerHTML = `
       <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:20px">
         <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">2. Seu tom de voz</div>
-        <div style="font-size:13px;color:#cbd5e0;line-height:1.8;margin-bottom:16px">${summary}</div>
+        <div style="font-size:14px;color:#cbd5e0;line-height:1.9;margin-bottom:16px;font-style:italic">${summary}</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
           <button onclick="approveMarcaTone(${JSON.stringify(summary).replace(/"/g,'&quot;')})" style="padding:10px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Aprovar e salvar</button>
-          <button onclick="renderMarcaTab()" style="padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:var(--mid);font-size:13px;cursor:pointer">Refazer</button>
+          <button onclick="renderMarcaTab()" style="padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:var(--mid);font-size:13px;cursor:pointer">Não gostei, gerar outro</button>
         </div>
       </div>`;
   } catch(e) {
