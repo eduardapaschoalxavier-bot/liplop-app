@@ -4630,7 +4630,8 @@ function renderMarcaStep1(project) {
   // Sub-passo B: projeto (só aparece se mensagem confirmada)
   const stepB = msgConfirmed ? `
     <div id="marca-step1b" style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:20px;background:rgba(255,255,255,0.02)">
-      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">Agora o projeto</div>
+      <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">Agora o projeto</div>
+      <div style="font-size:12px;color:var(--mid);margin-bottom:16px">Escolha o que melhor se aplica a você:</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
         <button onclick="showMarcaPath('existing')" id="btn-path-existing"
           style="padding:14px 12px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:var(--text);font-size:12px;font-weight:600;cursor:pointer;line-height:1.4;text-align:left;transition:border-color .15s">
