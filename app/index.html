@@ -4362,9 +4362,23 @@ function renderMarcaTab() {
   const step3done = calendar?.length > 0;
 
   wrap.innerHTML = `
-    <div style="margin-bottom:28px">
-      <h2 style="font-size:1.25rem;font-weight:800;color:var(--text);margin-bottom:4px">Marca Pessoal</h2>
-      <p style="font-size:0.85rem;color:var(--mid)">Construa autoridade real no LinkedIn. Não é sobre postar todo dia — é sobre ter algo a dizer e dizer do jeito certo.</p>
+    <div class="analyzer-hero" style="margin-bottom:28px">
+      <div class="hero-glow" style="top:-60px;left:30%"></div>
+      <div class="hero-rings">
+        <div class="hero-ring r1"></div>
+        <div class="hero-ring r2"></div>
+        <div class="hero-ring r3"></div>
+      </div>
+      <div class="hero-content">
+        <div class="hero-badge">✦ Marca Pessoal</div>
+        <h2 class="hero-title">As melhores vagas<br>vêm até <span class="hero-title-accent">quem é visto</span></h2>
+        <p class="hero-sub">Você não precisa se candidatar para todas as vagas. Precisa que as certas cheguem até você. Isso começa aqui.</p>
+        <div class="hero-chips">
+          <div class="hero-chip hc-high"><span>◈</span><span>Projeto real</span></div>
+          <div class="hero-chip hc-mid"><span>◈</span><span>Tom de voz próprio</span></div>
+          <div class="hero-chip hc-good"><span>◈</span><span>30 dias de presença</span></div>
+        </div>
+      </div>
     </div>
 
     <!-- Steps -->
