@@ -1895,7 +1895,7 @@
       <div style="font-size:11px;color:#f472b6;font-weight:700;letter-spacing:1px;margin-bottom:4px">CURRÍCULO ADAPTADO</div>
       <h3 id="resume-modal-title" style="color:#fff;margin:0;font-size:1.1rem"></h3>
     </div>
-    <div id="resume-modal-content" style="flex:1;overflow-y:auto;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:20px;font-size:13px;color:#cbd5e0;line-height:1.8;white-space:pre-wrap;font-family:Georgia,serif"></div>
+    <div id="resume-modal-content" style="flex:1;overflow-y:auto;background:#fff;border-radius:10px;padding:0;box-shadow:0 4px 32px rgba(0,0,0,0.4)"></div>
     <!-- Feedback para ajuste -->
     <div style="margin-top:16px;border-top:1px solid rgba(255,255,255,0.07);padding-top:16px">
       <div style="font-size:0.75rem;color:var(--dim);margin-bottom:6px">Quer ajustar algo? Descreva o que mudar:</div>
@@ -1948,6 +1948,14 @@
         <rect x="8" y="12" width="7" height="3" rx="1.5"/>
       </svg>
       Kanban
+    </button>
+    <button class="tab-btn" onclick="switchTab('interview')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="8" cy="5" r="3"/>
+        <path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+        <path d="M11 9.5l1.5 1.5-1.5 1.5"/>
+      </svg>
+      Entrevistas
     </button>
     <button class="tab-btn" onclick="switchTab('ranking')">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -2138,6 +2146,11 @@
   <div class="board" id="board"></div>
 </div>
 
+<!-- INTERVIEW TAB -->
+<div class="tab-view" id="tab-interview">
+  <div id="interview-wrap" style="max-width:720px;margin:0 auto;padding:24px 16px"></div>
+</div>
+
 <!-- RANKING TAB -->
 <div class="tab-view" id="tab-ranking">
   <div class="ranking-wrap" id="ranking"></div>
@@ -2237,13 +2250,21 @@
       </div>
       <div class="modal-section" id="m-link-section"></div>
       <div class="modal-section" id="m-contacts-section"></div>
-      <div style="margin-top:16px">
-        <button id="btn-gen-resume" onclick="generateResume()"
-          style="width:100%;padding:13px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s"
-          onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
-          ✨ Gerar currículo adaptado para esta vaga
-        </button>
-        <div id="resume-gen-status" style="font-size:12px;color:#718096;text-align:center;margin-top:6px;display:none"></div>
+      <div style="margin-top:20px">
+        <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Próximas ações</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <button id="btn-gen-resume" onclick="generateResume()"
+            style="padding:13px 10px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .2s;line-height:1.3;text-align:center"
+            onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+            ✨ Gerar currículo<br><span style="font-weight:400;font-size:11px;opacity:.85">adaptado para esta vaga</span>
+          </button>
+          <button id="btn-find-network" onclick="scrollToNetwork()"
+            style="padding:13px 10px;background:transparent;border:1.5px solid #f472b6;border-radius:10px;color:#f472b6;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .2s;line-height:1.3;text-align:center"
+            onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">
+            🤝 Contactar pessoas<br><span style="font-weight:400;font-size:11px;opacity:.85">no LinkedIn</span>
+          </button>
+        </div>
+        <div id="resume-gen-status" style="font-size:12px;color:#718096;text-align:center;margin-top:8px;display:none"></div>
       </div>
       <div id="network-section" style="margin-top:16px"></div>
     </div>
@@ -2570,7 +2591,14 @@ function buildCard(opp) {
       <span class="card-fit ${fitClass(opp.fit ?? 0)}">${opp.fit != null ? opp.fit + '% fit' : '— %'}</span>
       ${linkBtn}
     </div>
-    <div class="card-next"><strong>Próximo passo</strong>${opp.next}</div>
+    <div class="card-next">
+      <strong>Próximo passo</strong>
+      ${opp.next ? `<div style="margin-bottom:8px">${opp.next}</div>` : ''}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px">
+        <button class="card-btn-resume" style="padding:7px 6px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:7px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;line-height:1.3;text-align:center">✨ Currículo</button>
+        <button class="card-btn-contacts" style="padding:7px 6px;background:transparent;border:1.5px solid rgba(244,114,182,0.5);border-radius:7px;color:#f472b6;font-size:11px;font-weight:700;cursor:pointer;line-height:1.3;text-align:center">🤝 Contatos</button>
+      </div>
+    </div>
     ${(opp.contacts || []).length ? `
       <div class="card-contacts">
         ${(opp.contacts).map(c => `
@@ -2579,6 +2607,17 @@ function buildCard(opp) {
           </a>`).join('')}
       </div>` : ''}
   `;
+
+  card.querySelector(".card-btn-resume").addEventListener("click", e => {
+    e.stopPropagation();
+    openModal(opp);
+    setTimeout(() => generateResume(), 250);
+  });
+  card.querySelector(".card-btn-contacts").addEventListener("click", e => {
+    e.stopPropagation();
+    openModal(opp);
+    setTimeout(() => { scrollToNetwork(); findContacts(); }, 250);
+  });
 
   card.querySelector(".card-delete").addEventListener("click", e => {
     e.stopPropagation();
@@ -2739,18 +2778,8 @@ function openModal(opp) {
   // contacts
   renderModalContacts(opp);
 
-  // Esconde botão de currículo se já aplicou
-  const postApply = ['applied','recruiter','decision','offer','lost'];
-  const btnResume = document.getElementById('btn-gen-resume');
-  const resumeStatus = document.getElementById('resume-gen-status');
-  if (postApply.includes(opp.stage)) {
-    btnResume.style.display = 'none';
-    resumeStatus.style.display = 'none';
-    renderNetworkSection(opp);
-  } else {
-    btnResume.style.display = 'block';
-    document.getElementById('network-section').innerHTML = '';
-  }
+  // Sempre mostra os dois botões de ação e renderiza seção de network
+  renderNetworkSection(opp);
 
   document.getElementById("modal-overlay").classList.add("active");
 }
@@ -3038,7 +3067,7 @@ function switchTab(tab) {
   _currentTab = tab;
 
   // Esconde todas as abas explicitamente
-  ['analyzer','kanban','ranking'].forEach(id => {
+  ['analyzer','kanban','ranking','interview'].forEach(id => {
     const el = document.getElementById('tab-' + id);
     if (el) { el.style.display = 'none'; el.classList.remove('active'); }
   });
@@ -3057,9 +3086,10 @@ function switchTab(tab) {
   });
 
   // Renderiza conteúdo da aba
-  if (tab === 'kanban')   { renderFunnel(); renderBoard(); }
-  if (tab === 'ranking')  renderRanking();
-  if (tab === 'analyzer') initAnalyzer();
+  if (tab === 'kanban')    { renderFunnel(); renderBoard(); }
+  if (tab === 'ranking')   renderRanking();
+  if (tab === 'analyzer')  initAnalyzer();
+  if (tab === 'interview') renderInterviewTab();
 }
 
 // ── Ranking ──────────────────────────────────────────────────
@@ -3133,6 +3163,7 @@ function updateTopbarCount() {
 // ── Analyzer tab ─────────────────────────────────────────────
 let   _lastJD       = '';
 let   _lastAnalysis = null;
+let   _resumeGenerated = false; // true quando currículo foi gerado para a análise atual
 
 const PROVIDER_LINKS = {
   openai: { url: 'https://platform.openai.com/api-keys', label: 'Obter chave OpenAI →', ph: 'sk-...' },
@@ -3464,10 +3495,16 @@ Liste todas as skills relevantes do perfil. Agrupe por categoria (ex: GTM & Aqui
 - PROIBIDO: "participei de", "auxiliei em", "responsável por", "visando alavancar", "como evidenciado", "mediante", "haja vista", "no intuito de", "com vistas a", "outrossim"
 - PROIBIDO: descrições de empresa ("X é uma plataforma que...") — o recrutador já conhece
 
+=== REGRAS DE LÍNGUA PORTUGUESA — OBRIGATÓRIO ===
+- Escreva em português brasileiro correto, com TODOS os acentos obrigatórios. Nunca omita acentos.
+- Exemplos de palavras que DEVEM ter acento: histórico, área, função, título, formação, atuação, gestão, negociação, execução, análise, técnico, dinâmica, índice, nível, ênfase, fácil, período, específico, público, clínico, prático, crédito, líder, número, médio, único, após, também, através, além, está, são, já, só, é.
+- NUNCA escreva: "historico", "area", "funcao", "titulo", "formacao", "atuacao", "gestao", "negociacao", "execucao", "analise", "tecnico", "indice", "nivel", "enfase", "facil", "periodo", "especifico", "publico", "credito", "lider", "numero", "medio", "unico", "apos", "tambem", "alem", "esta", "sao", "ja", "so".
+- Revise cada palavra antes de responder. Um currículo com erro de ortografia é descartado.
+
 === REGRAS DE FORMATAÇÃO (crítico para ATS) ===
 - NÃO use asteriscos, markdown ou qualquer símbolo de formatação. Texto puro apenas.
 - NÃO use travessão (—) nem (–). Use vírgula ou dois-pontos.
-- Títulos de seção em MAIÚSCULAS com acentos corretos
+- Títulos de seção em MAIÚSCULAS com acentos corretos (ex: FORMAÇÃO ACADÊMICA, EXPERIÊNCIA PROFISSIONAL, COMPETÊNCIAS TÉCNICAS)
 - Bullets usam o símbolo •
 - Cargos e empresas separados por |
 - Sem tabelas, colunas ou formatação em grid
@@ -3495,6 +3532,7 @@ Responda APENAS com o texto do currículo. Zero explicações, zero comentários
     text = text.replace(/—/g, '-').replace(/–/g, '-');
     _resumeText = text;
     _resumeOpp  = { company: '', role: 'Currículo Adaptado' };
+    _resumeGenerated = true;
     incFreeCount();
     showResumeModal(_resumeOpp, text);
   } catch(e) {
@@ -3617,10 +3655,16 @@ Liste todas as skills relevantes do perfil. Agrupe por categoria (ex: GTM & Aqui
 - PROIBIDO: "participei de", "auxiliei em", "responsável por", "visando alavancar", "como evidenciado", "mediante", "haja vista", "no intuito de", "com vistas a", "outrossim"
 - PROIBIDO: descrições de empresa ("X é uma plataforma que...") — o recrutador já conhece
 
+=== REGRAS DE LÍNGUA PORTUGUESA — OBRIGATÓRIO ===
+- Escreva em português brasileiro correto, com TODOS os acentos obrigatórios. Nunca omita acentos.
+- Exemplos de palavras que DEVEM ter acento: histórico, área, função, título, formação, atuação, gestão, negociação, execução, análise, técnico, dinâmica, índice, nível, ênfase, fácil, período, específico, público, clínico, prático, crédito, líder, número, médio, único, após, também, através, além, está, são, já, só, é.
+- NUNCA escreva: "historico", "area", "funcao", "titulo", "formacao", "atuacao", "gestao", "negociacao", "execucao", "analise", "tecnico", "indice", "nivel", "enfase", "facil", "periodo", "especifico", "publico", "credito", "lider", "numero", "medio", "unico", "apos", "tambem", "alem", "esta", "sao", "ja", "so".
+- Revise cada palavra antes de responder. Um currículo com erro de ortografia é descartado.
+
 === REGRAS DE FORMATAÇÃO (crítico para ATS) ===
 - NÃO use asteriscos, markdown ou qualquer símbolo de formatação. Texto puro apenas.
 - NÃO use travessão (—) nem (–). Use vírgula ou dois-pontos.
-- Títulos de seção em MAIÚSCULAS com acentos corretos
+- Títulos de seção em MAIÚSCULAS com acentos corretos (ex: FORMAÇÃO ACADÊMICA, EXPERIÊNCIA PROFISSIONAL, COMPETÊNCIAS TÉCNICAS)
 - Bullets usam o símbolo •
 - Cargos e empresas separados por |
 - Sem tabelas, colunas ou formatação em grid
@@ -3654,6 +3698,7 @@ Responda APENAS com o texto do currículo. Zero explicações, zero comentários
 
     _resumeText = text;
     _resumeOpp  = opp;
+    _resumeGenerated = true;
     incFreeCount();
     showResumeModal(opp, text);
   } catch(e) {
@@ -3674,11 +3719,99 @@ function stripMarkdown(t) {
     .replace(/—/g, '-').replace(/–/g, '-');
 }
 
+function buildResumeHTML(text) {
+  const lines = text.split('\n');
+  const SECTION_KEYWORDS = /^(SUMMARY|RESUMO|EXPERIENCE|EXPERIÊNCIA|SKILLS|COMPETÊNCIAS|COMPETENCIAS|HABILIDADES|EDUCATION|FORMAÇÃO|FORMACAO|OBJECTIVE|OBJETIVO|PROFILE|PERFIL|LANGUAGES|IDIOMAS|CERTIFICATIONS|CERTIFICAÇÕES|PROFESSIONAL SUMMARY|PROFESSIONAL EXPERIENCE|EDUCATION AND TRAINING|KEY SKILLS)/i;
+
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function formatLines(lines) {
+    const out = [];
+    let inUl = false;
+    for (const line of lines) {
+      const t = line.trim();
+      if (!t) {
+        if (inUl) { out.push('</ul>'); inUl = false; }
+        out.push('<div style="height:5px"></div>');
+        continue;
+      }
+      if (SECTION_KEYWORDS.test(t)) {
+        if (inUl) { out.push('</ul>'); inUl = false; }
+        out.push(`<div class="rv-section-title">${esc(t)}</div>`);
+        continue;
+      }
+      if (/\|/.test(t) && t.length < 120 && !t.startsWith('•')) {
+        if (inUl) { out.push('</ul>'); inUl = false; }
+        const parts = t.split('|').map(p => esc(p.trim()));
+        out.push(`<div class="rv-job-header">${parts.join('<span class="rv-sep"> | </span>')}</div>`);
+        continue;
+      }
+      if (t.startsWith('•') || t.startsWith('- ') || t.startsWith('* ')) {
+        if (!inUl) { out.push('<ul class="rv-ul">'); inUl = true; }
+        const content = esc(t.replace(/^[•\-\*]\s*/, ''));
+        out.push(`<li class="rv-li">${content}</li>`);
+        continue;
+      }
+      if (inUl) { out.push('</ul>'); inUl = false; }
+      out.push(`<p class="rv-p">${esc(t)}</p>`);
+    }
+    if (inUl) out.push('</ul>');
+    return out.join('\n');
+  }
+
+  let lineIdx = 0;
+  while (lineIdx < lines.length && !lines[lineIdx].trim()) lineIdx++;
+  let nameStr = '';
+  if (lineIdx < lines.length) { nameStr = lines[lineIdx].trim(); lineIdx++; }
+
+  const contactLines = [];
+  let headerCount = 0;
+  while (lineIdx < lines.length && headerCount < 4) {
+    const t = lines[lineIdx].trim();
+    if (!t) { lineIdx++; continue; }
+    if (SECTION_KEYWORDS.test(t)) break;
+    if (t.length < 150 && !t.startsWith('•')) { contactLines.push(t); lineIdx++; headerCount++; }
+    else break;
+  }
+  const bodyLines = lines.slice(lineIdx);
+
+  const titleLine = contactLines[0] && !contactLines[0].includes('@') && !contactLines[0].includes('+') && !(/\d{5,}/.test(contactLines[0])) ? contactLines[0] : null;
+  const infoLines = titleLine ? contactLines.slice(1) : contactLines;
+  const contactHTML = infoLines.map(c => {
+    if (c.includes('|')) {
+      const parts = c.split('|').map(p => `<span>${esc(p.trim())}</span>`);
+      return parts.join('<span style="margin:0 8px;color:#ccc">|</span>');
+    }
+    return `<span>${esc(c)}</span>`;
+  }).join('<br>');
+
+  return `<div style="font-family:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;font-size:9.5pt;color:#1a1a1a;background:#fff;padding:32px 40px 40px;min-height:100%;box-sizing:border-box">
+    <style>
+      .rv-name{font-size:22pt;font-weight:900;color:#0d0d0d;letter-spacing:-0.5px;margin-bottom:2px;line-height:1.1}
+      .rv-jobtitle{font-size:10.5pt;font-weight:400;color:#555;margin-bottom:2px}
+      .rv-bar{height:3px;background:#e91e8c;width:44px;margin:6px 0 8px;border-radius:2px}
+      .rv-contact{font-size:8.5pt;color:#555;margin-bottom:10px;line-height:1.8}
+      .rv-section-title{font-size:7.5pt;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:#e91e8c;border-bottom:1.5px solid #e91e8c;padding-bottom:3px;margin-top:16px;margin-bottom:8px}
+      .rv-job-header{font-weight:700;font-size:9.5pt;color:#111;margin:8px 0 1px}
+      .rv-sep{color:#e91e8c;font-weight:400}
+      .rv-p{margin:2px 0;line-height:1.5;color:#333;font-size:9pt}
+      .rv-ul{padding-left:0;margin:3px 0 5px;list-style:none}
+      .rv-li{margin:2px 0;line-height:1.45;color:#333;font-size:9pt;padding-left:14px;position:relative}
+      .rv-li::before{content:"•";color:#e91e8c;position:absolute;left:0;font-size:10pt;line-height:1.3}
+    </style>
+    <div class="rv-name">${esc(nameStr)}</div>
+    ${titleLine ? `<div class="rv-jobtitle">${esc(titleLine)}</div>` : ''}
+    <div class="rv-bar"></div>
+    <div class="rv-contact">${contactHTML}</div>
+    ${formatLines(bodyLines)}
+  </div>`;
+}
+
 function showResumeModal(opp, text) {
   const clean = stripMarkdown(text);
-  _resumeText = clean; // store cleaned version
+  _resumeText = clean;
   document.getElementById('resume-modal-title').textContent = opp.company ? opp.role + ' — ' + opp.company : opp.role;
-  document.getElementById('resume-modal-content').textContent = clean;
+  document.getElementById('resume-modal-content').innerHTML = buildResumeHTML(clean);
   document.getElementById('resume-modal').style.display = 'flex';
 }
 
@@ -3903,12 +4036,24 @@ function openPricing() { /* pricing modal removed */ }
 function closePricing() { /* pricing modal removed */ }
 
 // ── Network / contatos na empresa ────────────────────────────────
+function scrollToNetwork() {
+  const el = document.getElementById('network-section');
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Se ainda não foi buscado, dispara automaticamente
+    const btn = document.getElementById('btn-find-contacts');
+    if (btn && !document.getElementById('contacts-result')?.innerHTML) {
+      setTimeout(() => findContacts(), 400);
+    }
+  }
+}
+
 function renderNetworkSection(opp) {
   const el = document.getElementById('network-section');
   el.innerHTML = `
     <div style="border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;background:rgba(255,255,255,0.03)">
       <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">🤝 Quem contatar na ${opp.company}</div>
-      <div style="font-size:12px;color:#718096;margin-bottom:12px">Você já aplicou. Agora é hora de ativar sua rede. A IA vai sugerir perfis relevantes para você mandar mensagem no LinkedIn.</div>
+      <div style="font-size:12px;color:#718096;margin-bottom:12px">A IA vai identificar quem provavelmente está por trás dessa contratação: gestor direto, pares da equipe e recrutadores da área.</div>
       <button id="btn-find-contacts" onclick="findContacts()"
         style="width:100%;padding:11px;background:transparent;border:1.5px solid #f472b6;border-radius:8px;color:#f472b6;font-size:13px;font-weight:700;cursor:pointer">
         🔍 Buscar contatos na empresa
@@ -3936,15 +4081,24 @@ A pessoa aplicou para a vaga abaixo e precisa ativar sua rede para aumentar as c
 
 EMPRESA: ${opp.company}
 VAGA: ${opp.role}
-${jd ? `DESCRIÇÃO DA VAGA:\n${jd}` : ''}
-${profile ? `PERFIL DO CANDIDATO:\n${profile.slice(0, 800)}` : ''}
+${jd ? `DESCRIÇÃO DA VAGA:\n${jd.slice(0, 2000)}` : ''}
+${profile ? `PERFIL DO CANDIDATO:\n${profile.slice(0, 600)}` : ''}
 
-Sugira exatamente 5 perfis de pessoas para contatar no LinkedIn nessa empresa. Para cada perfil:
-- Nome (use nomes plausíveis e reais se souber, ou crie exemplos realistas)
-- Cargo atual provável na empresa
-- Por que essa pessoa é estratégica para contatar
-- Uma mensagem de abertura PERSONALIZADA e DIFERENTE para cada contato (2-3 linhas). A mensagem deve mencionar algo específico sobre o cargo dessa pessoa ou sobre como ela se conecta à vaga. Seja direto, humano, sem enrolação, sem travessão. Use vírgula ou ponto no lugar de travessão.
-- URL de busca no LinkedIn (formato: https://www.linkedin.com/search/results/people/?keywords=NOME+EMPRESA)
+Analise a vaga e identifique exatamente 5 perfis ESTRATÉGICOS para contatar. Foque em pessoas que:
+1. Seriam o gestor direto ou gerente da área que está contratando (ex: Head de, Gerente de, Diretor de — da área específica da vaga)
+2. São pares sênior ou tech leads da equipe onde a vaga se encaixa
+3. São recrutadores/talent partners especializados nessa área ou nível de senioridade
+4. São stakeholders internos que influenciam a decisão de contratação para essa função
+
+EVITE: CEO, CFO, COO ou qualquer C-level genérico que não tenha relação direta com a área da vaga.
+FOQUE em: quem provavelmente entrevista, quem puxa a contratação, quem trabalha no time que está sendo formado.
+
+Para cada perfil:
+- Nome (use nomes plausíveis; pode ser fictício mas realista para o país/empresa)
+- Cargo atual provável na empresa (específico, não genérico)
+- Por que essa pessoa é estratégica para contatar (1 frase direta)
+- Uma mensagem de abertura PERSONALIZADA e DIFERENTE para cada contato (2-3 linhas). Mencione algo específico sobre o cargo ou área dessa pessoa em relação à vaga. Seja direto, humano, sem enrolação. Sem travessão, use vírgula ou ponto.
+- URL de busca no LinkedIn com o cargo e empresa como keywords
 
 Responda SOMENTE com JSON válido, sem markdown, sem texto extra, sem blocos de código:
 {
@@ -3954,7 +4108,7 @@ Responda SOMENTE com JSON válido, sem markdown, sem texto extra, sem blocos de 
       "role": "Cargo na empresa",
       "why": "Por que contatar",
       "message": "Sugestão de mensagem",
-      "linkedin_url": "https://www.linkedin.com/search/results/people/?keywords=..."
+      "linkedin_url": "https://www.linkedin.com/search/results/people/?keywords=CARGO+${encodeURIComponent(opp.company)}"
     }
   ]
 }`;
@@ -4001,6 +4155,154 @@ Responda SOMENTE com JSON válido, sem markdown, sem texto extra, sem blocos de 
   } finally {
     btn.disabled = false;
     btn.textContent = '🔄 Buscar novamente';
+  }
+}
+
+// ── Aba Entrevistas ──────────────────────────────────────────────
+function renderInterviewTab() {
+  const wrap = document.getElementById('interview-wrap');
+  const recruiterOpps = opps.filter(o => o.stage === 'recruiter');
+
+  if (!recruiterOpps.length) {
+    wrap.innerHTML = `
+      <div style="text-align:center;padding:60px 20px">
+        <div style="font-size:2.5rem;margin-bottom:16px">🎯</div>
+        <div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px">Nenhuma entrevista ativa</div>
+        <div style="font-size:0.88rem;color:var(--mid)">Quando uma vaga chegar na coluna <strong style="color:#f472b6">Entrevista com Recrutador</strong> no Kanban, ela aparece aqui com seu prep personalizado.</div>
+      </div>`;
+    return;
+  }
+
+  wrap.innerHTML = `
+    <div style="margin-bottom:28px">
+      <h2 style="font-size:1.25rem;font-weight:800;color:var(--text);margin-bottom:4px">Prep de Entrevista</h2>
+      <p style="font-size:0.85rem;color:var(--mid)">Dicas personalizadas para cada processo em andamento. A IA analisa sua experiência, a vaga e a empresa para te ajudar a contar as histórias certas.</p>
+    </div>
+    ${recruiterOpps.map(opp => `
+      <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:16px;background:rgba(255,255,255,0.02)" id="icard-${opp.id}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+          <div>
+            <div style="font-size:1rem;font-weight:800;color:var(--text)">${opp.company}</div>
+            <div style="font-size:0.85rem;color:#f472b6;margin-top:2px">${opp.role}</div>
+          </div>
+          ${opp.fit != null ? `<span style="font-size:0.8rem;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(244,114,182,0.12);color:#f472b6">${opp.fit}% fit</span>` : ''}
+        </div>
+        <div id="icard-result-${opp.id}">
+          <button onclick="generateInterviewPrep(${opp.id})"
+            style="width:100%;padding:12px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:9px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
+            ✨ Gerar prep para esta entrevista
+          </button>
+        </div>
+      </div>
+    `).join('')}`;
+}
+
+async function generateInterviewPrep(oppId) {
+  const opp = opps.find(o => o.id === oppId);
+  if (!opp) return;
+
+  const resultEl = document.getElementById(`icard-result-${oppId}`);
+  resultEl.innerHTML = `<div style="text-align:center;padding:20px;color:var(--mid);font-size:13px">⏳ Analisando vaga, empresa e seu perfil...</div>`;
+
+  const profile = localStorage.getItem(PROFILE_KEY) || '';
+  const jd = opp.jd_text || '';
+
+  const prompt = `Você é um coach de carreira sênior especialista em preparação para entrevistas. Você conhece profundamente o mercado brasileiro e sabe exatamente o que recrutadores e gestores avaliam em cada tipo de vaga.
+
+EMPRESA: ${opp.company}
+CARGO: ${opp.role}
+FIT CALCULADO: ${opp.fit != null ? opp.fit + '%' : 'não calculado'}
+${jd ? `\nDESCRIÇÃO DA VAGA:\n${jd.slice(0, 2500)}` : ''}
+${profile ? `\nPERFIL DO CANDIDATO:\n${profile.slice(0, 1500)}` : ''}
+${opp.notes ? `\nOBSERVAÇÕES SOBRE A VAGA:\n${opp.notes}` : ''}
+
+Gere um prep completo de entrevista. Responda SOMENTE em JSON válido, sem markdown:
+
+{
+  "abertura": "1 frase de contexto: o que essa entrevista provavelmente vai avaliar dado o cargo e a empresa",
+  "stories": [
+    {
+      "pergunta": "pergunta provável que o recrutador vai fazer",
+      "historia": "qual experiência do perfil contar e como estruturá-la (situação, ação, resultado)",
+      "dica": "o que destacar ou evitar nessa resposta"
+    }
+  ],
+  "empresa": [
+    "dica específica sobre a cultura/contexto/momento da empresa ${opp.company} relevante para a entrevista"
+  ],
+  "cargo_senioridade": [
+    "dica sobre o que é avaliado nesse nível/cargo específico (${opp.role})"
+  ],
+  "evite": [
+    "armadilha ou erro comum para esse tipo de vaga/empresa que o candidato deve evitar"
+  ],
+  "pergunta_para_fazer": "1 pergunta inteligente que o candidato pode fazer ao final da entrevista, específica para essa vaga"
+}
+
+Gere exatamente 4 stories, 3 dicas de empresa, 3 dicas de cargo/senioridade, 3 evites. Seja direto, prático e específico. Sem genéricos. Português brasileiro correto com todos os acentos.`;
+
+  try {
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, json_mode: true })
+    });
+    const data = await res.json();
+    const clean = data.result.replace(/^```json?\n?/,'').replace(/\n?```$/,'').trim();
+    const prep = JSON.parse(clean);
+
+    resultEl.innerHTML = `
+      <div style="font-size:12px;color:var(--mid);margin-bottom:16px;padding:10px 14px;background:rgba(244,114,182,0.06);border-radius:8px;border-left:2px solid #f472b6">
+        ${prep.abertura}
+      </div>
+
+      <!-- Stories -->
+      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">🎤 Histórias para contar</div>
+      ${prep.stories.map((s, i) => `
+        <details style="border:1px solid rgba(255,255,255,0.07);border-radius:10px;margin-bottom:8px;overflow:hidden">
+          <summary style="padding:12px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text);list-style:none;display:flex;justify-content:space-between;align-items:center">
+            <span>${s.pergunta}</span>
+            <span style="color:#f472b6;font-size:16px;flex-shrink:0;margin-left:8px">›</span>
+          </summary>
+          <div style="padding:0 14px 14px">
+            <div style="font-size:12px;color:#cbd5e0;line-height:1.7;margin-bottom:10px">${s.historia}</div>
+            <div style="font-size:11px;color:#f472b6;background:rgba(244,114,182,0.07);border-radius:6px;padding:8px 10px">💡 ${s.dica}</div>
+          </div>
+        </details>
+      `).join('')}
+
+      <!-- Empresa -->
+      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin:18px 0 10px">🏢 Sobre a ${opp.company}</div>
+      <div style="border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px">
+        ${prep.empresa.map(d => `<div style="font-size:12px;color:#cbd5e0;line-height:1.6;padding:5px 0 5px 14px;position:relative"><span style="position:absolute;left:0;color:#f472b6">•</span>${d}</div>`).join('')}
+      </div>
+
+      <!-- Cargo e senioridade -->
+      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin:18px 0 10px">🎯 O que avaliam nesse cargo</div>
+      <div style="border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px">
+        ${prep.cargo_senioridade.map(d => `<div style="font-size:12px;color:#cbd5e0;line-height:1.6;padding:5px 0 5px 14px;position:relative"><span style="position:absolute;left:0;color:#f472b6">•</span>${d}</div>`).join('')}
+      </div>
+
+      <!-- Evite -->
+      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin:18px 0 10px">⚠️ Evite</div>
+      <div style="border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px">
+        ${prep.evite.map(d => `<div style="font-size:12px;color:#cbd5e0;line-height:1.6;padding:5px 0 5px 14px;position:relative"><span style="position:absolute;left:0;color:#e53e3e">•</span>${d}</div>`).join('')}
+      </div>
+
+      <!-- Pergunta para fazer -->
+      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin:18px 0 10px">❓ Pergunta para fazer ao final</div>
+      <div style="border:1px solid rgba(244,114,182,0.25);border-radius:10px;padding:14px;background:rgba(244,114,182,0.04)">
+        <div style="font-size:13px;color:#f472b6;font-style:italic;line-height:1.6">"${prep.pergunta_para_fazer}"</div>
+      </div>
+
+      <button onclick="generateInterviewPrep(${oppId})" style="margin-top:16px;width:100%;padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--mid);font-size:12px;cursor:pointer">
+        🔄 Regenerar prep
+      </button>`;
+
+  } catch(e) {
+    resultEl.innerHTML = `
+      <div style="color:#fc8181;font-size:12px;margin-bottom:10px">Erro ao gerar prep: ${e.message}</div>
+      <button onclick="generateInterviewPrep(${oppId})" style="padding:8px 16px;background:transparent;border:1px solid #f472b6;border-radius:7px;color:#f472b6;font-size:12px;cursor:pointer">Tentar novamente</button>`;
   }
 }
 
@@ -4100,6 +4402,7 @@ Responda SOMENTE com um JSON válido neste formato exato (sem markdown, sem text
 
     const json = JSON.parse(raw.replace(/^```json?\n?/, '').replace(/\n?```$/, ''));
     _lastAnalysis = json;
+    _resumeGenerated = false; // reset ao fazer nova análise
     renderAnalysisResult(json);
   } catch(e) {
     let msg = e.message;
@@ -4167,7 +4470,9 @@ function renderAnalysisResult(r) {
 function saveAnalysisToKanban() {
   if (!_lastAnalysis) return;
 
-  openForm('todo');
+  // Se currículo foi gerado, já cai em "Aplicada"; senão em "Aplicar"
+  const targetStage = _resumeGenerated ? 'applied' : 'todo';
+  openForm(targetStage);
 
   // Score
   const fitEl = document.getElementById('f-fit');
