@@ -4224,14 +4224,14 @@ function renderInterviewTab() {
       <div style="text-align:center;padding:60px 20px">
         <div style="font-size:2.5rem;margin-bottom:16px">🎯</div>
         <div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px">Nenhuma entrevista ativa</div>
-        <div style="font-size:0.88rem;color:var(--mid)">Quando uma vaga chegar na coluna <strong style="color:#f472b6">Entrevista Agendada</strong> no Kanban, ela aparece aqui com seu prep personalizado.</div>
+        <div style="font-size:0.88rem;color:var(--mid)">Quando uma vaga chegar na coluna <strong style="color:#f472b6">Entrevista Agendada</strong> no Kanban, ela aparece aqui com seu preparação personalizada.</div>
       </div>`;
     return;
   }
 
   wrap.innerHTML = `
     <div style="margin-bottom:28px">
-      <h2 style="font-size:1.25rem;font-weight:800;color:var(--text);margin-bottom:4px">Prep de Entrevista</h2>
+      <h2 style="font-size:1.25rem;font-weight:800;color:var(--text);margin-bottom:4px">Preparação para Entrevista</h2>
       <p style="font-size:0.85rem;color:var(--mid)">Dicas personalizadas para cada processo em andamento. A IA analisa sua experiência, a vaga e a empresa.</p>
     </div>
     ${recruiterOpps.map(opp => `
@@ -4246,7 +4246,7 @@ function renderInterviewTab() {
         <div id="icard-result-${opp.id}">
           <button onclick="generateInterviewPrep(${opp.id})"
             style="width:100%;padding:12px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:9px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
-            ✨ Gerar prep para esta entrevista
+            ✨ Gerar preparação para esta entrevista
           </button>
         </div>
       </div>
@@ -4272,7 +4272,7 @@ ${jd ? `\nDESCRIÇÃO DA VAGA:\n${jd.slice(0, 2500)}` : ''}
 ${profile ? `\nPERFIL DO CANDIDATO:\n${profile.slice(0, 1500)}` : ''}
 ${opp.notes ? `\nOBSERVAÇÕES SOBRE A VAGA:\n${opp.notes}` : ''}
 
-Gere um prep completo de entrevista. Responda SOMENTE em JSON válido, sem markdown:
+Gere uma preparação completa de entrevista. Responda SOMENTE em JSON válido, sem markdown:
 
 {
   "abertura": "1 frase de contexto: o que essa entrevista provavelmente vai avaliar dado o cargo e a empresa",
@@ -4329,11 +4329,11 @@ Gere exatamente 3 dicas de empresa, 3 dicas de cargo/senioridade, 3 evites. Seja
         <div style="font-size:13px;color:#f472b6;font-style:italic;line-height:1.6">"${prep.pergunta_para_fazer}"</div>
       </div>
 
-      <button onclick="generateInterviewPrep(${oppId})" style="margin-top:16px;width:100%;padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--mid);font-size:12px;cursor:pointer">Regenerar prep</button>`;
+      <button onclick="generateInterviewPrep(${oppId})" style="margin-top:16px;width:100%;padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--mid);font-size:12px;cursor:pointer">Regenerar preparação</button>`;
 
   } catch(e) {
     resultEl.innerHTML = `
-      <div style="color:#fc8181;font-size:12px;margin-bottom:10px">Erro ao gerar prep: ${e.message}</div>
+      <div style="color:#fc8181;font-size:12px;margin-bottom:10px">Erro ao gerar preparação: ${e.message}</div>
       <button onclick="generateInterviewPrep(${oppId})" style="padding:8px 16px;background:transparent;border:1px solid #f472b6;border-radius:7px;color:#f472b6;font-size:12px;cursor:pointer">Tentar novamente</button>`;
   }
 }
