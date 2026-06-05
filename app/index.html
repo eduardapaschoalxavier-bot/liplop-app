@@ -4382,25 +4382,30 @@ function renderMarcaTab() {
     </div>
 
     <!-- Steps progress -->
-    <div style="display:flex;align-items:center;margin-bottom:32px;gap:0">
-      ${[['Projeto', step1done], ['Tom de voz', step2done], ['Calendário', step3done]].map(([label, done], i, arr) => {
-        const active = !done && (i === 0 || [step1done,step2done,step3done][i-1]);
-        const color  = done ? '#f472b6' : active ? 'var(--text)' : 'var(--dim)';
-        const isLast = i === arr.length - 1;
-        return `
-          <div style="display:flex;align-items:center;flex:1;min-width:0">
-            <div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0">
-              <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;
-                background:${done ? '#f472b6' : active ? 'rgba(244,114,182,0.12)' : 'rgba(255,255,255,0.05)'};
-                border:1.5px solid ${done ? '#f472b6' : active ? 'rgba(244,114,182,0.5)' : 'rgba(255,255,255,0.1)'};
-                color:${done ? '#fff' : color}">
-                ${done ? '✓' : i+1}
-              </div>
-              <div style="font-size:10px;font-weight:700;color:${color};white-space:nowrap;letter-spacing:.03em">${label}</div>
+    <div style="margin-bottom:32px">
+      <!-- Linha + círculos -->
+      <div style="display:flex;align-items:center;margin-bottom:8px">
+        ${[step1done, step2done, step3done].map((done, i, arr) => {
+          const active = !done && (i === 0 || arr[i-1]);
+          const isLast = i === arr.length - 1;
+          return `
+            <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;
+              background:${done ? '#f472b6' : active ? 'rgba(244,114,182,0.12)' : 'rgba(255,255,255,0.05)'};
+              border:1.5px solid ${done ? '#f472b6' : active ? 'rgba(244,114,182,0.5)' : 'rgba(255,255,255,0.1)'};
+              color:${done ? '#fff' : active ? 'var(--text)' : 'var(--dim)'}">
+              ${done ? '✓' : i+1}
             </div>
-            ${!isLast ? `<div style="flex:1;height:1.5px;margin:0 6px;margin-bottom:14px;background:${done ? '#f472b6' : 'rgba(255,255,255,0.08)'}"></div>` : ''}
-          </div>`;
-      }).join('')}
+            ${!isLast ? `<div style="flex:1;height:1.5px;background:${done ? '#f472b6' : 'rgba(255,255,255,0.08)'}"></div>` : ''}`;
+        }).join('')}
+      </div>
+      <!-- Labels -->
+      <div style="display:flex">
+        ${[['Projeto', step1done], ['Tom de voz', step2done], ['Calendário', step3done]].map(([label, done], i) => {
+          const active = !done && (i === 0 || [step1done,step2done,step3done][i-1]);
+          const align = i === 0 ? 'left' : i === 2 ? 'right' : 'center';
+          return `<div style="flex:1;text-align:${align};font-size:10px;font-weight:700;letter-spacing:.03em;color:${done ? '#f472b6' : active ? 'var(--text)' : 'var(--dim)'}">${label}</div>`;
+        }).join('')}
+      </div>
     </div>
 
     <!-- Etapa 1: Projeto -->
