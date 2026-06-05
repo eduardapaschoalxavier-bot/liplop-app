@@ -2075,70 +2075,16 @@
       </div>
     </div>
 
-    <!-- PASSO 1: Perfil -->
-    <div class="fit-step" id="step-profile">
-      <div class="fit-step-header">
-        <div class="fit-step-number" id="step1-num">1</div>
-        <div>
-          <div class="fit-step-title">Seu perfil profissional</div>
-          <div class="fit-section-hint">Salvo uma vez · usado em todas as análises</div>
-        </div>
-      </div>
-
-      <!-- Estado salvo -->
-      <div class="profile-saved" id="profile-saved-view">
-        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
-          <span style="font-size:0.75rem;font-weight:700;color:#22c55e;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);padding:2px 8px;border-radius:20px;white-space:nowrap">✓ perfil salvo</span>
-          <span id="profile-preview-text" style="font-size:0.78rem;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1"></span>
-        </div>
-        <button class="btn-profile-edit" onclick="editProfile()" style="font-size:0.72rem;padding:3px 10px">Atualizar</button>
-      </div>
-
-      <!-- Estado editando -->
-      <div id="profile-edit-view">
-        <div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:14px 16px;margin-bottom:12px;font-size:13px;color:#a0aec0;line-height:1.6">
-          <div style="font-weight:600;color:#e2e8f0;margin-bottom:10px;display:flex;align-items:center;gap:6px">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-            Como importar seu perfil do LinkedIn
-          </div>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <div style="display:flex;gap:10px;align-items:flex-start">
-              <span style="background:rgba(99,102,241,0.3);color:#a5b4fc;font-weight:700;font-size:11px;padding:2px 7px;border-radius:20px;flex-shrink:0;margin-top:1px">1</span>
-              <span>Acesse seu <a href="https://www.linkedin.com/in/me/" target="_blank" rel="noopener" style="color:#a5b4fc;text-decoration:underline">perfil no LinkedIn ↗</a></span>
-            </div>
-            <div style="display:flex;gap:10px;align-items:flex-start">
-              <span style="background:rgba(99,102,241,0.3);color:#a5b4fc;font-weight:700;font-size:11px;padding:2px 7px;border-radius:20px;flex-shrink:0;margin-top:1px">2</span>
-              <span>Clique em <strong style="color:#e2e8f0">Mais</strong> (abaixo da sua foto) → <strong style="color:#e2e8f0">Salvar como PDF</strong></span>
-            </div>
-            <div style="display:flex;gap:10px;align-items:center">
-              <span style="background:rgba(99,102,241,0.3);color:#a5b4fc;font-weight:700;font-size:11px;padding:2px 7px;border-radius:20px;flex-shrink:0">3</span>
-              <span>Suba o PDF aqui:</span>
-              <label style="cursor:pointer;background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.5);color:#a5b4fc;padding:5px 16px;border-radius:6px;font-size:12px;font-weight:600;display:inline-block;transition:background .2s"
-                onmouseover="this.style.background='rgba(99,102,241,0.35)'" onmouseout="this.style.background='rgba(99,102,241,0.2)'">
-                📎 Escolher PDF
-                <input type="file" accept=".pdf" style="display:none" onchange="extractProfilePDF(this)">
-              </label>
-            </div>
-          </div>
-        </div>
-        <div class="fit-status" id="fit-pdf-status" style="margin-bottom:6px"></div>
-        <textarea class="fit-textarea" id="fit-profile" rows="3" style="display:none"
-          placeholder="Texto extraído do PDF — você pode editar antes de salvar."></textarea>
-        <div id="profile-save-btn" style="display:none;margin-top:10px">
-          <button onclick="saveProfile()" style="width:100%;background:#E04478;border:none;color:#fff;font-weight:700;font-size:0.85rem;padding:10px;border-radius:8px;cursor:pointer;transition:background 0.15s"
-            onmouseover="this.style.background='#c73060'" onmouseout="this.style.background='#E04478'">Salvar perfil</button>
-        </div>
-      </div>
-      <div class="fit-status" id="fit-profile-status"></div>
+    <!-- Perfil inline (só aviso se não tiver) -->
+    <div id="step-profile-notice" style="display:none;margin-bottom:16px;padding:12px 16px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:10px;font-size:13px;color:#f59e0b;display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <span>Seu perfil não está configurado ainda.</span>
+      <button onclick="switchTab('perfil')" style="background:none;border:1px solid rgba(245,158,11,0.4);color:#f59e0b;padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Configurar →</button>
     </div>
 
-    <!-- Conector -->
-    <div class="fit-step-connector" id="step-connector"></div>
-
-    <!-- PASSO 2: Vaga -->
+    <!-- PASSO 1: Vaga -->
     <div class="fit-step" id="step-job">
       <div class="fit-step-header">
-        <div class="fit-step-number" id="step2-num">2</div>
+        <div class="fit-step-number" id="step2-num">1</div>
         <div>
           <div class="fit-step-title">Cole a descrição da vaga</div>
           <div class="fit-section-hint">Copie do LinkedIn, Gupy ou qualquer portal</div>
@@ -3333,31 +3279,13 @@ function setProvider(p) {
 function initAnalyzer() {
   updateFreeCounter();
   const profile = localStorage.getItem(PROFILE_KEY);
-  if (profile) {
-    document.getElementById('fit-profile').value = profile;
-    showProfileSaved(profile);
-  }
+  const notice = document.getElementById('step-profile-notice');
+  if (!profile && notice) notice.style.display = 'flex';
+  else if (notice) notice.style.display = 'none';
 }
 
-function showProfileSaved(text) {
-  document.getElementById('profile-edit-view').style.display = 'none';
-  document.getElementById('profile-saved-view').classList.add('visible');
-  document.getElementById('profile-preview-text').textContent =
-    text.slice(0, 90) + (text.length > 90 ? '…' : '');
-  // Compact step header
-  const stepHeader = document.querySelector('#step-profile .fit-step-header');
-  if (stepHeader) stepHeader.style.marginBottom = '8px';
-  const stepNum = document.getElementById('step1-num');
-  if (stepNum) { stepNum.style.background = '#22c55e'; stepNum.textContent = '✓'; }
-}
-
-function editProfile() {
-  document.getElementById('profile-saved-view').classList.remove('visible');
-  document.getElementById('profile-edit-view').style.display = 'block';
-  const stepNum = document.getElementById('step1-num');
-  if (stepNum) { stepNum.style.background = 'var(--rose-s)'; stepNum.textContent = '1'; }
-  document.getElementById('fit-profile').focus();
-}
+function showProfileSaved() {}
+function editProfile() {}
 
 function showApiKeySaved(provider) {
   document.getElementById('apikey-edit-view').style.display = 'none';
