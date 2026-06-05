@@ -2009,21 +2009,6 @@
   </nav>
 
   <div class="topbar-right" style="display:flex;align-items:center;gap:8px">
-    <button onclick="exportData()" title="Exportar dados"
-      style="background:none;border:1px solid var(--border);color:var(--dim);border-radius:6px;padding:4px 10px;font-size:0.72rem;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:4px"
-      onmouseover="this.style.borderColor='var(--rose-s)';this.style.color='var(--text)'"
-      onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dim)'">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Exportar
-    </button>
-    <label title="Importar dados"
-      style="background:none;border:1px solid var(--border);color:var(--dim);border-radius:6px;padding:4px 10px;font-size:0.72rem;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:4px"
-      onmouseover="this.style.borderColor='var(--rose-s)';this.style.color='var(--text)'"
-      onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dim)'">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      Importar
-      <input type="file" accept=".json" style="display:none" onchange="importData(this)">
-    </label>
     <span class="topbar-badge" id="topbar-count">— vagas</span>
   </div>
 </header>
