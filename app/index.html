@@ -2594,9 +2594,10 @@ function buildCard(opp) {
     <div class="card-next">
       <strong>Próximo passo</strong>
       ${opp.next ? `<div style="margin-bottom:8px">${opp.next}</div>` : ''}
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px">
-        <button class="card-btn-resume" style="padding:7px 6px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:7px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;line-height:1.3;text-align:center">✨ Currículo</button>
-        <button class="card-btn-contacts" style="padding:7px 6px;background:transparent;border:1.5px solid rgba(244,114,182,0.5);border-radius:7px;color:#f472b6;font-size:11px;font-weight:700;cursor:pointer;line-height:1.3;text-align:center">🤝 Contatos</button>
+      <div style="margin-top:4px">
+        ${opp.stage === 'todo' ? `<button class="card-btn-resume" style="width:100%;padding:7px 6px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:7px;color:#fff;font-size:11px;font-weight:700;cursor:pointer">✨ Gerar currículo adaptado</button>` : ''}
+        ${opp.stage === 'applied' ? `<button class="card-btn-contacts" style="width:100%;padding:7px 6px;background:transparent;border:1.5px solid rgba(244,114,182,0.5);border-radius:7px;color:#f472b6;font-size:11px;font-weight:700;cursor:pointer">🤝 Buscar contatos no LinkedIn</button>` : ''}
+        ${opp.stage === 'recruiter' ? `<button class="card-btn-interview" style="width:100%;padding:7px 6px;background:transparent;border:1.5px solid rgba(244,114,182,0.5);border-radius:7px;color:#f472b6;font-size:11px;font-weight:700;cursor:pointer">🎤 Preparação para entrevista</button>` : ''}
       </div>
     </div>
     ${(opp.contacts || []).length ? `
@@ -2608,15 +2609,24 @@ function buildCard(opp) {
       </div>` : ''}
   `;
 
-  card.querySelector(".card-btn-resume").addEventListener("click", e => {
+  const btnResume = card.querySelector(".card-btn-resume");
+  if (btnResume) btnResume.addEventListener("click", e => {
     e.stopPropagation();
     openModal(opp);
     setTimeout(() => generateResume(), 250);
   });
-  card.querySelector(".card-btn-contacts").addEventListener("click", e => {
+
+  const btnContacts = card.querySelector(".card-btn-contacts");
+  if (btnContacts) btnContacts.addEventListener("click", e => {
     e.stopPropagation();
     openModal(opp);
     setTimeout(() => { scrollToNetwork(); findContacts(); }, 250);
+  });
+
+  const btnInterview = card.querySelector(".card-btn-interview");
+  if (btnInterview) btnInterview.addEventListener("click", e => {
+    e.stopPropagation();
+    switchTab('interview');
   });
 
   card.querySelector(".card-delete").addEventListener("click", e => {
