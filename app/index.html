@@ -3939,11 +3939,11 @@ VAGA: ${opp.role}
 ${jd ? `DESCRIÇÃO DA VAGA:\n${jd}` : ''}
 ${profile ? `PERFIL DO CANDIDATO:\n${profile.slice(0, 800)}` : ''}
 
-Sugira exatamente 5 perfis de pessoas para contatar no LinkedIn nessa empresa. Para cada perfil, indique:
+Sugira exatamente 5 perfis de pessoas para contatar no LinkedIn nessa empresa. Para cada perfil:
 - Nome (use nomes plausíveis e reais se souber, ou crie exemplos realistas)
 - Cargo atual provável na empresa
 - Por que essa pessoa é estratégica para contatar
-- Sugestão de abertura da mensagem (2 linhas, direto, sem enrolação, sem travessão — use vírgula ou ponto)
+- Uma mensagem de abertura PERSONALIZADA e DIFERENTE para cada contato (2-3 linhas). A mensagem deve mencionar algo específico sobre o cargo dessa pessoa ou sobre como ela se conecta à vaga. Seja direto, humano, sem enrolação, sem travessão. Use vírgula ou ponto no lugar de travessão.
 - URL de busca no LinkedIn (formato: https://www.linkedin.com/search/results/people/?keywords=NOME+EMPRESA)
 
 Responda SOMENTE com JSON válido, sem markdown, sem texto extra, sem blocos de código:
@@ -3976,7 +3976,7 @@ Responda SOMENTE com JSON válido, sem markdown, sem texto extra, sem blocos de 
       <div style="font-size:11px;color:#718096;margin-bottom:10px;padding:8px;background:rgba(255,193,7,0.08);border-radius:6px;border-left:2px solid #f59e0b">
         ⚠ Verifique os nomes no LinkedIn antes de enviar mensagem.
       </div>
-      ${contacts.map(c => `
+      ${contacts.map((c, i) => `
         <div style="border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px;margin-bottom:8px;background:rgba(255,255,255,0.02)">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
             <div>
@@ -3988,8 +3988,11 @@ Responda SOMENTE com JSON válido, sem markdown, sem texto extra, sem blocos de 
               Ver no LinkedIn →
             </a>
           </div>
-          <div style="font-size:11px;color:#a0aec0;margin-bottom:6px">${c.why}</div>
-          <div style="font-size:11px;color:#cbd5e0;background:rgba(255,255,255,0.04);border-radius:6px;padding:8px;font-style:italic">"${c.message}"</div>
+          <div style="font-size:11px;color:#a0aec0;margin-bottom:8px">${c.why}</div>
+          <div style="font-size:10px;color:var(--dim);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em">Mensagem para enviar</div>
+          <textarea id="contact-msg-${i}"
+            style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:8px;color:#cbd5e0;font-size:11px;line-height:1.6;resize:vertical;font-family:inherit;min-height:70px;outline:none;box-sizing:border-box"
+            onfocus="this.style.borderColor='var(--rose-s)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">${c.message}</textarea>
         </div>
       `).join('')}`;
 
