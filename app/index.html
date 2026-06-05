@@ -1599,20 +1599,16 @@
     .card-action-btn {
       width: 100%;
       margin-top: 10px;
-      padding: 7px 10px;
+      padding: 6px 10px;
       border-radius: 7px;
       font-size: 11px;
       font-weight: 600;
       cursor: pointer;
-      opacity: 0;
-      transform: translateY(4px);
-      transition: opacity 0.18s ease, transform 0.18s ease;
-      pointer-events: none;
+      opacity: 0.45;
+      transition: opacity 0.15s ease;
     }
     .card:hover .card-action-btn {
       opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
     }
     .card-action-btn.primary {
       background: linear-gradient(135deg, #f472b6, #ec4899);
@@ -1621,7 +1617,7 @@
     }
     .card-action-btn.ghost {
       background: transparent;
-      border: 1px solid rgba(244,114,182,0.4);
+      border: 1px solid rgba(244,114,182,0.5);
       color: #f472b6;
     }
 
