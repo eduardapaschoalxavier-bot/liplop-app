@@ -4470,6 +4470,55 @@ function buildDailyTasks() {
   return tasks;
 }
 
+function renderProjectCase(text) {
+  if (!text) return `<div style="font-size:13px;color:#cbd5e0;line-height:1.8">—</div>`;
+  // Parseia blocos do case: **LABEL:** conteúdo
+  const blocks = [];
+  const lines = text.split('\n');
+  let current = null;
+
+  for (const line of lines) {
+    const match = line.match(/^\*\*([^*]+):\*\*\s*(.*)/);
+    if (match) {
+      if (current) blocks.push(current);
+      current = { label: match[1].trim(), lines: match[2] ? [match[2]] : [] };
+    } else if (current && line.trim()) {
+      current.lines.push(line.trim());
+    } else if (!current && line.trim()) {
+      blocks.push({ label: null, lines: [line.trim()] });
+    }
+  }
+  if (current) blocks.push(current);
+
+  if (!blocks.length) return `<div style="font-size:13px;color:#cbd5e0;line-height:1.8;white-space:pre-wrap">${text}</div>`;
+
+  const labelColors = {
+    'PROJETO': '#f472b6', 'PROJECT': '#f472b6',
+    'PROBLEMA': '#fc8181', 'PROBLEM': '#fc8181',
+    'CONTEXTO': '#a78bfa', 'CONTEXT': '#a78bfa',
+    'O QUE FEZ': '#63b3ed', 'WHAT': '#63b3ed',
+    'RESULTADO': '#68d391', 'RESULT': '#68d391',
+    'O QUE PROVA': '#f59e0b', 'PROVES': '#f59e0b',
+  };
+
+  return blocks.map(b => {
+    if (!b.label) return `<p style="font-size:12px;color:var(--mid);margin:4px 0">${b.lines.join(' ')}</p>`;
+    const color = labelColors[b.label.toUpperCase()] || '#f472b6';
+    const content = b.lines.join('\n').trim();
+    const isList = content.includes('\n') || content.startsWith('-');
+    return `
+      <div style="margin-bottom:16px">
+        <div style="font-size:10px;font-weight:800;color:${color};text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+          <span style="display:inline-block;width:3px;height:12px;background:${color};border-radius:2px"></span>${b.label}
+        </div>
+        ${isList
+          ? `<div style="display:flex;flex-direction:column;gap:4px">${content.split('\n').map(l => `<div style="font-size:13px;color:#cbd5e0;line-height:1.6;padding-left:12px;position:relative"><span style="position:absolute;left:0;color:${color}">›</span>${l.replace(/^-\s*/,'')}</div>`).join('')}</div>`
+          : `<div style="font-size:13px;color:#cbd5e0;line-height:1.6">${content}</div>`
+        }
+      </div>`;
+  }).join('');
+}
+
 // ── Aba Marca ────────────────────────────────────────────────────
 const MARCA_PROJECT_KEY  = 'liplop-marca-project-v1';
 const MARCA_TONE_KEY     = 'liplop-marca-tone-v1';
@@ -4559,7 +4608,7 @@ function renderMarcaStep1(project) {
           <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.08em">Seu projeto / case</div>
           <button onclick="confirmResetProject()" style="background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer;text-decoration:underline">refazer</button>
         </div>
-        <div style="font-size:13px;color:#cbd5e0;line-height:1.8;white-space:pre-wrap">${project.text}</div>
+        <div>${renderProjectCase(project.text)}</div>
       </div>`;
   }
 
@@ -4629,14 +4678,14 @@ VAGAS QUE ESTÁ PERSEGUINDO: ${vagas || 'não informado'}
 O candidato descreveu o seguinte projeto/experiência:
 "${input}"
 
-Transforme isso em um case estruturado e poderoso para LinkedIn. Use o formato:
+Transforme isso em um case estruturado e poderoso para LinkedIn. Use EXATAMENTE este formato (com os asteriscos):
 
-PROJETO: [nome curto e marcante]
-PROBLEMA: [qual dor ou desafio existia]
-CONTEXTO: [empresa, área, momento]
-O QUE FEZ: [ações concretas, em 2-3 linhas]
-RESULTADO: [números, impacto, antes e depois]
-O QUE PROVA: [qual competência ou perfil isso demonstra para o mercado]
+**PROJETO:** [nome curto e marcante]
+**PROBLEMA:** [qual dor ou desafio existia]
+**CONTEXTO:** [empresa, área, momento]
+**O QUE FEZ:** [ações concretas, em 2-3 linhas]
+**RESULTADO:** [números, impacto, antes e depois]
+**O QUE PROVA:** [qual competência ou perfil isso demonstra para o mercado]
 
 Seja direto, concreto, sem adjetivos vazios. Português brasileiro correto com todos os acentos. Máximo 200 palavras.`;
 
@@ -4649,15 +4698,15 @@ Seja direto, concreto, sem adjetivos vazios. Português brasileiro correto com t
     document.getElementById('marca-path-content').innerHTML = `
       <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:16px;margin-bottom:12px">
         <div style="font-size:11px;color:var(--dim);margin-bottom:10px;text-transform:uppercase;letter-spacing:.08em">Seu case estruturado</div>
-        <div style="font-size:13px;color:#cbd5e0;line-height:1.8;white-space:pre-wrap">${text}</div>
+        <div>${renderProjectCase(text)}</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
         <button onclick="approveMarcaProject(${JSON.stringify(text).replace(/"/g,'&quot;')})" style="padding:10px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Aprovar e salvar</button>
         <button onclick="showMarcaPath('existing')" style="padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:var(--mid);font-size:13px;cursor:pointer">Refazer</button>
       </div>`;
   } catch(e) {
-    btn.disabled = false; btn.textContent = '✨ Estruturar meu case';
-    status.textContent = 'Erro: ' + e.message;
+    if (btn) { btn.disabled = false; btn.textContent = '✨ Estruturar meu case'; }
+    if (status) { status.style.display = 'block'; status.style.color = '#fc8181'; status.textContent = 'Erro ao gerar. Verifique sua conexão e tente novamente.'; }
   }
 }
 
