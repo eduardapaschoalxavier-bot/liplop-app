@@ -1969,6 +1969,21 @@
       </svg>
       Método
     </button>
+    <button class="tab-btn" onclick="switchTab('perfil')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="8" cy="5" r="3"/>
+        <path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+      </svg>
+      Perfil
+    </button>
+    <button class="tab-btn" onclick="switchTab('vagas')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="2" y="3" width="12" height="10" rx="1.5"/>
+        <path d="M5 7h6M5 10h4"/>
+        <path d="M10 1v4M6 1v4"/>
+      </svg>
+      Vagas
+    </button>
     <button class="tab-btn" onclick="switchTab('tarefas')">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
         <rect x="2" y="2" width="12" height="12" rx="2"/>
@@ -2194,6 +2209,14 @@
 
 <div class="tab-view" id="tab-tarefas">
   <div id="tarefas-wrap" style="max-width:720px;margin:0 auto;padding:24px 16px 60px"></div>
+</div>
+
+<div class="tab-view" id="tab-perfil">
+  <div id="perfil-wrap" style="max-width:720px;margin:0 auto;padding:24px 16px 60px"></div>
+</div>
+
+<div class="tab-view" id="tab-vagas">
+  <div id="vagas-wrap" style="max-width:900px;margin:0 auto;padding:24px 16px 60px"></div>
 </div>
 
 <div class="tab-view" id="tab-marca">
@@ -3128,7 +3151,7 @@ function switchTab(tab) {
   _currentTab = tab;
 
   // Esconde todas as abas explicitamente
-  ['analyzer','kanban','ranking','interview','marca','metodo','tarefas'].forEach(id => {
+  ['analyzer','kanban','ranking','interview','marca','metodo','tarefas','perfil','vagas'].forEach(id => {
     const el = document.getElementById('tab-' + id);
     if (el) { el.style.display = 'none'; el.classList.remove('active'); }
   });
@@ -3154,6 +3177,8 @@ function switchTab(tab) {
   if (tab === 'marca')     renderMarcaTab();
   if (tab === 'metodo')    renderMetodoTab();
   if (tab === 'tarefas')   renderTarefasTab();
+  if (tab === 'perfil')    renderPerfilTab();
+  if (tab === 'vagas')     renderVagasTab();
 }
 
 // ── Ranking ──────────────────────────────────────────────────
@@ -4403,6 +4428,296 @@ function renderMetodoTab() {
     </div>
 
     `;
+}
+
+// ── Aba Perfil & Vagas ───────────────────────────────────────────
+const PROFILE_OBJECTIVES_KEY = 'liplop-profile-objectives-v1';
+const PROFILE_ROLES_KEY      = 'liplop-profile-roles-v1';
+const JOB_SEARCH_KEY         = 'liplop-job-search-v1';
+
+function getProfileObjectives() { return localStorage.getItem(PROFILE_OBJECTIVES_KEY) || ''; }
+function getProfileRoles()      { return localStorage.getItem(PROFILE_ROLES_KEY) || ''; }
+function getJobSearch()         { try { return JSON.parse(localStorage.getItem(JOB_SEARCH_KEY)) || []; } catch(e) { return []; } }
+function saveJobSearch(jobs)    { localStorage.setItem(JOB_SEARCH_KEY, JSON.stringify(jobs)); }
+
+function renderPerfilTab() {
+  const wrap = document.getElementById('perfil-wrap');
+  const profile    = localStorage.getItem(PROFILE_KEY) || '';
+  const objectives = getProfileObjectives();
+  const roles      = getProfileRoles();
+
+  wrap.innerHTML = `
+    <div style="margin-bottom:28px">
+      <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">✦ Seu Perfil</div>
+      <h2 style="font-size:1.6rem;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.2">Configure seu perfil uma vez.<br>Use em tudo.</h2>
+      <p style="font-size:13px;color:var(--mid);line-height:1.6">Seu perfil alimenta a análise de vagas, a busca de oportunidades e a construção da sua marca. Preencha uma vez e mantenha atualizado.</p>
+    </div>
+
+    <!-- Bloco 1: LinkedIn PDF -->
+    <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:16px;background:rgba(255,255,255,0.02)">
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Perfil profissional</div>
+      <div style="font-size:12px;color:var(--mid);margin-bottom:14px;line-height:1.5">Importe seu LinkedIn como PDF ou cole seu currículo/resumo profissional.</div>
+      <div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:12px;color:#a0aec0;line-height:1.6">
+        <div style="font-weight:600;color:#e2e8f0;margin-bottom:8px;display:flex;align-items:center;gap:6px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          Como importar do LinkedIn
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span>1. Acesse seu <a href="https://www.linkedin.com/in/me/" target="_blank" style="color:#a5b4fc;text-decoration:underline">perfil no LinkedIn ↗</a></span>
+          <span>2. Clique em <strong style="color:#e2e8f0">Mais</strong> → <strong style="color:#e2e8f0">Salvar como PDF</strong></span>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:2px">
+            <span>3. Suba o PDF aqui:</span>
+            <label style="cursor:pointer;background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.5);color:#a5b4fc;padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;display:inline-block">
+              📎 Escolher PDF
+              <input type="file" accept=".pdf" style="display:none" onchange="extractProfilePDFPerfil(this)">
+            </label>
+          </div>
+        </div>
+      </div>
+      <div id="perfil-pdf-status" style="font-size:12px;color:var(--mid);margin-bottom:8px;display:none"></div>
+      <textarea id="perfil-profile-input" placeholder="Cole aqui seu LinkedIn, currículo ou resumo profissional..."
+        style="width:100%;min-height:120px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;color:#cbd5e0;font-size:12px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
+        onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">${profile}</textarea>
+    </div>
+
+    <!-- Bloco 2: Objetivos -->
+    <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:16px;background:rgba(255,255,255,0.02)">
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Objetivos profissionais</div>
+      <div style="font-size:12px;color:var(--mid);margin-bottom:12px">O que você está buscando? Que tipo de empresa, cultura, desafio?</div>
+      <textarea id="perfil-objectives-input" placeholder="Ex: Quero trabalhar em startups de crescimento rápido em posição de liderança de growth ou produto. Busco empresas com cultura orientada a dados e autonomia para experimentar..."
+        style="width:100%;min-height:80px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;color:#cbd5e0;font-size:12px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
+        onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">${objectives}</textarea>
+    </div>
+
+    <!-- Bloco 3: Cargos desejados -->
+    <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:20px;background:rgba(255,255,255,0.02)">
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Cargos que gostaria de ocupar</div>
+      <div style="font-size:12px;color:var(--mid);margin-bottom:12px">Liste os cargos, separados por vírgula.</div>
+      <textarea id="perfil-roles-input" placeholder="Ex: Head of Growth, Growth Manager, Product Marketing Manager, Head of Marketing..."
+        style="width:100%;min-height:60px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;color:#cbd5e0;font-size:12px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
+        onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">${roles}</textarea>
+    </div>
+
+    <button onclick="savePerfilData()" style="width:100%;padding:13px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer">
+      Salvar perfil
+    </button>
+    <div id="perfil-save-status" style="display:none;text-align:center;font-size:12px;color:#68d391;margin-top:10px">✓ Perfil salvo com sucesso!</div>`;
+}
+
+function savePerfilData() {
+  const profile    = document.getElementById('perfil-profile-input')?.value?.trim();
+  const objectives = document.getElementById('perfil-objectives-input')?.value?.trim();
+  const roles      = document.getElementById('perfil-roles-input')?.value?.trim();
+  if (profile)    localStorage.setItem(PROFILE_KEY, profile);
+  if (objectives) localStorage.setItem(PROFILE_OBJECTIVES_KEY, objectives);
+  if (roles)      localStorage.setItem(PROFILE_ROLES_KEY, roles);
+  // Sincroniza com a aba Análise
+  const fitProfileEl = document.getElementById('fit-profile');
+  if (fitProfileEl && profile) fitProfileEl.value = profile;
+  // Feedback visual
+  const status = document.getElementById('perfil-save-status');
+  status.style.display = 'block';
+  setTimeout(() => { status.style.display = 'none'; }, 3000);
+  // Atualiza preview no Análise
+  if (profile) { const p = document.getElementById('profile-preview-text'); if (p) p.textContent = profile.slice(0,80) + '…'; }
+}
+
+function extractProfilePDFPerfil(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById('perfil-pdf-status');
+  status.style.display = 'block'; status.textContent = '⏳ Extraindo texto do PDF...';
+  // reutiliza o mesmo leitor do Análise
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    try {
+      const typedarray = new Uint8Array(e.target.result);
+      const pdf = await pdfjsLib.getDocument({ data: typedarray }).promise;
+      let text = '';
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        text += content.items.map(s => s.str).join(' ') + '\n';
+      }
+      document.getElementById('perfil-profile-input').value = text.trim();
+      status.textContent = '✓ PDF extraído! Revise o texto acima.'; status.style.color = '#68d391';
+    } catch(err) {
+      status.textContent = 'Não foi possível extrair o PDF. Cole o texto manualmente.'; status.style.color = '#fc8181';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ── Aba Vagas ────────────────────────────────────────────────────
+function renderVagasTab() {
+  const wrap = document.getElementById('vagas-wrap');
+  const jobs  = getJobSearch();
+  const roles = getProfileRoles();
+
+  if (!localStorage.getItem(PROFILE_KEY)) {
+    wrap.innerHTML = `
+      <div style="text-align:center;padding:60px 24px">
+        <div style="font-size:32px;margin-bottom:16px">👤</div>
+        <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px">Configure seu perfil primeiro</div>
+        <div style="font-size:13px;color:var(--mid);margin-bottom:20px">Precisamos do seu perfil para buscar vagas com fit.</div>
+        <button onclick="switchTab('perfil')" style="padding:10px 24px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Ir para Perfil →</button>
+      </div>`;
+    return;
+  }
+
+  wrap.innerHTML = `
+    <div style="margin-bottom:24px">
+      <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">✦ Vagas para você</div>
+      <h2 style="font-size:1.6rem;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.2">Oportunidades com fit<br>para o seu perfil</h2>
+      <p style="font-size:13px;color:var(--mid);line-height:1.6;margin-bottom:16px">A IA analisa seu perfil e sugere vagas com alta compatibilidade. Adicione ao pipeline ou aplique diretamente.</p>
+      <button onclick="searchJobs()" id="btn-search-jobs" style="padding:12px 24px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
+        ✨ ${jobs.length ? 'Buscar novas vagas' : 'Buscar vagas para mim'}
+      </button>
+      <div id="vagas-search-status" style="display:none;font-size:12px;color:var(--mid);margin-top:10px"></div>
+    </div>
+    <div id="vagas-list">
+      ${jobs.length ? renderJobsList(jobs) : '<div style="text-align:center;padding:40px;color:var(--dim);font-size:13px">Clique em "Buscar vagas" para começar.</div>'}
+    </div>`;
+}
+
+function renderJobsList(jobs) {
+  // Separar: não aplicadas primeiro, aplicadas depois
+  const active  = jobs.filter(j => j.status !== 'applied');
+  const applied = jobs.filter(j => j.status === 'applied');
+  const sorted  = [...active, ...applied];
+
+  return sorted.map((job, rawIdx) => {
+    const idx = jobs.indexOf(job);
+    const isApplied = job.status === 'applied';
+    const isAdded   = job.status === 'added';
+    const fitColor  = job.fit >= 80 ? '#68d391' : job.fit >= 60 ? '#f59e0b' : job.fit ? '#fc8181' : 'var(--dim)';
+
+    return `
+      <div id="job-card-${idx}" style="border:1px solid ${isApplied ? 'rgba(72,187,120,0.2)' : 'rgba(255,255,255,0.08)'};border-radius:14px;padding:18px 20px;margin-bottom:12px;background:${isApplied ? 'rgba(72,187,120,0.04)' : 'rgba(255,255,255,0.02)'};transition:opacity .3s;${isApplied ? 'opacity:0.7' : ''}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:12px">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px">${job.role}</div>
+            <div style="font-size:13px;color:var(--mid)">${job.company}${job.location ? ' · ' + job.location : ''}</div>
+          </div>
+          <div style="flex-shrink:0;text-align:right">
+            ${job.fit ? `<div style="font-size:13px;font-weight:700;color:${fitColor}">${job.fit}% fit</div>` : ''}
+            ${job.fit_label ? `<div style="font-size:10px;color:var(--dim);margin-top:1px">${job.fit_label}</div>` : ''}
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--mid);line-height:1.6;margin-bottom:14px">${job.description}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${isApplied
+            ? `<span style="padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(72,187,120,0.12);border:1px solid rgba(72,187,120,0.3);color:#68d391">✓ Aplicada</span>`
+            : `
+              ${!isAdded ? `<button onclick="addJobToKanban(${idx},'todo')" style="padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;background:transparent;border:1px solid rgba(255,255,255,0.15);color:var(--mid);cursor:pointer">+ Kanban</button>` : `<span style="padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;background:rgba(244,114,182,0.08);border:1px solid rgba(244,114,182,0.2);color:#f472b6">✓ No Kanban</span>`}
+              <button onclick="applyJob(${idx})" style="padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;color:#fff;cursor:pointer">Aplicar agora</button>
+              <button onclick="analyzeJob(${idx})" style="padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;background:transparent;border:1px solid rgba(99,179,237,0.3);color:#63b3ed;cursor:pointer">Fazer análise</button>
+            `
+          }
+        </div>
+        ${job.analysis ? `
+          <div style="margin-top:12px;padding:12px;background:rgba(99,179,237,0.06);border:1px solid rgba(99,179,237,0.2);border-radius:8px;font-size:12px;color:#cbd5e0;line-height:1.6">${job.analysis}</div>
+        ` : ''}
+      </div>`;
+  }).join('');
+}
+
+async function searchJobs() {
+  const btn = document.getElementById('btn-search-jobs');
+  const status = document.getElementById('vagas-search-status');
+  btn.disabled = true; btn.textContent = '⏳ Buscando vagas...';
+  status.style.display = 'block'; status.textContent = 'Analisando seu perfil e mapeando oportunidades...';
+
+  const profile    = localStorage.getItem(PROFILE_KEY) || '';
+  const objectives = getProfileObjectives();
+  const roles      = getProfileRoles();
+
+  const prompt = `Você é um especialista em recrutamento e mercado de trabalho brasileiro.
+
+PERFIL DO CANDIDATO:
+${profile.slice(0, 1000)}
+
+OBJETIVOS PROFISSIONAIS: ${objectives || 'não informado'}
+CARGOS DESEJADOS: ${roles || 'não informado'}
+
+Liste exatamente 20 vagas reais e atuais que têm alto fit com esse perfil. Use empresas conhecidas no mercado brasileiro (startups, scale-ups, grandes empresas). Para cada vaga, calcule o fit real com o perfil.
+
+Responda SOMENTE em JSON:
+{"vagas":[{"empresa":"","cargo":"","localizacao":"cidade ou Remoto","descricao":"resumo da vaga em 2-3 frases com requisitos principais","fit":85,"fit_label":"Alto fit"}]}
+
+fit deve ser número entre 0-100. fit_label deve ser "Alto fit" (>=80), "Bom fit" (>=60), "Fit parcial" (<60). Gere exatamente 20 vagas.`;
+
+  try {
+    const res = await fetch('/api/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt, json_mode:true}) });
+    const data = await res.json();
+    const clean = data.result.replace(/^```json?\n?/,'').replace(/\n?```$/,'').trim();
+    const { vagas } = JSON.parse(clean);
+    const jobs = vagas.map(v => ({
+      company: v.empresa, role: v.cargo, location: v.localizacao,
+      description: v.descricao, fit: v.fit, fit_label: v.fit_label,
+      status: 'none', analysis: null
+    }));
+    // Ordenar por fit desc
+    jobs.sort((a,b) => (b.fit||0) - (a.fit||0));
+    saveJobSearch(jobs);
+    btn.disabled = false; btn.textContent = '✨ Buscar novas vagas';
+    status.style.display = 'none';
+    document.getElementById('vagas-list').innerHTML = renderJobsList(jobs);
+  } catch(e) {
+    btn.disabled = false; btn.textContent = '✨ Buscar vagas para mim';
+    status.textContent = 'Erro ao buscar vagas. Tente novamente.';
+  }
+}
+
+function addJobToKanban(idx, stage) {
+  const jobs = getJobSearch();
+  const job = jobs[idx];
+  if (!job) return;
+  // Adiciona ao kanban
+  const item = {
+    id: nextId++, company: job.company, role: job.role,
+    status: stage === 'applied' ? 'Aplicada' : 'Para Aplicar',
+    stage, fit: job.fit || null, link: null,
+    contacts: '', next: '—', notes: '—', organic: false, referred: false
+  };
+  opps.push(item);
+  saveOpps(); renderFunnel(); renderBoard();
+  // Atualiza status do job
+  jobs[idx].status = stage === 'applied' ? 'applied' : 'added';
+  saveJobSearch(jobs);
+  document.getElementById('vagas-list').innerHTML = renderJobsList(jobs);
+}
+
+function applyJob(idx) {
+  addJobToKanban(idx, 'applied');
+}
+
+async function analyzeJob(idx) {
+  const jobs = getJobSearch();
+  const job = jobs[idx];
+  if (!job) return;
+  const card = document.getElementById('job-card-' + idx);
+  const analyzeBtn = card?.querySelector('button[onclick="analyzeJob(' + idx + ')"]');
+  if (analyzeBtn) { analyzeBtn.disabled = true; analyzeBtn.textContent = '⏳ Analisando...'; }
+
+  const profile = localStorage.getItem(PROFILE_KEY) || '';
+  const prompt = `Você é especialista em recrutamento. Analise o fit entre o candidato e a vaga abaixo em 3-4 frases diretas: o que ele tem a favor, o que pode faltar, e como se posicionar. Seja específico.
+
+PERFIL: ${profile.slice(0,600)}
+VAGA: ${job.role} na ${job.company} — ${job.description}
+
+Responda em português, direto, sem markdown.`;
+
+  try {
+    const res = await fetch('/api/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt, json_mode:false}) });
+    const data = await res.json();
+    jobs[idx].analysis = data.result?.trim();
+    jobs[idx].fit = jobs[idx].fit; // manter
+    saveJobSearch(jobs);
+    document.getElementById('vagas-list').innerHTML = renderJobsList(jobs);
+  } catch(e) {
+    if (analyzeBtn) { analyzeBtn.disabled = false; analyzeBtn.textContent = 'Fazer análise'; }
+  }
 }
 
 function renderTarefasTab() {
