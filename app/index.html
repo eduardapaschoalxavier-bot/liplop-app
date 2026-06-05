@@ -4568,11 +4568,20 @@ function renderJobsList(jobs) {
               <button onclick="analyzeJob(${idx})" style="padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;background:transparent;border:1px solid rgba(99,179,237,0.3);color:#63b3ed;cursor:pointer">Fazer análise</button>
             `
           }
-          ${job.links ? `
-            ${job.links.gupy ? `<a href="${job.links.gupy}" target="_blank" rel="noopener" style="padding:7px 12px;border-radius:8px;font-size:11px;font-weight:600;background:rgba(99,179,237,0.08);border:1px solid rgba(99,179,237,0.25);color:#63b3ed;cursor:pointer;text-decoration:none">Gupy →</a>` : ''}
-            <a href="${job.links.google}" target="_blank" rel="noopener" style="padding:7px 12px;border-radius:8px;font-size:11px;font-weight:600;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:var(--mid);cursor:pointer;text-decoration:none">Google Jobs →</a>
-            <a href="${job.links.linkedin}" target="_blank" rel="noopener" style="padding:7px 12px;border-radius:8px;font-size:11px;font-weight:600;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:var(--mid);cursor:pointer;text-decoration:none">LinkedIn →</a>
-          ` : ''}
+          ${(() => {
+            // suporta formato novo (job.links) e formato antigo (job.url)
+            const links = job.links || (job.url ? {
+              gupy: null,
+              google: `https://www.google.com/search?q=${encodeURIComponent(`${job.role} ${job.company} vaga`)}&ibp=htl;jobs`,
+              linkedin: `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(`${job.role} ${job.company}`)}`
+            } : null);
+            if (!links) return '';
+            return `
+              ${links.gupy ? `<a href="${links.gupy}" target="_blank" rel="noopener" style="padding:7px 12px;border-radius:8px;font-size:11px;font-weight:600;background:rgba(99,179,237,0.08);border:1px solid rgba(99,179,237,0.25);color:#63b3ed;cursor:pointer;text-decoration:none">Gupy →</a>` : ''}
+              <a href="${links.google}" target="_blank" rel="noopener" style="padding:7px 12px;border-radius:8px;font-size:11px;font-weight:600;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:var(--mid);cursor:pointer;text-decoration:none">Google Jobs →</a>
+              <a href="${links.linkedin}" target="_blank" rel="noopener" style="padding:7px 12px;border-radius:8px;font-size:11px;font-weight:600;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:var(--mid);cursor:pointer;text-decoration:none">LinkedIn →</a>
+            `;
+          })()}
         </div>
         ${job.analysis ? `
           <div style="margin-top:12px;padding:12px;background:rgba(99,179,237,0.06);border:1px solid rgba(99,179,237,0.2);border-radius:8px;font-size:12px;color:#cbd5e0;line-height:1.6">${job.analysis}</div>
