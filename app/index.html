@@ -4061,6 +4061,8 @@ ${jd}
 Responda SOMENTE com um JSON válido neste formato exato (sem markdown, sem texto extra):
 {
   "score": <número 0-100>,
+  "company": "<nome da empresa da vaga>",
+  "role": "<título exato do cargo da vaga>",
   "label": "<Ex: Fit muito forte | Fit sólido | Fit parcial | Fit baixo>",
   "summary": "<1-2 frases explicando o score de forma direta>",
   "pillars": [
@@ -4163,13 +4165,17 @@ function saveAnalysisToKanban() {
 
   openForm('todo');
 
-  // Pre-preenche o score
+  // Score
   const fitEl = document.getElementById('f-fit');
   fitEl.value = _lastAnalysis.score;
   fitEl.dataset.manual = '1';
   document.getElementById('f-fit-auto').textContent = '✨ calculado pela IA';
 
-  // Preenche notas com o resumo da análise
+  // Empresa e cargo extraídos pela IA
+  if (_lastAnalysis.company) document.getElementById('f-company').value = _lastAnalysis.company;
+  if (_lastAnalysis.role)    document.getElementById('f-role').value    = _lastAnalysis.role;
+
+  // Resumo como nota
   document.getElementById('f-notes').value = _lastAnalysis.summary || '';
 
   switchTab('kanban');
