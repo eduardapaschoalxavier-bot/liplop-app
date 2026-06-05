@@ -1148,6 +1148,7 @@
     .bar-todo      { background: var(--rose); }
     .bar-applied   { background: var(--rose-s); }
     .bar-recruiter { background: var(--gold); }
+    .bar-waiting   { background: #a78bfa; }
     .bar-decision  { background: var(--mid); }
     .bar-offer     { background: var(--rose); }
     .bar-lost      { background: var(--dim); }
@@ -1783,6 +1784,9 @@
     .col-recruiter .column-title { color: var(--gold); }
     .col-recruiter { border-top: 2px solid rgba(201,151,74,.5); }
 
+    .col-waiting .column-title { color: #a78bfa; }
+    .col-waiting { border-top: 2px solid rgba(167,139,250,.5); }
+
     .col-decision .column-title { color: var(--mid); }
     .col-decision { border-top: 2px solid var(--dim); }
 
@@ -2200,6 +2204,7 @@
         <option value="todo">Para Aplicar</option>
         <option value="applied">Aplicada</option>
         <option value="recruiter">Entrevista c/ Recrutador</option>
+        <option value="waiting">Aguardando Retorno</option>
         <option value="decision">Entrevista c/ Decisor</option>
         <option value="offer">Oferta</option>
         <option value="lost">Lost</option>
@@ -2316,6 +2321,7 @@
           <option value="todo">Para Aplicar</option>
           <option value="applied">Aplicada</option>
           <option value="recruiter">Entrevista c/ Recrutador</option>
+          <option value="waiting">Aguardando Retorno</option>
           <option value="decision">Entrevista c/ Decisor</option>
           <option value="offer">Oferta</option>
           <option value="lost">Lost</option>
@@ -2509,6 +2515,7 @@ const columns = [
   { id: "todo",       label: "Para Aplicar",           cls: "col-todo" },
   { id: "applied",    label: "Aplicada",               cls: "col-applied" },
   { id: "recruiter",  label: "Entrevista c/ Recrutador", cls: "col-recruiter" },
+  { id: "waiting",    label: "Aguardando Retorno",      cls: "col-waiting" },
   { id: "decision",   label: "Entrevista c/ Decisor",  cls: "col-decision" },
   { id: "offer",      label: "Oferta",                 cls: "col-offer" },
   { id: "lost",       label: "Lost",                   cls: "col-lost" }
@@ -2527,6 +2534,7 @@ function renderFunnel() {
     { id: "todo",      label: "Para Aplicar",       barCls: "bar-todo" },
     { id: "applied",   label: "Aplicada",           barCls: "bar-applied" },
     { id: "recruiter", label: "Entrev. Recrutador", barCls: "bar-recruiter" },
+    { id: "waiting",   label: "Aguardando",         barCls: "bar-waiting" },
     { id: "decision",  label: "Entrev. Decisor",    barCls: "bar-decision" },
     { id: "offer",     label: "Oferta",             barCls: "bar-offer" },
     { id: "lost",      label: "Lost",               barCls: "bar-lost" },
@@ -3130,6 +3138,7 @@ const stageLabel = {
   todo:      'Para Aplicar',
   applied:   'Aplicada',
   recruiter: 'Entrevista Recrutador',
+  waiting:   'Aguardando Retorno',
   decision:  'Entrevista Decisor',
   offer:     'Oferta',
   lost:      'Lost'
