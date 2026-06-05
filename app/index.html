@@ -86,7 +86,12 @@
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
+      overflow-x: auto;
+      max-width: calc(100vw - 280px);
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
+    .tab-nav::-webkit-scrollbar { display: none; }
 
     .tab-btn {
       background: transparent;
