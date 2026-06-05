@@ -4160,19 +4160,16 @@ function renderAnalysisResult(r) {
 
 function saveAnalysisToKanban() {
   if (!_lastAnalysis) return;
-  const url  = document.getElementById('fit-url').value.trim();
-  // Tenta extrair empresa e cargo do JD
-  const jd   = document.getElementById('fit-jd-manual').value.trim();
-  const lines = jd.split('\n').filter(l => l.trim()).slice(0, 5);
 
   openForm('todo');
+
   // Pre-preenche o score
   const fitEl = document.getElementById('f-fit');
   fitEl.value = _lastAnalysis.score;
   fitEl.dataset.manual = '1';
   document.getElementById('f-fit-auto').textContent = '✨ calculado pela IA';
-  if (url) document.getElementById('f-link').value = url;
-  if (lines[0]) document.getElementById('f-company').value = lines[0].slice(0, 60);
+
+  // Preenche notas com o resumo da análise
   document.getElementById('f-notes').value = _lastAnalysis.summary || '';
 
   switchTab('kanban');
