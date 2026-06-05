@@ -1596,6 +1596,35 @@
       margin-bottom: 3px;
     }
 
+    .card-action-btn {
+      width: 100%;
+      margin-top: 10px;
+      padding: 7px 10px;
+      border-radius: 7px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      pointer-events: none;
+    }
+    .card:hover .card-action-btn {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .card-action-btn.primary {
+      background: linear-gradient(135deg, #f472b6, #ec4899);
+      border: none;
+      color: #fff;
+    }
+    .card-action-btn.ghost {
+      background: transparent;
+      border: 1px solid rgba(244,114,182,0.4);
+      color: #f472b6;
+    }
+
     /* Modal */
     .modal-overlay {
       display: none;
@@ -2594,11 +2623,9 @@ function buildCard(opp) {
     <div class="card-next">
       <strong>Próximo passo</strong>
       ${opp.next ? `<div style="margin-bottom:8px">${opp.next}</div>` : ''}
-      <div style="margin-top:4px">
-        ${opp.stage === 'todo' ? `<button class="card-btn-resume" style="width:100%;padding:7px 6px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:7px;color:#fff;font-size:11px;font-weight:700;cursor:pointer">✨ Gerar currículo adaptado</button>` : ''}
-        ${opp.stage === 'applied' ? `<button class="card-btn-contacts" style="width:100%;padding:7px 6px;background:transparent;border:1.5px solid rgba(244,114,182,0.5);border-radius:7px;color:#f472b6;font-size:11px;font-weight:700;cursor:pointer">🤝 Buscar contatos no LinkedIn</button>` : ''}
-        ${opp.stage === 'recruiter' ? `<button class="card-btn-interview" style="width:100%;padding:7px 6px;background:transparent;border:1.5px solid rgba(244,114,182,0.5);border-radius:7px;color:#f472b6;font-size:11px;font-weight:700;cursor:pointer">🎤 Preparação para entrevista</button>` : ''}
-      </div>
+      ${opp.stage === 'todo'      ? `<button class="card-action-btn primary card-btn-resume">✨ Gerar currículo adaptado</button>` : ''}
+      ${opp.stage === 'applied'   ? `<button class="card-action-btn ghost card-btn-contacts">🤝 Buscar contatos no LinkedIn</button>` : ''}
+      ${opp.stage === 'recruiter' ? `<button class="card-action-btn ghost card-btn-interview">🎤 Preparação para entrevista</button>` : ''}
     </div>
     ${(opp.contacts || []).length ? `
       <div class="card-contacts">
