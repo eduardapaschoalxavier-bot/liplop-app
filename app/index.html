@@ -4616,13 +4616,22 @@ fit deve ser número entre 0-100. fit_label deve ser "Alto fit" (>=80), "Bom fit
   try {
     const res = await fetch('/api/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt, json_mode:true, mode:'job_search'}) });
     const data = await res.json();
-    const clean = data.result.replace(/^```json?\n?/,'').replace(/\n?```$/,'').trim();
-    const { vagas } = JSON.parse(clean);
+
+    if (!data.result) {
+      throw new Error(data.error || 'Resposta vazia da API');
+    }
+
+    // Extrai JSON de dentro da resposta (mesmo que venha com texto ao redor)
+    const raw = data.result;
+    const jsonMatch = raw.match(/\{[\s\S]*"vagas"[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('JSON não encontrado na resposta');
+    const { vagas } = JSON.parse(jsonMatch[0]);
+    if (!Array.isArray(vagas) || !vagas.length) throw new Error('Lista de vagas vazia');
+
     const jobs = vagas.map(v => {
       // Se não tiver URL ou vier do LinkedIn (expira), gera busca no Google pela vaga
       let url = v.url || null;
       if (!url || /linkedin\.com\/(jobs\/view|in\/)/i.test(url)) {
-        const q = encodeURIComponent(`${v.cargo} ${v.empresa} vagas site:${v.empresa.toLowerCase().replace(/\s+/g,'')+'.com.br'} OR site:gupy.io OR site:inhire.io`);
         url = `https://www.google.com/search?q=${encodeURIComponent(`${v.cargo} ${v.empresa} vaga aberta`)}`;
       }
       return {
@@ -4639,8 +4648,9 @@ fit deve ser número entre 0-100. fit_label deve ser "Alto fit" (>=80), "Bom fit
     status.style.display = 'none';
     document.getElementById('vagas-list').innerHTML = renderJobsList(jobs);
   } catch(e) {
+    console.error('searchJobs error:', e);
     btn.disabled = false; btn.textContent = '✨ Buscar vagas para mim';
-    status.textContent = 'Erro ao buscar vagas. Tente novamente.';
+    status.textContent = `Erro: ${e.message}. Tente novamente.`;
   }
 }
 
