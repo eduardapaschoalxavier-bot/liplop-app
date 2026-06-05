@@ -1969,6 +1969,13 @@
       </svg>
       Método
     </button>
+    <button class="tab-btn" onclick="switchTab('analyzer')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="8" cy="8" r="6"/>
+        <path d="M8 5v3.5l2 2"/>
+      </svg>
+      Análise
+    </button>
     <button class="tab-btn" onclick="switchTab('marca')">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
         <path d="M8 2C5 2 2 4 2 7c0 2 1.5 3.5 3 4.5V13h6v-1.5C12.5 10.5 14 9 14 7c0-3-3-5-6-5z"/>
@@ -1976,13 +1983,6 @@
         <line x1="7" y1="15" x2="9" y2="15"/>
       </svg>
       Marca
-    </button>
-    <button class="tab-btn" onclick="switchTab('analyzer')">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="8" cy="8" r="6"/>
-        <path d="M8 5v3.5l2 2"/>
-      </svg>
-      Analisar Fit
     </button>
     <button class="tab-btn" onclick="switchTab('kanban')">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -4342,7 +4342,7 @@ function renderMetodoTab() {
   // Fluxo
   const fluxo = [
     { label: 'Construa presença',   sub: 'Marca',       tab: 'marca',    icon: '◈', color: '#f472b6' },
-    { label: 'Analise as vagas',    sub: 'Analisar Fit', tab: 'analyzer', icon: '◎', color: '#c9974a' },
+    { label: 'Analise as vagas',    sub: 'Análise', tab: 'analyzer', icon: '◎', color: '#c9974a' },
     { label: 'Gerencie o pipeline', sub: 'Kanban',       tab: 'kanban',   icon: '▦', color: '#63b3ed' },
     { label: 'Prepare entrevistas', sub: 'Entrevistas',  tab: 'interview',icon: '◷', color: '#a78bfa' },
     { label: 'Veja seus resultados',sub: 'Ranking',      tab: 'ranking',  icon: '◆', color: '#68d391' },
