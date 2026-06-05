@@ -4750,7 +4750,7 @@ Português brasileiro com todos os acentos. Sem adjetivos vazios. Sem texto fora
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
         <button onclick="approveMarcaProject(${JSON.stringify(text).replace(/"/g,'&quot;')})" style="padding:10px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Aprovar e salvar</button>
-        <button onclick="showMarcaPath('existing')" style="padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:var(--mid);font-size:13px;cursor:pointer">Refazer</button>
+        <button onclick="showMarcaPath('existing')" style="padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:var(--mid);font-size:13px;cursor:pointer">Não gostei, gerar outro</button>
       </div>`;
   } catch(e) {
     if (btn) { btn.disabled = false; btn.textContent = '✨ Estruturar meu case'; }
