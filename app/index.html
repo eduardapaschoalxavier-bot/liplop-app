@@ -3961,7 +3961,11 @@ function showResumeModal(opp, text) {
   const clean = stripMarkdown(text);
   _resumeText = clean;
   document.getElementById('resume-modal-title').textContent = opp.company ? opp.role + ' — ' + opp.company : opp.role;
-  document.getElementById('resume-modal-content').innerHTML = buildResumeHTML(clean);
+  const pdfBtn = `<div style="padding:20px 32px 28px;background:#f8f8f8;border-top:1px solid #eee;display:flex;gap:10px">
+    <button onclick="downloadResumePDF()" style="flex:1;padding:14px;background:linear-gradient(135deg,#e91e8c,#f472b6);border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(233,30,140,0.3)">⬇ Baixar PDF</button>
+    <button onclick="generateResume(true)" style="flex:1;padding:14px;background:#fff;border:1.5px solid #ddd;border-radius:10px;color:#555;font-size:14px;font-weight:600;cursor:pointer">🔄 Gerar novamente</button>
+  </div>`;
+  document.getElementById('resume-modal-content').innerHTML = buildResumeHTML(clean) + pdfBtn;
   document.getElementById('resume-modal').style.display = 'flex';
   // Marca cor atual
   const cur = window._resumeColor || '#e91e8c';
