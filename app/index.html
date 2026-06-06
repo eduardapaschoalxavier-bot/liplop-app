@@ -2256,7 +2256,7 @@
     </div>
     <div class="form-group">
       <label>Descrição da vaga</label>
-      <textarea id="f-jd-text" rows="4" placeholder="Cole aqui o texto da vaga para calcular o fit com precisão..."></textarea>
+      <textarea id="f-jd-text" rows="4" placeholder="Cole aqui o texto da vaga para calcular o fit com precisão..." oninput="triggerAIFit()"></textarea>
     </div>
     <div class="form-group">
       <label>Observações estratégicas</label>
@@ -3093,6 +3093,48 @@ function triggerAutoFit() {
       }
     }
   }, 400);
+}
+
+let _aiFitTimer = null;
+async function triggerAIFit() {
+  clearTimeout(_aiFitTimer);
+  _aiFitTimer = setTimeout(async () => {
+    const jd = document.getElementById("f-jd-text").value.trim();
+    const fitInput = document.getElementById("f-fit");
+    const fitLabel = document.getElementById("f-fit-auto");
+    if (!jd || jd.length < 50) return;
+    const profile = localStorage.getItem('liplop_profile') || '';
+    if (!profile) return;
+
+    fitInput.disabled = true;
+    fitLabel.textContent = "⏳ calculando com IA...";
+
+    try {
+      const prompt = `Analise o fit entre o perfil e a vaga abaixo. Responda SOMENTE com JSON: {"score":<0-100>}
+
+## PERFIL
+${profile.slice(0, 800)}
+
+## VAGA
+${jd.slice(0, 1200)}`;
+
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, json_mode: true, model: 'claude-haiku-4-5' })
+      });
+      const data = await res.json();
+      const parsed = JSON.parse(data.result);
+      if (parsed.score != null && !fitInput.dataset.manual) {
+        fitInput.value = parsed.score;
+        fitLabel.textContent = "🤖 calculado pela IA";
+      }
+    } catch (e) {
+      fitLabel.textContent = "✨ calculado automaticamente";
+    } finally {
+      fitInput.disabled = false;
+    }
+  }, 1200);
 }
 
 function saveCard() {
