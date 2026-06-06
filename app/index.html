@@ -2294,28 +2294,34 @@
     <!-- VIEW mode -->
     <div id="m-view">
       <div class="modal-header-row">
-        <div>
-          <h2 id="m-company"></h2>
-          <div class="modal-role" id="m-role"></div>
+        <div style="flex:1;min-width:0">
+          <input id="m-company-edit" type="text" style="font-size:1.4rem;font-weight:800;color:var(--text);background:transparent;border:none;border-bottom:1px dashed rgba(255,255,255,0.15);width:100%;outline:none;padding:2px 0;margin-bottom:4px" onchange="saveInlineField('company',this.value)" />
+          <input id="m-role-edit" type="text" style="font-size:0.9rem;color:var(--mid);background:transparent;border:none;border-bottom:1px dashed rgba(255,255,255,0.1);width:100%;outline:none;padding:2px 0" onchange="saveInlineField('role',this.value)" />
         </div>
         <button class="btn-edit-modal" onclick="enterEditMode()">✏️ Editar</button>
       </div>
+      <!-- hidden fields mantidos para compatibilidade com JS -->
+      <span id="m-company" style="display:none"></span>
+      <span id="m-role" style="display:none"></span>
+      <span id="m-stage" style="display:none"></span>
+      <span id="m-next" style="display:none"></span>
+      <span id="m-notes" style="display:none"></span>
       <div class="modal-section">
         <div class="modal-label">% Compatibilidade</div>
         <div class="modal-value" id="m-fit"></div>
       </div>
       <div class="modal-section" id="m-link-section"></div>
-      <!-- hidden fields mantidos para compatibilidade com JS -->
-      <span id="m-stage" style="display:none"></span>
-      <span id="m-next" style="display:none"></span>
-      <span id="m-notes" style="display:none"></span>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px">
+      <div class="modal-section">
+        <div class="modal-label" style="margin-bottom:6px">Descrição da vaga <span style="font-weight:400;color:var(--dim);font-size:10px">(usada para gerar currículo adaptado)</span></div>
+        <textarea id="m-jd-text" rows="4" placeholder="Cole aqui o texto da vaga..." style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 12px;color:var(--text);font-size:13px;resize:vertical;outline:none;font-family:inherit;box-sizing:border-box" onchange="saveInlineField('jd_text',this.value)"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
         <button id="btn-gen-resume" onclick="generateResume()"
           style="padding:16px 10px;background:linear-gradient(135deg,#e91e8c,#f472b6);border:none;border-radius:14px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;line-height:1.3;text-align:center;box-shadow:0 4px 14px rgba(233,30,140,0.3)"
           onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
           ✨ Gerar currículo<br><span style="font-weight:400;font-size:11px;opacity:.85">adaptado para esta vaga</span>
         </button>
-        <button id="btn-find-network" onclick="scrollToNetwork()"
+        <button id="btn-find-network" onclick="findContacts()"
           style="padding:16px 10px;background:transparent;border:1.5px solid #f472b6;border-radius:14px;color:#f472b6;font-size:14px;font-weight:700;cursor:pointer;line-height:1.3;text-align:center"
           onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">
           🤝 Contactar pessoas<br><span style="font-weight:400;font-size:11px;opacity:.85">no LinkedIn</span>
@@ -2829,11 +2835,14 @@ function renderBoard() {
 
 // ── modal ─────────────────────────────────────────────────────
 function openModal(opp) {
-  document.getElementById("m-company").textContent = opp.company;
-  document.getElementById("m-role").textContent    = opp.role;
-  document.getElementById("m-stage").textContent   = opp.status;
-  document.getElementById("m-next").textContent    = opp.next;
-  document.getElementById("m-notes").textContent   = opp.notes;
+  document.getElementById("m-company").textContent   = opp.company;
+  document.getElementById("m-role").textContent      = opp.role;
+  document.getElementById("m-company-edit").value    = opp.company;
+  document.getElementById("m-role-edit").value       = opp.role;
+  document.getElementById("m-stage").textContent     = opp.status;
+  document.getElementById("m-next").textContent      = opp.next;
+  document.getElementById("m-notes").textContent     = opp.notes;
+  document.getElementById("m-jd-text").value         = opp.jd_text || '';
   document.getElementById("m-fit").textContent = opp.fit != null ? opp.fit + '% de compatibilidade' : '—';
   const linkEl = document.getElementById("m-link-section");
   if (opp.link) {
@@ -2843,13 +2852,18 @@ function openModal(opp) {
   } else {
     linkEl.style.display = "none";
   }
-  // contacts
   renderModalContacts(opp);
-
-  // Sempre mostra os dois botões de ação e renderiza seção de network
-  renderNetworkSection(opp);
-
+  document.getElementById("network-section").innerHTML = '';
   document.getElementById("modal-overlay").classList.add("active");
+}
+
+function saveInlineField(field, value) {
+  if (!_modalOpp) return;
+  _modalOpp[field] = value;
+  if (field === 'company') { _modalOpp.company = value; document.getElementById("m-company").textContent = value; }
+  if (field === 'role')    { _modalOpp.role    = value; document.getElementById("m-role").textContent    = value; }
+  saveOpps();
+  renderBoard();
 }
 
 let _modalOpp = null;
@@ -3687,10 +3701,16 @@ async function generateResume(retry = false) {
     return;
   }
 
+  // Lê o campo inline se estiver visível (pode ter sido editado agora)
+  const jdField = document.getElementById('m-jd-text');
+  if (jdField && jdField.value.trim()) {
+    opp.jd_text = jdField.value.trim();
+    saveOpps();
+  }
   const jd = opp.jd_text;
   if (!jd) {
     document.getElementById('resume-gen-status').style.display = 'block';
-    document.getElementById('resume-gen-status').textContent = '⚠ Adicione a descrição da vaga editando este card primeiro.';
+    document.getElementById('resume-gen-status').textContent = '⚠ Cole a descrição da vaga no campo acima para gerar o currículo adaptado.';
     return;
   }
 
