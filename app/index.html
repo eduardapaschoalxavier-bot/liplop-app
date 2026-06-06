@@ -1968,8 +1968,13 @@
     </div>
     <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:8px">✏️ Clique em qualquer texto do currículo para editar diretamente.</div>
     <div id="resume-modal-content" style="flex:1;overflow-y:auto;background:#fff;border-radius:10px;padding:0;box-shadow:0 4px 32px rgba(0,0,0,0.4);min-height:0"></div>
-    <!-- Rodapé fixo: feedback + botões -->
-    <div style="flex-shrink:0;margin-top:12px;border-top:1px solid rgba(255,255,255,0.07);padding-top:12px">
+    <!-- Barra de ações fixa sempre visível -->
+    <div id="resume-action-bar" style="display:none;flex-shrink:0;gap:10px;margin-top:12px">
+      <button onclick="downloadResumePDF()" style="flex:1;padding:13px;background:linear-gradient(135deg,#e91e8c,#f472b6);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(233,30,140,0.3)">⬇ Baixar PDF</button>
+      <button onclick="generateResume(true)" style="flex:1;padding:13px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#e2e8f0;font-size:14px;font-weight:600;cursor:pointer">🔄 Gerar novamente</button>
+    </div>
+    <!-- Rodapé: feedback -->
+    <div style="flex-shrink:0;margin-top:10px;border-top:1px solid rgba(255,255,255,0.07);padding-top:10px">
       <div style="font-size:0.75rem;color:var(--dim);margin-bottom:6px">Quer ajustar algo? Descreva o que mudar:</div>
       <div style="display:flex;gap:8px;margin-bottom:10px">
         <input id="resume-feedback" type="text" placeholder="Ex: coloque o cargo como Manager, destaque mais a experiência com parceiros..."
@@ -1979,18 +1984,6 @@
           style="padding:8px 16px;background:rgba(244,114,182,0.15);border:1px solid rgba(244,114,182,0.4);border-radius:8px;color:#f472b6;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap"
           onmouseover="this.style.background='rgba(244,114,182,0.25)'" onmouseout="this.style.background='rgba(244,114,182,0.15)'">
           Refazer →
-        </button>
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button onclick="downloadResumePDF()"
-          style="flex:1;padding:12px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s"
-          onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
-          ⬇ Baixar PDF
-        </button>
-        <button onclick="generateResume(true)"
-          style="flex:1;padding:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#e2e8f0;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s"
-          onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.07)'">
-          🔄 Gerar novamente
         </button>
       </div>
     </div>
@@ -3981,11 +3974,9 @@ function showResumeModal(opp, text) {
   const clean = stripMarkdown(text);
   _resumeText = clean;
   document.getElementById('resume-modal-title').textContent = opp.company ? opp.role + ' — ' + opp.company : opp.role;
-  const pdfBtn = `<div style="padding:20px 32px 28px;background:#f8f8f8;border-top:1px solid #eee;display:flex;gap:10px">
-    <button onclick="downloadResumePDF()" style="flex:1;padding:14px;background:linear-gradient(135deg,#e91e8c,#f472b6);border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(233,30,140,0.3)">⬇ Baixar PDF</button>
-    <button onclick="generateResume(true)" style="flex:1;padding:14px;background:#fff;border:1.5px solid #ddd;border-radius:10px;color:#555;font-size:14px;font-weight:600;cursor:pointer">🔄 Gerar novamente</button>
-  </div>`;
-  document.getElementById('resume-modal-content').innerHTML = buildResumeHTML(clean) + pdfBtn;
+  document.getElementById('resume-modal-content').innerHTML = buildResumeHTML(clean);
+  // Mostra barra de ações fixa
+  document.getElementById('resume-action-bar').style.display = 'flex';
   document.getElementById('resume-modal').style.display = 'flex';
   // Marca cor atual
   const cur = window._resumeColor || '#e91e8c';
@@ -3995,6 +3986,7 @@ function showResumeModal(opp, text) {
 
 function closeResumeModal() {
   document.getElementById('resume-modal').style.display = 'none';
+  document.getElementById('resume-action-bar').style.display = 'none';
 }
 document.getElementById('resume-modal').addEventListener('click', function(e) {
   if (e.target === this) closeResumeModal();
