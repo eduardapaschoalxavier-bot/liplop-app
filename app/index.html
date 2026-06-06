@@ -3107,7 +3107,7 @@ async function triggerAIFit() {
     const fitInput = document.getElementById("f-fit");
     const fitLabel = document.getElementById("f-fit-auto");
     if (!jd || jd.length < 50) return;
-    const profile = localStorage.getItem('liplop_profile') || '';
+    const profile = localStorage.getItem(PROFILE_KEY) || '';
     if (!profile) return;
 
     fitInput.disabled = true;
