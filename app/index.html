@@ -2243,7 +2243,7 @@
       <label>% Compatibilidade
         <span id="f-fit-auto" style="font-size:0.7rem;color:var(--mid);font-weight:400;margin-left:6px"></span>
       </label>
-      <input type="number" id="f-fit" min="0" max="100" placeholder="Calculando…"
+      <input type="number" id="f-fit" min="0" max="100" placeholder="0–100"
         oninput="this.dataset.manual='1';document.getElementById('f-fit-auto').textContent='✏️ editado manualmente'" />
     </div>
     <div class="form-group">
@@ -3028,6 +3028,7 @@ function openForm(stageId = "todo") {
   document.getElementById("f-organic").checked  = false;
   document.getElementById("f-referred").checked = false;
   document.getElementById("f-contacts-list").innerHTML = "";
+  document.getElementById("f-resume-btn-wrap").style.display = "none";
   document.getElementById("form-overlay").classList.add("active");
   document.getElementById("f-company").focus();
 }
