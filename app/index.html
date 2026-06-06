@@ -1952,11 +1952,14 @@
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
         <div style="font-size:10px;color:var(--dim);font-weight:600;letter-spacing:.04em">COR DO CURRÍCULO</div>
         <div style="display:flex;gap:6px">
-          ${['#e91e8c','#6366f1','#0ea5e9','#10b981','#f59e0b','#ef4444','#8b5cf6','#1a1a1a'].map(c => `
-            <button onclick="setResumeColor('${c}')" title="${c}"
-              style="width:20px;height:20px;border-radius:50%;background:${c};border:2px solid transparent;cursor:pointer;transition:transform .15s;padding:0"
-              onmouseover="this.style.transform='scale(1.25)'" onmouseout="this.style.transform='scale(1)'"
-              id="resume-color-btn-${c.replace('#','')}"></button>`).join('')}
+          <button onclick="setResumeColor('#e91e8c')" title="#e91e8c" id="resume-color-btn-e91e8c" style="width:20px;height:20px;border-radius:50%;background:#e91e8c;border:2px solid transparent;cursor:pointer;transition:transform .15s;padding:0" onmouseover="this.style.transform='scale(1.25)'" onmouseout="this.style.transform='scale(1)'"></button>
+          <button onclick="setResumeColor('#6366f1')" title="#6366f1" id="resume-color-btn-6366f1" style="width:20px;height:20px;border-radius:50%;background:#6366f1;border:2px solid transparent;cursor:pointer;transition:transform .15s;padding:0" onmouseover="this.style.transform='scale(1.25)'" onmouseout="this.style.transform='scale(1)'"></button>
+          <button onclick="setResumeColor('#0ea5e9')" title="#0ea5e9" id="resume-color-btn-0ea5e9" style="width:20px;height:20px;border-radius:50%;background:#0ea5e9;border:2px solid transparent;cursor:pointer;transition:transform .15s;padding:0" onmouseover="this.style.transform='scale(1.25)'" onmouseout="this.style.transform='scale(1)'"></button>
+          <button onclick="setResumeColor('#10b981')" title="#10b981" id="resume-color-btn-10b981" style="width:20px;height:20px;border-radius:50%;background:#10b981;border:2px solid transparent;cursor:pointer;transition:transform .15s;padding:0" onmouseover="this.style.transform='scale(1.25)'" onmouseout="this.style.transform='scale(1)'"></button>
+          <button onclick="setResumeColor('#f59e0b')" title="#f59e0b" id="resume-color-btn-f59e0b" style="width:20px;height:20px;border-radius:50%;background:#f59e0b;border:2px solid transparent;cursor:pointer;transition:transform .15s;padding:0" onmouseover="this.style.transform='scale(1.25)'" onmouseout="this.style.transform='scale(1)'"></button>
+          <button onclick="setResumeColor('#ef4444')" title="#ef4444" id="resume-color-btn-ef4444" style="width:20px;height:20px;border-radius:50%;background:#ef4444;border:2px solid transparent;cursor:pointer;transition:transform .15s;padding:0" onmouseover="this.style.transform='scale(1.25)'" onmouseout="this.style.transform='scale(1)'"></button>
+          <button onclick="setResumeColor('#8b5cf6')" title="#8b5cf6" id="resume-color-btn-8b5cf6" style="width:20px;height:20px;border-radius:50%;background:#8b5cf6;border:2px solid transparent;cursor:pointer;transition:transform .15s;padding:0" onmouseover="this.style.transform='scale(1.25)'" onmouseout="this.style.transform='scale(1)'"></button>
+          <button onclick="setResumeColor('#1a1a1a')" title="#1a1a1a" id="resume-color-btn-1a1a1a" style="width:20px;height:20px;border-radius:50%;background:#1a1a1a;border:2px solid transparent;cursor:pointer;transition:transform .15s;padding:0" onmouseover="this.style.transform='scale(1.25)'" onmouseout="this.style.transform='scale(1)'"></button>
           <label title="Cor personalizada" style="width:20px;height:20px;border-radius:50%;background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);border:2px solid transparent;cursor:pointer;overflow:hidden;display:flex">
             <input type="color" oninput="setResumeColor(this.value)" style="opacity:0;width:1px;height:1px;position:absolute">
           </label>
