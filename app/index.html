@@ -2255,6 +2255,10 @@
       <textarea id="f-next" rows="2" placeholder="O que fazer agora?"></textarea>
     </div>
     <div class="form-group">
+      <label>Descrição da vaga</label>
+      <textarea id="f-jd-text" rows="4" placeholder="Cole aqui o texto da vaga para calcular o fit com precisão..."></textarea>
+    </div>
+    <div class="form-group">
       <label>Observações estratégicas</label>
       <textarea id="f-notes" rows="3" placeholder="Fit, riscos, contexto..."></textarea>
     </div>
@@ -3014,6 +3018,7 @@ function openForm(stageId = "todo") {
   document.getElementById("f-fit-auto").textContent = "";
   document.getElementById("f-link").value     = "";
   document.getElementById("f-next").value     = "";
+  document.getElementById("f-jd-text").value  = "";
   document.getElementById("f-notes").value    = "";
   document.getElementById("f-organic").checked  = false;
   document.getElementById("f-referred").checked = false;
@@ -3113,6 +3118,7 @@ function saveCard() {
     stage:    document.getElementById("f-stage").value,
     fit:      (() => { const v = parseInt(document.getElementById("f-fit").value, 10); return isNaN(v) ? null : Math.min(100, Math.max(0, v)); })(),
     link:     link || null,
+    jd_text:  document.getElementById("f-jd-text").value.trim() || null,
     contacts,
     next:     document.getElementById("f-next").value.trim()  || "—",
     notes:    document.getElementById("f-notes").value.trim() || "—",
