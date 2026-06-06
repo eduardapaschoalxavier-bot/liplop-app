@@ -5307,20 +5307,20 @@ function renderMarcaStep3(calendar, enabled) {
     </div>
 
     <!-- Legenda -->
-    <div style="display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap">
+    <div style="display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap;padding:12px 16px;background:rgba(255,255,255,0.02);border-radius:10px;border:1px solid rgba(255,255,255,0.05)">
       ${Object.entries(statusLabel).map(([k,v]) => `
         <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--mid)">
-          <span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${statusColors[k]};border:1.5px solid ${statusBorder[k]}"></span>${v}
+          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${statusDot[k]}"></span>${v}
         </span>`).join('')}
     </div>
 
     <!-- Dias da semana -->
-    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px">
-      ${weekDays.map(d => `<div style="text-align:center;font-size:10px;font-weight:700;color:var(--dim);padding:4px 0;letter-spacing:.04em">${d}</div>`).join('')}
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:5px">
+      ${weekDays.map(d => `<div style="text-align:center;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);padding:6px 0;letter-spacing:.06em;text-transform:uppercase">${d}</div>`).join('')}
     </div>
 
     <!-- Grid -->
-    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:20px">
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:28px">
       ${weeks.flat().map(idx => {
         if (idx === null) return `<div></div>`;
         const day = calendar[idx];
@@ -5329,24 +5329,31 @@ function renderMarcaStep3(calendar, enabled) {
         const today = new Date(); today.setHours(0,0,0,0); d.setHours(0,0,0,0);
         const isToday = d.getTime() === today.getTime();
         const isPast  = d < today && day.status === 'pending';
+        const glowColor = { draft:'rgba(245,158,11,0.15)', written:'rgba(99,179,237,0.15)', published:'rgba(72,187,120,0.15)' }[day.status] || '';
         return `
           <div onclick="openMarcaDay(${idx})"
-            style="padding:8px 6px;border-radius:10px;border:1px solid ${isToday ? 'rgba(244,114,182,0.6)' : statusBorder[day.status]};background:${isToday ? 'rgba(244,114,182,0.07)' : statusColors[day.status]};cursor:pointer;min-height:72px;transition:all .15s;position:relative;${isPast ? 'opacity:0.5' : ''}"
-            onmouseover="this.style.transform='translateY(-1px)';this.style.borderColor='rgba(244,114,182,0.5)'"
-            onmouseout="this.style.transform='';this.style.borderColor='${isToday ? 'rgba(244,114,182,0.6)' : statusBorder[day.status]}'">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-              <div style="width:7px;height:7px;border-radius:50%;background:${statusDot[day.status]};flex-shrink:0"></div>
-              <div style="font-size:12px;font-weight:800;color:${isToday ? '#f472b6' : 'var(--mid)'}">${dateNum}</div>
+            style="padding:8px 7px 10px;border-radius:12px;border:1px solid ${isToday ? 'rgba(244,114,182,0.7)' : statusBorder[day.status]};background:${isToday ? 'rgba(244,114,182,0.08)' : statusColors[day.status]};cursor:pointer;min-height:80px;transition:all .18s;position:relative;${isPast ? 'opacity:0.4' : ''}${glowColor ? ';box-shadow:0 0 12px ' + glowColor : ''}"
+            onmouseover="this.style.transform='translateY(-2px) scale(1.02)';this.style.borderColor='rgba(244,114,182,0.55)';this.style.boxShadow='0 6px 20px rgba(244,114,182,0.15)'"
+            onmouseout="this.style.transform='';this.style.borderColor='${isToday ? 'rgba(244,114,182,0.7)' : statusBorder[day.status]}';this.style.boxShadow='${glowColor ? '0 0 12px ' + glowColor : 'none'}'">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <div style="width:6px;height:6px;border-radius:50%;background:${statusDot[day.status]};box-shadow:0 0 4px ${statusDot[day.status]};flex-shrink:0"></div>
+              <div style="font-size:11px;font-weight:800;color:${isToday ? '#f472b6' : 'rgba(255,255,255,0.35)'}">${dateNum}</div>
             </div>
-            <div style="font-size:9px;color:${day.status==='pending'?'rgba(255,255,255,0.4)':statusDot[day.status]};line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical">${day.theme}</div>
+            <div style="font-size:9px;color:${day.status==='pending' ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.75)'};line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;font-weight:${day.status==='pending' ? '400' : '500'}">${day.theme}</div>
           </div>`;
       }).join('')}
     </div>
 
     <!-- Botão regenerar -->
-    <div style="text-align:center">
-      <button onclick="generateMarcaCalendar()" style="padding:10px 20px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--dim);font-size:12px;cursor:pointer">
-        🔄 Não gostei, gerar outro
+    <div style="display:flex;justify-content:center;padding-bottom:8px">
+      <button onclick="generateMarcaCalendar()"
+        style="display:inline-flex;align-items:center;gap:8px;padding:11px 22px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:100px;color:rgba(255,255,255,0.45);font-size:12px;font-weight:600;cursor:pointer;transition:all .18s;letter-spacing:.01em"
+        onmouseover="this.style.background='rgba(244,114,182,0.08)';this.style.borderColor='rgba(244,114,182,0.3)';this.style.color='#f472b6'"
+        onmouseout="this.style.background='rgba(255,255,255,0.04)';this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.45)'">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 8A6 6 0 1 1 8 2a6 6 0 0 1 4.24 1.76L14 2v4h-4l1.5-1.5"/>
+        </svg>
+        Não gostei, gerar outro
       </button>
     </div>
 
