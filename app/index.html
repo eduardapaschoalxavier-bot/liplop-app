@@ -2256,7 +2256,7 @@
     </div>
     <div class="form-group">
       <label>Descrição da vaga</label>
-      <textarea id="f-jd-text" rows="4" placeholder="Cole aqui o texto da vaga para calcular o fit com precisão..." oninput="triggerAIFit()"></textarea>
+      <textarea id="f-jd-text" rows="4" placeholder="Cole aqui o texto da vaga para calcular o fit com precisão..." oninput="triggerAIFit(); document.getElementById('f-resume-btn-wrap').style.display = this.value.trim().length > 30 ? 'block' : 'none'"></textarea>
     </div>
     <div class="form-group">
       <label>Observações estratégicas</label>
@@ -2277,6 +2277,11 @@
     <div class="form-actions">
       <button class="btn-cancel" onclick="closeForm()">Cancelar</button>
       <button class="btn-save" onclick="saveCard()">Salvar vaga</button>
+    </div>
+    <div id="f-resume-btn-wrap" style="margin-top:10px;display:none">
+      <button onclick="saveAndGenerateResume()" style="width:100%;padding:14px;background:linear-gradient(135deg,#f472b6,#a855f7);border:none;border-radius:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+        ✨ Salvar e gerar currículo adaptado
+      </button>
     </div>
   </div>
 </div>
@@ -3171,6 +3176,24 @@ function saveCard() {
   saveOpps();
   renderFunnel();
   renderBoard();
+  return opps[opps.length - 1]; // retorna o card recém-criado
+}
+
+function saveAndGenerateResume() {
+  const card = saveCard();
+  if (!card) return; // validação falhou
+  // Abre o modal de detalhe do card e dispara geração de currículo
+  _modalOpp = card;
+  const profile = localStorage.getItem(PROFILE_KEY);
+  if (!profile) {
+    alert('Configure seu perfil profissional primeiro na aba Perfil.');
+    return;
+  }
+  if (!card.jd_text) {
+    alert('Cole a descrição da vaga para gerar o currículo adaptado.');
+    return;
+  }
+  generateResume();
 }
 
 patchMissingFit();
