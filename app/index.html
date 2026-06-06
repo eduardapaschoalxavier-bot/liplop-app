@@ -2250,8 +2250,12 @@
       <textarea id="f-next" rows="2" placeholder="O que fazer agora?"></textarea>
     </div>
     <div class="form-group">
-      <label>Descrição da vaga</label>
-      <textarea id="f-jd-text" rows="4" placeholder="Cole aqui o texto da vaga para calcular o fit com precisão..." oninput="triggerAIFit(); document.getElementById('f-resume-btn-wrap').style.display = this.value.trim().length > 30 ? 'block' : 'none'"></textarea>
+      <label style="display:flex;align-items:center;justify-content:space-between">
+        Descrição da vaga
+        <button type="button" id="f-ai-fit-btn" onclick="runAIFitNow()" style="font-size:11px;padding:4px 10px;background:rgba(244,114,182,0.12);border:1px solid rgba(244,114,182,0.3);border-radius:20px;color:#f472b6;cursor:pointer;font-weight:600">🤖 Calcular fit com IA</button>
+      </label>
+      <textarea id="f-jd-text" rows="4" placeholder="Cole aqui o texto da vaga e clique em 'Calcular fit com IA'..."></textarea>
+      <div id="f-ai-fit-status" style="font-size:11px;color:var(--mid);margin-top:4px;display:none"></div>
     </div>
     <div class="form-group">
       <label>Observações estratégicas</label>
@@ -3097,46 +3101,67 @@ function triggerAutoFit() {
   }, 400);
 }
 
-let _aiFitTimer = null;
-async function triggerAIFit() {
-  clearTimeout(_aiFitTimer);
-  _aiFitTimer = setTimeout(async () => {
-    const jd = document.getElementById("f-jd-text").value.trim();
-    const fitInput = document.getElementById("f-fit");
-    const fitLabel = document.getElementById("f-fit-auto");
-    if (!jd || jd.length < 50) return;
-    const profile = localStorage.getItem(PROFILE_KEY) || '';
-    if (!profile) return;
+async function runAIFitNow() {
+  const jd = document.getElementById("f-jd-text").value.trim();
+  const fitInput = document.getElementById("f-fit");
+  const fitLabel = document.getElementById("f-fit-auto");
+  const statusEl = document.getElementById("f-ai-fit-status");
+  const btn = document.getElementById("f-ai-fit-btn");
 
-    fitInput.disabled = true;
-    fitLabel.textContent = "⏳ calculando com IA...";
+  if (!jd || jd.length < 30) {
+    statusEl.style.display = 'block';
+    statusEl.style.color = '#f87171';
+    statusEl.textContent = '⚠ Cole a descrição da vaga primeiro.';
+    return;
+  }
+  const profile = localStorage.getItem(PROFILE_KEY) || '';
+  if (!profile) {
+    statusEl.style.display = 'block';
+    statusEl.style.color = '#f87171';
+    statusEl.textContent = '⚠ Configure seu perfil na aba Perfil primeiro.';
+    return;
+  }
 
-    try {
-      const prompt = `Analise o fit entre o perfil e a vaga abaixo. Responda SOMENTE com JSON: {"score":<0-100>}
+  btn.disabled = true;
+  btn.textContent = '⏳ Calculando...';
+  statusEl.style.display = 'block';
+  statusEl.style.color = 'var(--mid)';
+  statusEl.textContent = 'Analisando a vaga com IA...';
+
+  try {
+    const prompt = `Analise o fit entre o perfil profissional e a descrição da vaga abaixo. Responda SOMENTE com JSON válido no formato: {"score":<número 0-100>}
 
 ## PERFIL
-${profile.slice(0, 800)}
+${profile.slice(0, 1000)}
 
 ## VAGA
-${jd.slice(0, 1200)}`;
+${jd.slice(0, 2000)}`;
 
-      const res = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, json_mode: true, model: 'claude-haiku-4-5' })
-      });
-      const data = await res.json();
-      const parsed = JSON.parse(data.result);
-      if (parsed.score != null && !fitInput.dataset.manual) {
-        fitInput.value = parsed.score;
-        fitLabel.textContent = "🤖 calculado pela IA";
-      }
-    } catch (e) {
-      fitLabel.textContent = "✨ calculado automaticamente";
-    } finally {
-      fitInput.disabled = false;
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, json_mode: true, model: 'claude-haiku-4-5' })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erro na API');
+    // tenta extrair score mesmo se vier com texto extra
+    const raw = data.result || '';
+    const match = raw.match(/"score"\s*:\s*(\d+)/);
+    const score = match ? parseInt(match[1]) : JSON.parse(raw).score;
+    if (score != null) {
+      fitInput.value = score;
+      delete fitInput.dataset.manual;
+      fitLabel.textContent = "🤖 calculado pela IA";
+      statusEl.style.color = '#68d391';
+      statusEl.textContent = `✓ Fit calculado com base na descrição da vaga: ${score}%`;
     }
-  }, 1200);
+  } catch (e) {
+    statusEl.style.color = '#f87171';
+    statusEl.textContent = '⚠ Erro ao calcular com IA: ' + e.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🤖 Calcular fit com IA';
+  }
 }
 
 function saveCard() {
