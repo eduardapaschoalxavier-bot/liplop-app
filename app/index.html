@@ -4204,28 +4204,27 @@ VAGA: ${opp.role}
 ${jd ? `DESCRIÇÃO DA VAGA:\n${jd.slice(0, 2000)}` : ''}
 ${profile ? `PERFIL DO CANDIDATO:\n${profile.slice(0, 600)}` : ''}
 
-Analise a vaga e identifique exatamente 5 perfis ESTRATÉGICOS para contatar. Foque em pessoas que:
-1. Seriam o gestor direto ou gerente da área que está contratando (ex: Head de, Gerente de, Diretor de — da área específica da vaga)
-2. São pares sênior ou tech leads da equipe onde a vaga se encaixa
-3. São recrutadores/talent partners especializados nessa área ou nível de senioridade
-4. São stakeholders internos que influenciam a decisão de contratação para essa função
+Identifique exatamente 5 PERFIS ESTRATÉGICOS para buscar no LinkedIn da empresa. Não invente nomes — apenas descreva o tipo de cargo a procurar e por quê.
 
-EVITE: CEO, CFO, COO ou qualquer C-level genérico que não tenha relação direta com a área da vaga.
-FOQUE em: quem provavelmente entrevista, quem puxa a contratação, quem trabalha no time que está sendo formado.
+Perfis relevantes:
+1. Gestor direto da área que está contratando (Head de, Gerente de, Diretor de — da área da vaga)
+2. Par sênior ou lead da equipe onde a vaga se encaixa
+3. Recrutador/talent partner especializado nessa área
+4. Stakeholder que influencia a contratação para essa função
+
+EVITE: CEO, CFO, COO ou C-level genérico sem relação direta com a área.
 
 Para cada perfil:
-- Nome (use nomes plausíveis; pode ser fictício mas realista para o país/empresa)
-- Cargo atual provável na empresa (específico, não genérico)
-- Por que essa pessoa é estratégica para contatar (1 frase direta)
-- Uma mensagem de abertura PERSONALIZADA e DIFERENTE para cada contato (2-3 linhas). Mencione algo específico sobre o cargo ou área dessa pessoa em relação à vaga. Seja direto, humano, sem enrolação. Sem travessão, use vírgula ou ponto.
-- URL de busca no LinkedIn com o cargo e empresa como keywords
+- Cargo a pesquisar na empresa (específico)
+- Por que esse perfil é estratégico (1 frase)
+- Uma mensagem de abertura PERSONALIZADA para esse perfil (2-3 linhas, direta, humana, sem enrolação)
+- URL de busca no LinkedIn People com cargo + empresa como keywords
 
-Responda SOMENTE com JSON válido, sem markdown, sem texto extra, sem blocos de código:
+Responda SOMENTE com JSON válido:
 {
   "contacts": [
     {
-      "name": "Nome Sobrenome",
-      "role": "Cargo na empresa",
+      "role": "Cargo a buscar no LinkedIn",
       "why": "Por que contatar",
       "message": "Sugestão de mensagem",
       "linkedin_url": "https://www.linkedin.com/search/results/people/?keywords=CARGO+${encodeURIComponent(opp.company)}"
@@ -4247,26 +4246,25 @@ Responda SOMENTE com JSON válido, sem markdown, sem texto extra, sem blocos de 
     if (!contacts.length) throw new Error('Nenhum contato encontrado');
 
     result.innerHTML = `
-      <div style="font-size:11px;color:#718096;margin-bottom:10px;padding:8px;background:rgba(255,193,7,0.08);border-radius:6px;border-left:2px solid #f59e0b">
-        ⚠ Verifique os nomes no LinkedIn antes de enviar mensagem.
+      <div style="font-size:11px;color:#a0aec0;margin-bottom:12px;padding:10px 12px;background:rgba(99,179,237,0.06);border-radius:8px;border-left:2px solid #63b3ed">
+        💡 Pesquise esses perfis no LinkedIn da <strong style="color:var(--text)">${opp.company}</strong> e use a mensagem sugerida para entrar em contato.
       </div>
       ${contacts.map((c, i) => `
-        <div style="border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px;margin-bottom:8px;background:rgba(255,255,255,0.02)">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+        <div style="border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px;margin-bottom:10px;background:rgba(255,255,255,0.02)">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:12px">
             <div>
-              <div style="font-size:13px;font-weight:700;color:var(--text)">${c.name}</div>
-              <div style="font-size:11px;color:#f472b6;margin-top:1px">${c.role}</div>
+              <div style="font-size:13px;font-weight:700;color:var(--text)">${c.role}</div>
+              <div style="font-size:11px;color:var(--mid);margin-top:2px">${c.why}</div>
             </div>
-            <a href="${c.linkedin_url}" target="_blank"
-              style="font-size:11px;color:#63b3ed;text-decoration:none;border:1px solid #63b3ed;border-radius:6px;padding:3px 8px;white-space:nowrap">
-              Ver no LinkedIn →
+            <a href="${c.linkedin_url}" target="_blank" rel="noopener"
+              style="flex-shrink:0;font-size:11px;font-weight:600;color:#63b3ed;text-decoration:none;border:1px solid rgba(99,179,237,0.4);border-radius:8px;padding:6px 12px;white-space:nowrap;background:rgba(99,179,237,0.06)">
+              Buscar no LinkedIn →
             </a>
           </div>
-          <div style="font-size:11px;color:#a0aec0;margin-bottom:8px">${c.why}</div>
-          <div style="font-size:10px;color:var(--dim);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em">Mensagem para enviar</div>
+          <div style="font-size:10px;color:var(--dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Mensagem sugerida</div>
           <textarea id="contact-msg-${i}"
-            style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:8px;color:#cbd5e0;font-size:11px;line-height:1.6;resize:vertical;font-family:inherit;min-height:70px;outline:none;box-sizing:border-box"
-            onfocus="this.style.borderColor='var(--rose-s)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">${c.message}</textarea>
+            style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px;color:#cbd5e0;font-size:12px;line-height:1.6;resize:vertical;font-family:inherit;min-height:80px;outline:none;box-sizing:border-box"
+            onfocus="this.style.borderColor='rgba(244,114,182,0.4)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'">${c.message}</textarea>
         </div>
       `).join('')}`;
 
