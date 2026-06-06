@@ -1943,10 +1943,27 @@
 <div id="resume-modal" style="display:none;position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,0.8);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
   <div style="background:#0f0f13;border:1px solid rgba(255,255,255,0.1);border-radius:20px;max-width:680px;width:100%;padding:32px;position:relative;max-height:90vh;display:flex;flex-direction:column">
     <button onclick="closeResumeModal()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.07);border:none;color:#a0aec0;width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer">×</button>
-    <div style="margin-bottom:16px">
-      <div style="font-size:11px;color:#f472b6;font-weight:700;letter-spacing:1px;margin-bottom:4px">CURRÍCULO ADAPTADO</div>
-      <h3 id="resume-modal-title" style="color:#fff;margin:0;font-size:1.1rem"></h3>
+    <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+      <div>
+        <div style="font-size:11px;color:#f472b6;font-weight:700;letter-spacing:1px;margin-bottom:4px">CURRÍCULO ADAPTADO</div>
+        <h3 id="resume-modal-title" style="color:#fff;margin:0;font-size:1.1rem"></h3>
+      </div>
+      <!-- Paleta de cores -->
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+        <div style="font-size:10px;color:var(--dim);font-weight:600;letter-spacing:.04em">COR DO CURRÍCULO</div>
+        <div style="display:flex;gap:6px">
+          ${['#e91e8c','#6366f1','#0ea5e9','#10b981','#f59e0b','#ef4444','#8b5cf6','#1a1a1a'].map(c => `
+            <button onclick="setResumeColor('${c}')" title="${c}"
+              style="width:20px;height:20px;border-radius:50%;background:${c};border:2px solid transparent;cursor:pointer;transition:transform .15s;padding:0"
+              onmouseover="this.style.transform='scale(1.25)'" onmouseout="this.style.transform='scale(1)'"
+              id="resume-color-btn-${c.replace('#','')}"></button>`).join('')}
+          <label title="Cor personalizada" style="width:20px;height:20px;border-radius:50%;background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);border:2px solid transparent;cursor:pointer;overflow:hidden;display:flex">
+            <input type="color" oninput="setResumeColor(this.value)" style="opacity:0;width:1px;height:1px;position:absolute">
+          </label>
+        </div>
+      </div>
     </div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:8px">✏️ Clique em qualquer texto do currículo para editar diretamente.</div>
     <div id="resume-modal-content" style="flex:1;overflow-y:auto;background:#fff;border-radius:10px;padding:0;box-shadow:0 4px 32px rgba(0,0,0,0.4)"></div>
     <!-- Feedback para ajuste -->
     <div style="margin-top:16px;border-top:1px solid rgba(255,255,255,0.07);padding-top:16px">
@@ -3826,19 +3843,23 @@ function buildResumeHTML(text) {
     return `<span>${esc(c)}</span>`;
   }).join('<br>');
 
-  return `<div style="font-family:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;font-size:9.5pt;color:#1a1a1a;background:#fff;padding:32px 40px 40px;min-height:100%;box-sizing:border-box">
+  const color = window._resumeColor || '#e91e8c';
+  return `<div id="resume-editable" contenteditable="true" spellcheck="false"
+    style="font-family:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;font-size:9.5pt;color:#1a1a1a;background:#fff;padding:32px 40px 40px;min-height:100%;box-sizing:border-box;outline:none">
     <style>
+      #resume-editable:focus{outline:none}
+      #resume-editable [contenteditable]{outline:1px dashed rgba(0,0,0,0.15)}
       .rv-name{font-size:22pt;font-weight:900;color:#0d0d0d;letter-spacing:-0.5px;margin-bottom:2px;line-height:1.1}
       .rv-jobtitle{font-size:10.5pt;font-weight:400;color:#555;margin-bottom:2px}
-      .rv-bar{height:3px;background:#e91e8c;width:44px;margin:6px 0 8px;border-radius:2px}
+      .rv-bar{height:3px;background:${color};width:44px;margin:6px 0 8px;border-radius:2px}
       .rv-contact{font-size:8.5pt;color:#555;margin-bottom:10px;line-height:1.8}
-      .rv-section-title{font-size:7.5pt;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:#e91e8c;border-bottom:1.5px solid #e91e8c;padding-bottom:3px;margin-top:16px;margin-bottom:8px}
+      .rv-section-title{font-size:7.5pt;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:${color};border-bottom:1.5px solid ${color};padding-bottom:3px;margin-top:16px;margin-bottom:8px}
       .rv-job-header{font-weight:700;font-size:9.5pt;color:#111;margin:8px 0 1px}
-      .rv-sep{color:#e91e8c;font-weight:400}
+      .rv-sep{color:${color};font-weight:400}
       .rv-p{margin:2px 0;line-height:1.5;color:#333;font-size:9pt}
       .rv-ul{padding-left:0;margin:3px 0 5px;list-style:none}
       .rv-li{margin:2px 0;line-height:1.45;color:#333;font-size:9pt;padding-left:14px;position:relative}
-      .rv-li::before{content:"•";color:#e91e8c;position:absolute;left:0;font-size:10pt;line-height:1.3}
+      .rv-li::before{content:"•";color:${color};position:absolute;left:0;font-size:10pt;line-height:1.3}
     </style>
     <div class="rv-name">${esc(nameStr)}</div>
     ${titleLine ? `<div class="rv-jobtitle">${esc(titleLine)}</div>` : ''}
@@ -3848,12 +3869,43 @@ function buildResumeHTML(text) {
   </div>`;
 }
 
+function setResumeColor(color) {
+  window._resumeColor = color;
+  // Atualiza cores inline sem recompilar tudo
+  const el = document.getElementById('resume-editable');
+  if (!el) return;
+  el.querySelectorAll('.rv-bar').forEach(e => e.style.background = color);
+  el.querySelectorAll('.rv-section-title').forEach(e => { e.style.color = color; e.style.borderBottomColor = color; });
+  el.querySelectorAll('.rv-sep').forEach(e => e.style.color = color);
+  el.querySelectorAll('.rv-li').forEach(e => {
+    const dot = e.querySelector('::before'); // CSS handled; update via style tag
+  });
+  // Atualiza a style tag dentro do editable
+  const style = el.querySelector('style');
+  if (style) {
+    style.textContent = style.textContent.replace(/#[0-9a-fA-F]{3,8}/g, (m, offset) => {
+      // Só substitui nas regras de cor do currículo
+      return m;
+    });
+    // Reaplica buildResumeHTML para atualizar ::before dos li
+    document.getElementById('resume-modal-content').innerHTML = buildResumeHTML(_resumeText);
+  }
+  // Marca botão ativo
+  document.querySelectorAll('[id^="resume-color-btn-"]').forEach(b => b.style.border = '2px solid transparent');
+  const btn = document.getElementById('resume-color-btn-' + color.replace('#',''));
+  if (btn) btn.style.border = '2px solid white';
+}
+
 function showResumeModal(opp, text) {
   const clean = stripMarkdown(text);
   _resumeText = clean;
   document.getElementById('resume-modal-title').textContent = opp.company ? opp.role + ' — ' + opp.company : opp.role;
   document.getElementById('resume-modal-content').innerHTML = buildResumeHTML(clean);
   document.getElementById('resume-modal').style.display = 'flex';
+  // Marca cor atual
+  const cur = window._resumeColor || '#e91e8c';
+  const btn = document.getElementById('resume-color-btn-' + cur.replace('#',''));
+  if (btn) btn.style.border = '2px solid white';
 }
 
 function closeResumeModal() {
@@ -3864,10 +3916,37 @@ document.getElementById('resume-modal').addEventListener('click', function(e) {
 });
 
 function downloadResumePDF() {
+  // Captura o conteúdo editado pelo usuário diretamente do DOM
+  const editableEl = document.getElementById('resume-editable');
+  const color = window._resumeColor || '#e91e8c';
+
+  if (editableEl) {
+    // Usa o innerHTML atual (com edições do usuário)
+    const editedHTML = editableEl.innerHTML;
+    const win = window.open('', '_blank');
+    if (!win) { alert('Permita pop-ups para este site e tente novamente.'); return; }
+    win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Currículo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+      *{margin:0;padding:0;box-sizing:border-box}
+      body{font-family:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;background:#fff}
+      #resume-editable{max-width:780px;margin:0 auto;padding:28px 40px}
+      @media print{@page{margin:10mm 14mm;size:A4}body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}
+      .no-print{display:none!important}
+    </style>
+    </head><body>
+    <div style="max-width:780px;margin:0 auto;padding:28px 40px">${editedHTML}</div>
+    <div class="no-print" style="max-width:780px;margin:20px auto;text-align:center;padding:16px;background:#fdf0f7;border-radius:8px;border:1px solid #f9c8e5">
+      <p style="color:#555;font-size:9pt;margin-bottom:12px">Ctrl+P / Cmd+P → Destino: <strong>Salvar como PDF</strong> → desmarque cabeçalhos → Salvar</p>
+      <button onclick="window.print()" style="background:${color};color:#fff;border:none;padding:10px 32px;border-radius:6px;font-size:10pt;font-weight:700;cursor:pointer">⬇ Salvar como PDF</button>
+    </div>
+    </body></html>`);
+    win.document.close();
+    return;
+  }
+
   const rawText = _resumeText;
   const opp  = _resumeOpp;
-
-  // Strip any remaining markdown just in case
   const text = stripMarkdown(rawText);
 
   // Parseia o texto em linhas e identifica seções
@@ -3968,22 +4047,22 @@ function downloadResumePDF() {
   .header { padding-bottom: 10px; margin-bottom: 2px; }
   .name { font-size: 22pt; font-weight: 900; color: #0d0d0d; letter-spacing: -0.5px; margin-bottom: 2px; line-height: 1.1; }
   .job-title { font-size: 10.5pt; font-weight: 400; color: #555; margin-bottom: 2px; }
-  .accent-bar { height: 3px; background: #e91e8c; width: 44px; margin: 5px 0 7px; border-radius: 2px; }
+  .accent-bar { height: 3px; background: ${color}; width: 44px; margin: 5px 0 7px; border-radius: 2px; }
   .contact { font-size: 8.5pt; color: #555; display: flex; gap: 0; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
 
   /* Sections */
   .section-title {
     font-size: 7.5pt; font-weight: 900; letter-spacing: 2px;
-    text-transform: uppercase; color: #e91e8c;
-    border-bottom: 1.5px solid #e91e8c; padding-bottom: 3px;
+    text-transform: uppercase; color: ${color};
+    border-bottom: 1.5px solid ${color}; padding-bottom: 3px;
     margin-top: 14px; margin-bottom: 7px;
   }
   .job-header { font-weight: 700; font-size: 9.5pt; color: #111; margin: 8px 0 1px; }
-  .sep { color: #e91e8c; font-weight: 400; margin: 0 2px; }
+  .sep { color: ${color}; font-weight: 400; margin: 0 2px; }
   p { margin: 2px 0; line-height: 1.5; color: #333; font-size: 9pt; }
   ul { padding-left: 0; margin: 3px 0 5px; list-style: none; }
   li { margin: 2px 0; line-height: 1.45; color: #333; font-size: 9pt; padding-left: 12px; position: relative; }
-  li::before { content: "•"; color: #e91e8c; position: absolute; left: 0; font-size: 10pt; line-height: 1.3; }
+  li::before { content: "•"; color: ${color}; position: absolute; left: 0; font-size: 10pt; line-height: 1.3; }
 
   /* Print */
   @media print {
@@ -4009,7 +4088,7 @@ function downloadResumePDF() {
   </div>
   <div class="no-print" style="margin-top:28px;text-align:center;padding:16px;background:#fdf0f7;border-radius:8px;border:1px solid #f9c8e5">
     <p style="color:#555;font-size:9pt;margin-bottom:12px">Para salvar como PDF: <strong>Ctrl+P</strong> (Windows) ou <strong>Cmd+P</strong> (Mac) → Destino: <strong>Salvar como PDF</strong> → desmarque <strong>Cabeçalhos e rodapés</strong> → Salvar</p>
-    <button onclick="window.print()" style="background:#e91e8c;color:#fff;border:none;padding:10px 32px;border-radius:6px;font-size:10pt;font-weight:700;cursor:pointer;letter-spacing:0.5px">
+    <button onclick="window.print()" style="background:${color};color:#fff;border:none;padding:10px 32px;border-radius:6px;font-size:10pt;font-weight:700;cursor:pointer;letter-spacing:0.5px">
       ⬇ Salvar como PDF
     </button>
   </div>
