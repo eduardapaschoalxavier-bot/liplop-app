@@ -1967,33 +1967,32 @@
       </div>
     </div>
     <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:8px">✏️ Clique em qualquer texto do currículo para editar diretamente.</div>
-    <div id="resume-modal-content" style="flex:1;overflow-y:auto;background:#fff;border-radius:10px;padding:0;box-shadow:0 4px 32px rgba(0,0,0,0.4)"></div>
-    <!-- Feedback para ajuste -->
-    <div style="margin-top:16px;border-top:1px solid rgba(255,255,255,0.07);padding-top:16px">
+    <div id="resume-modal-content" style="flex:1;overflow-y:auto;background:#fff;border-radius:10px;padding:0;box-shadow:0 4px 32px rgba(0,0,0,0.4);min-height:0"></div>
+    <!-- Rodapé fixo: feedback + botões -->
+    <div style="flex-shrink:0;margin-top:12px;border-top:1px solid rgba(255,255,255,0.07);padding-top:12px">
       <div style="font-size:0.75rem;color:var(--dim);margin-bottom:6px">Quer ajustar algo? Descreva o que mudar:</div>
-      <div style="display:flex;gap:8px">
+      <div style="display:flex;gap:8px;margin-bottom:10px">
         <input id="resume-feedback" type="text" placeholder="Ex: coloque o cargo como Manager, destaque mais a experiência com parceiros..."
           style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 12px;color:#e2e8f0;font-size:0.82rem;outline:none"
           onkeydown="if(event.key==='Enter') regenerateWithFeedback()" />
         <button onclick="regenerateWithFeedback()"
-          style="padding:8px 16px;background:rgba(244,114,182,0.15);border:1px solid rgba(244,114,182,0.4);border-radius:8px;color:#f472b6;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:background 0.15s"
+          style="padding:8px 16px;background:rgba(244,114,182,0.15);border:1px solid rgba(244,114,182,0.4);border-radius:8px;color:#f472b6;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap"
           onmouseover="this.style.background='rgba(244,114,182,0.25)'" onmouseout="this.style.background='rgba(244,114,182,0.15)'">
           Refazer →
         </button>
       </div>
-    </div>
-
-    <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
-      <button onclick="downloadResumePDF()"
-        style="flex:1;padding:12px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s"
-        onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
-        ⬇ Baixar PDF
-      </button>
-      <button onclick="generateResume(true)"
-        style="flex:1;padding:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#e2e8f0;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s"
-        onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.07)'">
-        🔄 Gerar novamente
-      </button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button onclick="downloadResumePDF()"
+          style="flex:1;padding:12px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s"
+          onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+          ⬇ Baixar PDF
+        </button>
+        <button onclick="generateResume(true)"
+          style="flex:1;padding:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#e2e8f0;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s"
+          onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.07)'">
+          🔄 Gerar novamente
+        </button>
+      </div>
     </div>
   </div>
 </div>
