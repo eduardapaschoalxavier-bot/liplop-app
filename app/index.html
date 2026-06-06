@@ -2274,15 +2274,13 @@
         <label><input type="checkbox" id="f-referred" /> Indicação</label>
       </div>
     </div>
-    <div class="form-actions">
-      <button class="btn-cancel" onclick="closeForm()">Cancelar</button>
-      <button class="btn-save" onclick="saveCard()">Salvar vaga</button>
-    </div>
-    <div id="f-resume-btn-wrap" style="margin-top:10px;display:none">
-      <button onclick="saveAndGenerateResume()" style="width:100%;padding:14px;background:linear-gradient(135deg,#f472b6,#a855f7);border:none;border-radius:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+    <div class="form-actions" style="flex-direction:column;gap:10px">
+      <button onclick="saveAndGenerateResume()" style="width:100%;padding:14px;background:linear-gradient(135deg,#e91e8c,#f472b6);border:none;border-radius:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 18px rgba(233,30,140,0.35)">
         ✨ Salvar e gerar currículo adaptado
       </button>
+      <button class="btn-cancel" onclick="saveCard()" style="background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);width:100%">Salvar sem gerar currículo</button>
     </div>
+    <div id="f-resume-btn-wrap" style="display:none"></div>
   </div>
 </div>
 
