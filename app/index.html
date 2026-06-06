@@ -1870,9 +1870,7 @@
   'https://connect.facebook.net/en_US/fbevents.js');
   fbq('init', '2008939026376338');
   fbq('track', 'PageView');
-  if (new URLSearchParams(window.location.search).get('payment') === 'success') {
-    fbq('track', 'Purchase', { value: 67.00, currency: 'BRL' });
-  }
+  fbq('track', 'Purchase');
   </script>
   <noscript><img height="1" width="1" style="display:none"
   src="https://www.facebook.com/tr?id=2008939026376338&ev=PageView&noscript=1"
