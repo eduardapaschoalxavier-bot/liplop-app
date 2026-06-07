@@ -2859,10 +2859,9 @@ function openLinkedInSearch() {
   if (!opp) return;
   const company = opp.company || '';
   const role    = opp.role    || '';
-  // Busca pessoas na empresa relacionadas ao cargo
-  const q = encodeURIComponent(company + ' ' + role);
-  // URL de busca de pessoas no LinkedIn filtrando pela empresa
-  const url = `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(role)}&company=${encodeURIComponent(company)}`;
+  // Combina empresa + cargo nas keywords — forma mais confiável no LinkedIn
+  const keywords = encodeURIComponent(company + ' ' + role);
+  const url = `https://www.linkedin.com/search/results/people/?keywords=${keywords}&origin=GLOBAL_SEARCH_HEADER`;
   window.open(url, '_blank', 'noopener');
 }
 
