@@ -1888,12 +1888,6 @@
   </a>
 
   <nav class="tab-nav">
-    <button class="tab-btn active" onclick="switchTab('metodo')">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M2 4h12M2 8h8M2 12h10"/>
-      </svg>
-      Método
-    </button>
     <button class="tab-btn" onclick="switchTab('perfil')">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
         <circle cx="8" cy="5" r="3"/>
@@ -2067,10 +2061,6 @@
 </div>
 
 <!-- MARCA TAB -->
-<!-- MÉTODO TAB -->
-<div class="tab-view active" id="tab-metodo" style="display:block">
-  <div id="metodo-wrap" style="max-width:720px;margin:0 auto;padding:24px 16px 60px"></div>
-</div>
 
 <div class="tab-view" id="tab-tarefas">
   <div id="tarefas-wrap" style="max-width:860px;margin:0 auto;padding:24px 16px 60px"></div>
@@ -3056,13 +3046,13 @@ renderBoard();
 updateTopbarCount();
 
 // ── Tab switching ────────────────────────────────────────────
-let _currentTab = 'metodo';
+let _currentTab = 'kanban';
 
 function switchTab(tab) {
   _currentTab = tab;
 
   // Esconde todas as abas explicitamente
-  ['analyzer','kanban','interview','marca','metodo','tarefas','perfil','vagas'].forEach(id => {
+  ['analyzer','kanban','interview','marca','tarefas','perfil','vagas'].forEach(id => {
     const el = document.getElementById('tab-' + id);
     if (el) { el.style.display = 'none'; el.classList.remove('active'); }
   });
@@ -3085,7 +3075,6 @@ function switchTab(tab) {
   if (tab === 'analyzer')  initAnalyzer();
   if (tab === 'interview') renderInterviewTab();
   if (tab === 'marca')     renderMarcaTab();
-  if (tab === 'metodo')    renderMetodoTab();
   if (tab === 'tarefas')   renderTarefasTab(); // aba Calendário
   if (tab === 'perfil')    renderPerfilTab();
   if (tab === 'vagas')     renderVagasTab();
@@ -4268,63 +4257,6 @@ Gere exatamente 3 dicas de empresa, 3 dicas de cargo/senioridade, 3 evites. Seja
       <div style="color:#fc8181;font-size:12px;margin-bottom:10px">Erro ao gerar preparação: ${e.message}</div>
       <button onclick="generateInterviewPrep(${oppId})" style="padding:8px 16px;background:transparent;border:1px solid #f472b6;border-radius:7px;color:#f472b6;font-size:12px;cursor:pointer">Tentar novamente</button>`;
   }
-}
-
-// ── Aba Método ───────────────────────────────────────────────────
-function renderMetodoTab() {
-  const wrap = document.getElementById('metodo-wrap');
-
-  // Fluxo
-  const fluxo = [
-    { label: 'Analise as vagas',    sub: 'Análise',     tab: 'analyzer', icon: '◎', color: '#c9974a' },
-    { label: 'Construa presença',   sub: 'Marca',       tab: 'marca',    icon: '◈', color: '#f472b6' },
-    { label: 'Gerencie o pipeline', sub: 'Kanban',       tab: 'kanban',   icon: '▦', color: '#63b3ed' },
-    { label: 'Prepare entrevistas', sub: 'Entrevistas',  tab: 'interview',icon: '◷', color: '#a78bfa' },
-  ];
-
-  wrap.innerHTML = `
-    <!-- Hero -->
-    <div style="position:relative;overflow:hidden;padding:48px 32px 40px;margin-bottom:32px;border-radius:18px;border:1px solid rgba(224,68,120,0.14);background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(224,68,120,0.08) 0%,transparent 70%),var(--surface);text-align:center">
-      <div style="position:absolute;top:-60px;left:30%;width:420px;height:280px;background:radial-gradient(ellipse at center,rgba(224,68,120,0.18) 0%,transparent 70%);border-radius:50%;pointer-events:none;animation:heroGlow 4s ease-in-out infinite;transform-origin:0 0"></div>
-      <div style="position:relative;z-index:2">
-        <div style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;background:rgba(224,68,120,0.12);border:1px solid rgba(224,68,120,0.28);border-radius:20px;font-size:0.72rem;font-weight:700;color:var(--rose);letter-spacing:.04em;text-transform:uppercase;margin-bottom:20px"><span style="font-size:0.72rem;line-height:1;vertical-align:middle">✦</span> Método Liplop</div>
-        <h2 style="font-size:2rem;font-weight:800;line-height:1.15;letter-spacing:-.03em;color:var(--text);margin-bottom:14px">Esta é sua central de comando.<br><span style="background:linear-gradient(90deg,#E04478,#C9974A,#E04478);background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradientText 4s linear infinite">Comece por aqui.</span></h2>
-        <p style="font-size:0.9rem;color:var(--mid);line-height:1.7;max-width:480px;margin:0 auto">O Liplop funciona em duas frentes ao mesmo tempo: você aplica para as vagas certas enquanto sua marca atrai as melhores. Abaixo você entende o método, vê o fluxo completo e sabe exatamente o que fazer hoje.</p>
-      </div>
-    </div>
-
-    <!-- Duas frentes -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:32px">
-      <div style="padding:20px;border-radius:14px;border:1px solid rgba(244,114,182,0.2);background:rgba(244,114,182,0.04)">
-        <div style="font-size:10px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Inbound · Marca</div>
-        <div style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:6px">As vagas vêm até você</div>
-        <div style="font-size:12px;color:var(--mid);line-height:1.6">Construa presença no LinkedIn com projeto real, tom de voz próprio e consistência. Recrutadores passam a te encontrar.</div>
-      </div>
-      <div style="padding:20px;border-radius:14px;border:1px solid rgba(99,179,237,0.2);background:rgba(99,179,237,0.04)">
-        <div style="font-size:10px;font-weight:700;color:#63b3ed;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Outbound · Pipeline</div>
-        <div style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:6px">Você vai atrás das certas</div>
-        <div style="font-size:12px;color:var(--mid);line-height:1.6">Analise fit com IA, adapte currículo, gerencie aplicações e chegue preparado em cada entrevista.</div>
-      </div>
-    </div>
-
-    <!-- Fluxo -->
-    <div style="margin-bottom:32px">
-      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px">O fluxo do método</div>
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;align-items:center">
-        ${fluxo.map((s, i) => `
-          <div style="display:flex;align-items:center;flex-shrink:0;min-width:0">
-            <div onclick="switchTab('${s.tab}')" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;padding:12px 8px;border-radius:12px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);width:100%;transition:border-color .15s;text-align:center"
-              onmouseover="this.style.borderColor='${s.color}';this.style.background='rgba(255,255,255,0.05)'"
-              onmouseout="this.style.borderColor='rgba(255,255,255,0.07)';this.style.background='rgba(255,255,255,0.02)'">
-              <div style="font-size:22px;color:${s.color}">${s.icon}</div>
-              <div style="font-size:11px;font-weight:700;color:var(--text);line-height:1.3">${s.label}</div>
-              <div style="font-size:10px;color:var(--dim)">${s.sub}</div>
-            </div>
-          </div>`).join('')}
-      </div>
-    </div>
-
-    `;
 }
 
 // ── Aba Perfil & Vagas ───────────────────────────────────────────
@@ -5719,7 +5651,7 @@ function saveAnalysisToKanban() {
 }
 
 // Inicializa ao carregar — chamado depois de todas as declarações
-switchTab('metodo');
+switchTab('kanban');
 initAnalyzer();
 </script>
 </div><!-- /page-content -->
