@@ -1908,7 +1908,7 @@
         <path d="M5 7h6M5 10h4"/>
         <path d="M10 1v4M6 1v4"/>
       </svg>
-      Vagas
+      Keywords
     </button>
     <button class="tab-btn" onclick="switchTab('marca')">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -2465,13 +2465,6 @@ function buildCard(opp) {
       <span class="card-fit ${fitClass(opp.fit ?? 0)}">${opp.fit != null ? opp.fit + '% fit' : '— %'}</span>
       ${linkBtn}
     </div>
-    <div class="card-next">
-      <strong>Próximo passo</strong>
-      ${opp.next ? `<div style="margin-bottom:8px">${opp.next}</div>` : ''}
-      ${opp.stage === 'todo'      ? `<button class="card-action-btn primary card-btn-resume">✨ Gerar currículo adaptado</button>` : ''}
-      ${opp.stage === 'applied'   ? `<button class="card-action-btn ghost card-btn-contacts">Buscar contatos no LinkedIn</button>` : ''}
-      ${opp.stage === 'recruiter' ? `<button class="card-action-btn ghost card-btn-interview">Preparação para entrevista</button>` : ''}
-    </div>
     ${(opp.contacts || []).length ? `
       <div class="card-contacts">
         ${(opp.contacts).map(c => `
@@ -2480,26 +2473,6 @@ function buildCard(opp) {
           </a>`).join('')}
       </div>` : ''}
   `;
-
-  const btnResume = card.querySelector(".card-btn-resume");
-  if (btnResume) btnResume.addEventListener("click", e => {
-    e.stopPropagation();
-    openModal(opp);
-    setTimeout(() => generateResume(), 250);
-  });
-
-  const btnContacts = card.querySelector(".card-btn-contacts");
-  if (btnContacts) btnContacts.addEventListener("click", e => {
-    e.stopPropagation();
-    openModal(opp);
-    setTimeout(() => { scrollToNetwork(); findContacts(); }, 250);
-  });
-
-  const btnInterview = card.querySelector(".card-btn-interview");
-  if (btnInterview) btnInterview.addEventListener("click", e => {
-    e.stopPropagation();
-    switchTab('interview');
-  });
 
   card.querySelector(".card-delete").addEventListener("click", e => {
     e.stopPropagation();
@@ -4419,7 +4392,7 @@ function renderVagasTab() {
 
   wrap.innerHTML = `
     <div style="margin-bottom:24px">
-      <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">✦ Vagas para você</div>
+      <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">✦ Keywords</div>
       <h2 style="font-size:1.6rem;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.2">Palavras-chave<br>para buscar vagas</h2>
       <p style="font-size:13px;color:var(--mid);line-height:1.6;margin-bottom:16px">A IA analisa seu perfil e sugere os melhores termos de busca. Clique em LinkedIn, Google Jobs ou Gupy para ver vagas reais abertas agora.</p>
       <button onclick="searchJobs()" id="btn-search-jobs" style="padding:12px 24px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
