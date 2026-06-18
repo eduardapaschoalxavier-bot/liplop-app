@@ -1045,6 +1045,7 @@
     .bar-recruiter { background: var(--gold); }
     .bar-waiting   { background: #a78bfa; }
     .bar-decision  { background: var(--mid); }
+    .bar-case      { background: #2dd4bf; }
     .bar-offer     { background: var(--rose); }
     .bar-lost      { background: var(--dim); }
 
@@ -1685,6 +1686,9 @@
     .col-decision .column-title { color: var(--mid); }
     .col-decision { border-top: 2px solid var(--dim); }
 
+    .col-case .column-title { color: #2dd4bf; }
+    .col-case { border-top: 2px solid rgba(45,212,191,.5); }
+
     .col-offer .column-title { color: var(--rose); }
     .col-offer { border-top: 2px solid var(--rose-s); }
 
@@ -1705,6 +1709,25 @@
       pointer-events: none;
     }
     .drop-line.active { display: block; }
+
+    /* Reordenar colunas */
+    .col-move-btn {
+      background: none;
+      border: none;
+      color: var(--dim);
+      font-size: 0.7rem;
+      line-height: 1;
+      cursor: pointer;
+      padding: 2px 3px;
+      border-radius: 4px;
+      transition: color .15s, background .15s;
+    }
+    .col-move-btn:hover:not(:disabled) { color: var(--rose); background: var(--border); }
+    .col-move-btn:disabled { opacity: 0.25; cursor: default; }
+    .column-header[draggable=true] { cursor: grab; }
+    .column-header[draggable=true]:active { cursor: grabbing; }
+    .column.col-dragging { opacity: 0.4; }
+    .column.col-drop-target { outline: 2px dashed var(--rose-s); outline-offset: -2px; border-radius: 8px; }
 
     /* Funnel extras */
     .funnel-sep {
@@ -2145,6 +2168,7 @@
         <option value="recruiter">Entrevista Agendada</option>
         <option value="waiting">Aguardando Retorno</option>
         <option value="decision">Entrevista c/ Decisor</option>
+        <option value="case">Case</option>
         <option value="offer">Oferta</option>
         <option value="lost">Lost</option>
       </select>
@@ -2268,6 +2292,7 @@
           <option value="recruiter">Entrevista Agendada</option>
           <option value="waiting">Aguardando Retorno</option>
           <option value="decision">Entrevista c/ Decisor</option>
+          <option value="case">Case</option>
           <option value="offer">Oferta</option>
           <option value="lost">Lost</option>
         </select>
@@ -2397,12 +2422,14 @@ function saveOpps() {
 
 const opps = loadOpps();
 
+const COLUMN_ORDER_KEY = 'liplop-column-order';
 const columns = [
   { id: "todo",       label: "Para Aplicar",           cls: "col-todo" },
   { id: "applied",    label: "Aplicada",               cls: "col-applied" },
   { id: "recruiter",  label: "Entrevista Agendada", cls: "col-recruiter" },
   { id: "waiting",    label: "Aguardando Retorno",      cls: "col-waiting" },
   { id: "decision",   label: "Entrevista c/ Decisor",  cls: "col-decision" },
+  { id: "case",       label: "Case",                   cls: "col-case" },
   { id: "offer",      label: "Oferta",                 cls: "col-offer" },
   { id: "lost",       label: "Lost",                   cls: "col-lost" }
 ];
@@ -2413,6 +2440,7 @@ const columns = [
 let draggedId   = null;
 let dropTargetId = null; // card id we're hovering over
 let dropPos     = 'after'; // 'before' | 'after'
+let draggedColId = null;   // id da coluna sendo arrastada (reordenação)
 
 // ── funnel ───────────────────────────────────────────────────
 function renderFunnel() {
@@ -2422,6 +2450,7 @@ function renderFunnel() {
     { id: "recruiter", label: "Entrevista", barCls: "bar-recruiter" },
     { id: "waiting",   label: "Aguardando",         barCls: "bar-waiting" },
     { id: "decision",  label: "Entrev. Decisor",    barCls: "bar-decision" },
+    { id: "case",      label: "Case",               barCls: "bar-case" },
     { id: "offer",     label: "Oferta",             barCls: "bar-offer" },
     { id: "lost",      label: "Lost",               barCls: "bar-lost" },
   ];
@@ -2547,6 +2576,7 @@ function buildCard(opp) {
   });
 
   card.addEventListener("dragover", e => {
+    if (draggedColId != null) return; // arrastando coluna, não card
     e.preventDefault();
     e.stopPropagation();
     if (draggedId === opp.id) return;
@@ -2559,6 +2589,7 @@ function buildCard(opp) {
   });
 
   card.addEventListener("drop", e => {
+    if (draggedColId != null) return; // arrastando coluna, não card
     e.preventDefault();
     e.stopPropagation();
     if (draggedId == null || draggedId === opp.id) return;
@@ -2591,12 +2622,49 @@ function moveTo(srcId, targetStage, anchorId, pos) {
   renderBoard();
 }
 
+// ── reordenação de colunas ───────────────────────────────────
+function saveColumnOrder() {
+  try { localStorage.setItem(COLUMN_ORDER_KEY, JSON.stringify(columns.map(c => c.id))); } catch (_) {}
+}
+
+function applyColumnOrder() {
+  let saved;
+  try { saved = JSON.parse(localStorage.getItem(COLUMN_ORDER_KEY) || 'null'); } catch (_) { saved = null; }
+  if (!Array.isArray(saved)) return;
+  // colunas novas (não salvas) vão para o fim, preservando a ordem padrão
+  const defIdx = {};
+  columns.forEach((c, i) => defIdx[c.id] = i);
+  const rank = id => { const i = saved.indexOf(id); return i === -1 ? saved.length + (defIdx[id] || 0) : i; };
+  columns.sort((a, b) => rank(a.id) - rank(b.id));
+}
+
+function moveColumn(colId, dir) {
+  const i = columns.findIndex(c => c.id === colId);
+  const j = i + dir;
+  if (i === -1 || j < 0 || j >= columns.length) return;
+  [columns[i], columns[j]] = [columns[j], columns[i]];
+  saveColumnOrder();
+  renderBoard();
+}
+
+function reorderColumn(srcId, targetId) {
+  if (srcId === targetId) return;
+  const srcIdx = columns.findIndex(c => c.id === srcId);
+  const tgtIdx = columns.findIndex(c => c.id === targetId);
+  if (srcIdx === -1 || tgtIdx === -1) return;
+  const [moved] = columns.splice(srcIdx, 1);
+  const newTgt = columns.findIndex(c => c.id === targetId);
+  columns.splice(srcIdx < tgtIdx ? newTgt + 1 : newTgt, 0, moved);
+  saveColumnOrder();
+  renderBoard();
+}
+
 // ── board ────────────────────────────────────────────────────
 function renderBoard() {
   const board = document.getElementById("board");
   board.innerHTML = "";
 
-  columns.forEach(col => {
+  columns.forEach((col, colIndex) => {
     let colOpps = opps.filter(o => o.stage === col.id);
     if (col.id === "todo") {
       colOpps = [...colOpps].sort((a, b) =>
@@ -2611,11 +2679,33 @@ function renderBoard() {
     header.className = "column-header";
     header.innerHTML = `
       <span class="column-title">${col.label}</span>
-      <div style="display:flex;align-items:center;gap:6px">
+      <div style="display:flex;align-items:center;gap:5px">
+        <button class="col-move-btn" data-dir="-1" title="Mover coluna para a esquerda" ${colIndex === 0 ? 'disabled' : ''}>◀</button>
+        <button class="col-move-btn" data-dir="1" title="Mover coluna para a direita" ${colIndex === columns.length - 1 ? 'disabled' : ''}>▶</button>
         <span class="column-count">${colOpps.length}</span>
         <button class="col-add-btn" title="Adicionar vaga">+</button>
       </div>`;
     header.querySelector(".col-add-btn").addEventListener("click", () => openForm(col.id));
+    header.querySelectorAll(".col-move-btn").forEach(btn =>
+      btn.addEventListener("click", () => moveColumn(col.id, parseInt(btn.dataset.dir, 10)))
+    );
+
+    // Arrastar a coluna pelo cabeçalho para reordenar (desktop)
+    header.setAttribute("draggable", "true");
+    header.addEventListener("dragstart", e => {
+      draggedColId = col.id;
+      draggedId = null;
+      e.dataTransfer.effectAllowed = "move";
+      try { e.dataTransfer.setData("text/plain", col.id); } catch (_) {}
+      try { e.dataTransfer.setDragImage(colEl, 20, 20); } catch (_) {}
+      setTimeout(() => colEl.classList.add("col-dragging"), 0);
+    });
+    header.addEventListener("dragend", () => {
+      draggedColId = null;
+      document.querySelectorAll(".col-drop-target").forEach(c => c.classList.remove("col-drop-target"));
+      document.querySelectorAll(".col-dragging").forEach(c => c.classList.remove("col-dragging"));
+    });
+
     colEl.appendChild(header);
 
     colOpps.forEach(opp => {
@@ -2632,6 +2722,14 @@ function renderBoard() {
 
     // column-level dragover/drop (empty area or between cards)
     colEl.addEventListener("dragover", e => {
+      if (draggedColId != null) {
+        e.preventDefault();
+        if (col.id !== draggedColId) {
+          document.querySelectorAll(".col-drop-target").forEach(c => c.classList.remove("col-drop-target"));
+          colEl.classList.add("col-drop-target");
+        }
+        return;
+      }
       e.preventDefault();
       if (dropTargetId == null) {
         // hovering empty column or below all cards
@@ -2644,12 +2742,14 @@ function renderBoard() {
     colEl.addEventListener("dragleave", e => {
       if (!colEl.contains(e.relatedTarget)) {
         colEl.classList.remove("drag-over");
+        colEl.classList.remove("col-drop-target");
         dropTargetId = null;
       }
     });
 
     colEl.addEventListener("drop", e => {
       e.preventDefault();
+      if (draggedColId != null) { reorderColumn(draggedColId, col.id); return; }
       if (draggedId == null) return;
       if (dropTargetId != null) return; // handled by card's drop
       moveTo(draggedId, col.id, null, "after");
@@ -3059,6 +3159,7 @@ function saveAndGenerateResume() {
 }
 
 patchMissingFit();
+applyColumnOrder();
 renderFunnel();
 renderBoard();
 updateTopbarCount();
