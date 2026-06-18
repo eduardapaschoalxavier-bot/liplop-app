@@ -974,116 +974,6 @@
     .hero-chip.hc-good  { background:#1c2200; color:#a3e635; border-color:#4d7c0f; }
     .hero-chip.hc-mid   { background:#1f1400; color:#f59e0b; border-color:#92400e; }
 
-    /* Ranking */
-    .ranking-wrap {
-      max-width: 780px;
-      margin: 0 auto;
-    }
-
-    .ranking-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-
-    .ranking-header h2 {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .ranking-header p {
-      font-size: 0.8rem;
-      color: var(--dim);
-    }
-
-    .ranking-row {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px 18px;
-      margin-bottom: 8px;
-      cursor: pointer;
-      transition: border-color 0.15s, background 0.15s;
-    }
-
-    .ranking-row:hover {
-      border-color: var(--rose-s);
-      background: var(--surface);
-    }
-
-    .ranking-pos {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--dim);
-      width: 22px;
-      text-align: right;
-      flex-shrink: 0;
-    }
-
-    .ranking-pos.top3 { color: var(--gold); }
-
-    .ranking-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .ranking-company {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .ranking-role {
-      font-size: 0.75rem;
-      color: var(--mid);
-      margin-top: 2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .ranking-bar-wrap {
-      flex: 1;
-      height: 6px;
-      background: var(--border);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    .ranking-bar {
-      height: 100%;
-      border-radius: 3px;
-      transition: width 0.5s ease;
-    }
-
-    .ranking-pct {
-      font-size: 0.85rem;
-      font-weight: 700;
-      width: 52px;
-      text-align: right;
-      flex-shrink: 0;
-    }
-
-    .ranking-stage-tag {
-      font-size: 0.68rem;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 5px;
-      background: var(--card);
-      color: var(--mid);
-      border: 1px solid var(--border);
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
     /* Funnel */
     .funnel {
       display: flex;
@@ -2057,12 +1947,6 @@
       </svg>
       Entrevistas
     </button>
-    <button class="tab-btn" onclick="switchTab('ranking')">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M8 2l1.5 3.5L13 6l-2.5 2.5.5 3.5L8 10.5 5 12l.5-3.5L3 6l3.5-.5z"/>
-      </svg>
-      Ranking
-    </button>
   </nav>
 
   <div class="topbar-right" style="display:flex;align-items:center;gap:8px">
@@ -2204,10 +2088,6 @@
   <div id="marca-wrap" style="max-width:720px;margin:0 auto;padding:24px 16px 60px"></div>
 </div>
 
-<!-- RANKING TAB -->
-<div class="tab-view" id="tab-ranking">
-  <div class="ranking-wrap" id="ranking"></div>
-</div>
 
 <!-- Form modal -->
 <div class="form-overlay" id="form-overlay" onclick="closeForm(event)">
@@ -2416,88 +2296,29 @@ function isAdmin() {
 const DEFAULT_FIT = {1:85,2:78,3:62};
 
 const defaultOpps = [
-  // ── Para Aplicar ──
+  // Cartões de EXEMPLO (placeholder). O Liplop não busca vagas automaticamente —
+  // estes existem só para mostrar o formato. O usuário adiciona/edita/exclui.
   {
     id: 1,
-    company: "Nubank",
-    role: "Senior Partner Growth Manager",
-    status: "Pesquisando contatos internos",
+    company: "Nome da empresa",
+    role: "Cargo da vaga",
+    status: "Exemplo",
     stage: "todo",
-    fit: 88,
-    link: "https://www.linkedin.com/jobs/",
-    next: "Buscar indicação interna antes de aplicar",
-    notes: "Vaga com fit alto. Testar o Analisar Fit com a descrição completa antes de aplicar."
+    fit: null,
+    link: "",
+    next: "Este é um cartão de exemplo — clique para editar ou no ✕ para excluir.",
+    notes: "O Liplop não busca vagas sozinho. Adicione as suas pelo botão +, cole a descrição da vaga e use 'Analisar Fit' para ver sua compatibilidade."
   },
   {
     id: 2,
-    company: "Pipefy",
-    role: "Account Executive, Enterprise",
-    status: "Analisando requisitos",
+    company: "Nome da empresa",
+    role: "Cargo da vaga",
+    status: "Exemplo",
     stage: "todo",
-    fit: 81,
-    link: "https://www.linkedin.com/jobs/",
-    next: "Revisar currículo antes de aplicar",
-    notes: "Empresa com ótima reputação no mercado SaaS. Checar cultura antes de aplicar."
-  },
-  {
-    id: 3,
-    company: "Gupy",
-    role: "Regional Sales Manager",
-    status: "Pesquisando gestor da área",
-    stage: "todo",
-    fit: 74,
-    link: "https://www.linkedin.com/jobs/",
-    next: "Conectar com alguém da equipe de vendas no LinkedIn",
-    notes: "Fit sólido — focar nos pontos fortes em gestão de pipeline."
-  },
-  // ── Aplicada ──
-  {
-    id: 4,
-    company: "Vtex",
-    role: "Partner Success Manager, LATAM",
-    status: "CV enviado pelo site",
-    stage: "applied",
-    fit: 83,
-    link: "https://www.linkedin.com/jobs/",
-    next: "Follow-up com recrutadora em 5 dias úteis",
-    notes: "Vaga com foco em LATAM — destacar experiência regional."
-  },
-  {
-    id: 5,
-    company: "Dock",
-    role: "Senior Account Executive",
-    status: "Aplicada via indicação",
-    stage: "applied",
-    fit: 79,
-    link: "https://www.linkedin.com/jobs/",
-    next: "Agradecer contato e pedir update sobre processo",
-    notes: "Indicação de ex-colega. Processo costuma ser rápido."
-  },
-  // ── Entrevista Agendada ──
-  {
-    id: 6,
-    company: "Nuvemshop",
-    role: "Head of Partnerships",
-    status: "Call com RH agendada",
-    stage: "recruiter",
-    fit: 85,
-    link: "https://www.linkedin.com/jobs/",
-    contacts: [{ name: "Carla Mendes", role: "Talent Acquisition", linkedin: "https://www.linkedin.com/in/" }],
-    next: "Preparar storytelling sobre resultados em parcerias",
-    notes: "Entrevista marcada para essa semana. Pesquisar cultura e valores da empresa."
-  },
-  // ── Oferta ──
-  {
-    id: 7,
-    company: "Creditas",
-    role: "VP of Sales",
-    status: "Oferta recebida — em análise",
-    stage: "offer",
-    fit: 90,
-    link: "https://www.linkedin.com/jobs/",
-    contacts: [{ name: "Marcos Souza", role: "Chief Revenue Officer", linkedin: "https://www.linkedin.com/in/" }],
-    next: "Negociar pacote de benefícios e salário",
-    notes: "Oferta dentro do esperado. Avaliar pacote completo antes de aceitar."
+    fit: null,
+    link: "",
+    next: "Arraste os cartões entre as colunas conforme seu processo evolui.",
+    notes: "Cartão de exemplo. Adicione suas próprias vagas para começar."
   }
 ];
 
@@ -3241,7 +3062,7 @@ function switchTab(tab) {
   _currentTab = tab;
 
   // Esconde todas as abas explicitamente
-  ['analyzer','kanban','ranking','interview','marca','metodo','tarefas','perfil','vagas'].forEach(id => {
+  ['analyzer','kanban','interview','marca','metodo','tarefas','perfil','vagas'].forEach(id => {
     const el = document.getElementById('tab-' + id);
     if (el) { el.style.display = 'none'; el.classList.remove('active'); }
   });
@@ -3261,7 +3082,6 @@ function switchTab(tab) {
 
   // Renderiza conteúdo da aba
   if (tab === 'kanban')    { renderFunnel(); renderBoard(); }
-  if (tab === 'ranking')   renderRanking();
   if (tab === 'analyzer')  initAnalyzer();
   if (tab === 'interview') renderInterviewTab();
   if (tab === 'marca')     renderMarcaTab();
@@ -3269,69 +3089,6 @@ function switchTab(tab) {
   if (tab === 'tarefas')   renderTarefasTab(); // aba Calendário
   if (tab === 'perfil')    renderPerfilTab();
   if (tab === 'vagas')     renderVagasTab();
-}
-
-// ── Ranking ──────────────────────────────────────────────────
-const stageLabel = {
-  todo:      'Para Aplicar',
-  applied:   'Aplicada',
-  recruiter: 'Entrevista Agendada',
-  waiting:   'Aguardando Retorno',
-  decision:  'Entrevista Decisor',
-  offer:     'Oferta',
-  lost:      'Lost'
-};
-
-function rankingBarColor(fit) {
-  if (fit >= 85) return '#22c55e';
-  if (fit >= 70) return '#a3e635';
-  if (fit >= 55) return '#f59e0b';
-  return '#f87171';
-}
-
-function renderRanking() {
-  const sorted = [...opps]
-    .filter(o => o.fit != null)
-    .sort((a, b) => (b.fit ?? 0) - (a.fit ?? 0));
-
-  const noFit = opps.filter(o => o.fit == null);
-
-  const wrap = document.getElementById('ranking');
-
-  let html = `
-    <div class="ranking-header">
-      <div>
-        <h2>Ranking de Compatibilidade</h2>
-        <p>${sorted.length} vagas ordenadas por % de fit com o seu perfil</p>
-      </div>
-    </div>`;
-
-  sorted.forEach((opp, i) => {
-    const pos = i + 1;
-    const color = rankingBarColor(opp.fit);
-    const isTop3 = pos <= 3 ? ' top3' : '';
-    const medal = pos === 1 ? '🥇' : pos === 2 ? '🥈' : pos === 3 ? '🥉' : pos;
-    const stage = stageLabel[opp.stage] || opp.stage;
-    html += `
-      <div class="ranking-row" onclick="openModal(opps.find(o=>o.id===${opp.id}))">
-        <div class="ranking-pos${isTop3}">${medal}</div>
-        <div class="ranking-info">
-          <div class="ranking-company">${opp.company}</div>
-          <div class="ranking-role">${opp.role}</div>
-        </div>
-        <div class="ranking-bar-wrap">
-          <div class="ranking-bar" style="width:${opp.fit}%;background:${color}"></div>
-        </div>
-        <div class="ranking-pct" style="color:${color}">${opp.fit}%</div>
-        <div class="ranking-stage-tag">${stage}</div>
-      </div>`;
-  });
-
-  if (noFit.length) {
-    html += `<p style="font-size:0.75rem;color:var(--dim);margin-top:16px">+ ${noFit.length} vaga(s) sem % definido</p>`;
-  }
-
-  wrap.innerHTML = html;
 }
 
 function updateTopbarCount() {
@@ -4523,7 +4280,6 @@ function renderMetodoTab() {
     { label: 'Construa presença',   sub: 'Marca',       tab: 'marca',    icon: '◈', color: '#f472b6' },
     { label: 'Gerencie o pipeline', sub: 'Kanban',       tab: 'kanban',   icon: '▦', color: '#63b3ed' },
     { label: 'Prepare entrevistas', sub: 'Entrevistas',  tab: 'interview',icon: '◷', color: '#a78bfa' },
-    { label: 'Veja seus resultados',sub: 'Ranking',      tab: 'ranking',  icon: '◆', color: '#68d391' },
   ];
 
   wrap.innerHTML = `
