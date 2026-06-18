@@ -974,116 +974,6 @@
     .hero-chip.hc-good  { background:#1c2200; color:#a3e635; border-color:#4d7c0f; }
     .hero-chip.hc-mid   { background:#1f1400; color:#f59e0b; border-color:#92400e; }
 
-    /* Ranking */
-    .ranking-wrap {
-      max-width: 780px;
-      margin: 0 auto;
-    }
-
-    .ranking-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-
-    .ranking-header h2 {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .ranking-header p {
-      font-size: 0.8rem;
-      color: var(--dim);
-    }
-
-    .ranking-row {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px 18px;
-      margin-bottom: 8px;
-      cursor: pointer;
-      transition: border-color 0.15s, background 0.15s;
-    }
-
-    .ranking-row:hover {
-      border-color: var(--rose-s);
-      background: var(--surface);
-    }
-
-    .ranking-pos {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--dim);
-      width: 22px;
-      text-align: right;
-      flex-shrink: 0;
-    }
-
-    .ranking-pos.top3 { color: var(--gold); }
-
-    .ranking-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .ranking-company {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .ranking-role {
-      font-size: 0.75rem;
-      color: var(--mid);
-      margin-top: 2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .ranking-bar-wrap {
-      flex: 1;
-      height: 6px;
-      background: var(--border);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    .ranking-bar {
-      height: 100%;
-      border-radius: 3px;
-      transition: width 0.5s ease;
-    }
-
-    .ranking-pct {
-      font-size: 0.85rem;
-      font-weight: 700;
-      width: 52px;
-      text-align: right;
-      flex-shrink: 0;
-    }
-
-    .ranking-stage-tag {
-      font-size: 0.68rem;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 5px;
-      background: var(--card);
-      color: var(--mid);
-      border: 1px solid var(--border);
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
     /* Funnel */
     .funnel {
       display: flex;
@@ -2043,12 +1933,6 @@
   </a>
 
   <nav class="tab-nav">
-    <button class="tab-btn active" onclick="switchTab('metodo')">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M2 4h12M2 8h8M2 12h10"/>
-      </svg>
-      Método
-    </button>
     <button class="tab-btn" onclick="switchTab('perfil')">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
         <circle cx="8" cy="5" r="3"/>
@@ -2069,7 +1953,7 @@
         <path d="M5 7h6M5 10h4"/>
         <path d="M10 1v4M6 1v4"/>
       </svg>
-      Vagas
+      Keywords
     </button>
     <button class="tab-btn" onclick="switchTab('marca')">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -2101,12 +1985,6 @@
         <path d="M11 9.5l1.5 1.5-1.5 1.5"/>
       </svg>
       Entrevistas
-    </button>
-    <button class="tab-btn" onclick="switchTab('ranking')">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M8 2l1.5 3.5L13 6l-2.5 2.5.5 3.5L8 10.5 5 12l.5-3.5L3 6l3.5-.5z"/>
-      </svg>
-      Ranking
     </button>
   </nav>
 
@@ -2228,10 +2106,6 @@
 </div>
 
 <!-- MARCA TAB -->
-<!-- MÉTODO TAB -->
-<div class="tab-view active" id="tab-metodo" style="display:block">
-  <div id="metodo-wrap" style="max-width:720px;margin:0 auto;padding:24px 16px 60px"></div>
-</div>
 
 <div class="tab-view" id="tab-tarefas">
   <div id="tarefas-wrap" style="max-width:860px;margin:0 auto;padding:24px 16px 60px"></div>
@@ -2249,10 +2123,6 @@
   <div id="marca-wrap" style="max-width:720px;margin:0 auto;padding:24px 16px 60px"></div>
 </div>
 
-<!-- RANKING TAB -->
-<div class="tab-view" id="tab-ranking">
-  <div class="ranking-wrap" id="ranking"></div>
-</div>
 
 <!-- Form modal -->
 <div class="form-overlay" id="form-overlay" onclick="closeForm(event)">
@@ -2461,88 +2331,29 @@ function isAdmin() {
 const DEFAULT_FIT = {1:85,2:78,3:62};
 
 const defaultOpps = [
-  // ── Para Aplicar ──
+  // Cartões de EXEMPLO (placeholder). O Liplop não busca vagas automaticamente —
+  // estes existem só para mostrar o formato. O usuário adiciona/edita/exclui.
   {
     id: 1,
-    company: "Nubank",
-    role: "Senior Partner Growth Manager",
-    status: "Pesquisando contatos internos",
+    company: "Nome da empresa",
+    role: "Cargo da vaga",
+    status: "Exemplo",
     stage: "todo",
-    fit: 88,
-    link: "https://www.linkedin.com/jobs/",
-    next: "Buscar indicação interna antes de aplicar",
-    notes: "Vaga com fit alto. Testar o Analisar Fit com a descrição completa antes de aplicar."
+    fit: null,
+    link: "",
+    next: "Este é um cartão de exemplo — clique para editar ou no ✕ para excluir.",
+    notes: "O Liplop não busca vagas sozinho. Adicione as suas pelo botão +, cole a descrição da vaga e use 'Analisar Fit' para ver sua compatibilidade."
   },
   {
     id: 2,
-    company: "Pipefy",
-    role: "Account Executive, Enterprise",
-    status: "Analisando requisitos",
+    company: "Nome da empresa",
+    role: "Cargo da vaga",
+    status: "Exemplo",
     stage: "todo",
-    fit: 81,
-    link: "https://www.linkedin.com/jobs/",
-    next: "Revisar currículo antes de aplicar",
-    notes: "Empresa com ótima reputação no mercado SaaS. Checar cultura antes de aplicar."
-  },
-  {
-    id: 3,
-    company: "Gupy",
-    role: "Regional Sales Manager",
-    status: "Pesquisando gestor da área",
-    stage: "todo",
-    fit: 74,
-    link: "https://www.linkedin.com/jobs/",
-    next: "Conectar com alguém da equipe de vendas no LinkedIn",
-    notes: "Fit sólido — focar nos pontos fortes em gestão de pipeline."
-  },
-  // ── Aplicada ──
-  {
-    id: 4,
-    company: "Vtex",
-    role: "Partner Success Manager, LATAM",
-    status: "CV enviado pelo site",
-    stage: "applied",
-    fit: 83,
-    link: "https://www.linkedin.com/jobs/",
-    next: "Follow-up com recrutadora em 5 dias úteis",
-    notes: "Vaga com foco em LATAM — destacar experiência regional."
-  },
-  {
-    id: 5,
-    company: "Dock",
-    role: "Senior Account Executive",
-    status: "Aplicada via indicação",
-    stage: "applied",
-    fit: 79,
-    link: "https://www.linkedin.com/jobs/",
-    next: "Agradecer contato e pedir update sobre processo",
-    notes: "Indicação de ex-colega. Processo costuma ser rápido."
-  },
-  // ── Entrevista Agendada ──
-  {
-    id: 6,
-    company: "Nuvemshop",
-    role: "Head of Partnerships",
-    status: "Call com RH agendada",
-    stage: "recruiter",
-    fit: 85,
-    link: "https://www.linkedin.com/jobs/",
-    contacts: [{ name: "Carla Mendes", role: "Talent Acquisition", linkedin: "https://www.linkedin.com/in/" }],
-    next: "Preparar storytelling sobre resultados em parcerias",
-    notes: "Entrevista marcada para essa semana. Pesquisar cultura e valores da empresa."
-  },
-  // ── Oferta ──
-  {
-    id: 7,
-    company: "Creditas",
-    role: "VP of Sales",
-    status: "Oferta recebida — em análise",
-    stage: "offer",
-    fit: 90,
-    link: "https://www.linkedin.com/jobs/",
-    contacts: [{ name: "Marcos Souza", role: "Chief Revenue Officer", linkedin: "https://www.linkedin.com/in/" }],
-    next: "Negociar pacote de benefícios e salário",
-    notes: "Oferta dentro do esperado. Avaliar pacote completo antes de aceitar."
+    fit: null,
+    link: "",
+    next: "Arraste os cartões entre as colunas conforme seu processo evolui.",
+    notes: "Cartão de exemplo. Adicione suas próprias vagas para começar."
   }
 ];
 
@@ -2699,13 +2510,6 @@ function buildCard(opp) {
       <span class="card-fit ${fitClass(opp.fit ?? 0)}">${opp.fit != null ? opp.fit + '% fit' : '— %'}</span>
       ${linkBtn}
     </div>
-    <div class="card-next">
-      <strong>Próximo passo</strong>
-      ${opp.next ? `<div style="margin-bottom:8px">${opp.next}</div>` : ''}
-      ${opp.stage === 'todo'      ? `<button class="card-action-btn primary card-btn-resume">✨ Gerar currículo adaptado</button>` : ''}
-      ${opp.stage === 'applied'   ? `<button class="card-action-btn ghost card-btn-contacts">Buscar contatos no LinkedIn</button>` : ''}
-      ${opp.stage === 'recruiter' ? `<button class="card-action-btn ghost card-btn-interview">Preparação para entrevista</button>` : ''}
-    </div>
     ${(opp.contacts || []).length ? `
       <div class="card-contacts">
         ${(opp.contacts).map(c => `
@@ -2714,26 +2518,6 @@ function buildCard(opp) {
           </a>`).join('')}
       </div>` : ''}
   `;
-
-  const btnResume = card.querySelector(".card-btn-resume");
-  if (btnResume) btnResume.addEventListener("click", e => {
-    e.stopPropagation();
-    openModal(opp);
-    setTimeout(() => generateResume(), 250);
-  });
-
-  const btnContacts = card.querySelector(".card-btn-contacts");
-  if (btnContacts) btnContacts.addEventListener("click", e => {
-    e.stopPropagation();
-    openModal(opp);
-    setTimeout(() => { scrollToNetwork(); findContacts(); }, 250);
-  });
-
-  const btnInterview = card.querySelector(".card-btn-interview");
-  if (btnInterview) btnInterview.addEventListener("click", e => {
-    e.stopPropagation();
-    switchTab('interview');
-  });
 
   card.querySelector(".card-delete").addEventListener("click", e => {
     e.stopPropagation();
@@ -3280,13 +3064,13 @@ renderBoard();
 updateTopbarCount();
 
 // ── Tab switching ────────────────────────────────────────────
-let _currentTab = 'metodo';
+let _currentTab = 'kanban';
 
 function switchTab(tab) {
   _currentTab = tab;
 
   // Esconde todas as abas explicitamente
-  ['analyzer','kanban','ranking','interview','marca','metodo','tarefas','perfil','vagas'].forEach(id => {
+  ['analyzer','kanban','interview','marca','tarefas','perfil','vagas'].forEach(id => {
     const el = document.getElementById('tab-' + id);
     if (el) { el.style.display = 'none'; el.classList.remove('active'); }
   });
@@ -3306,77 +3090,12 @@ function switchTab(tab) {
 
   // Renderiza conteúdo da aba
   if (tab === 'kanban')    { renderFunnel(); renderBoard(); }
-  if (tab === 'ranking')   renderRanking();
   if (tab === 'analyzer')  initAnalyzer();
   if (tab === 'interview') renderInterviewTab();
   if (tab === 'marca')     renderMarcaTab();
-  if (tab === 'metodo')    renderMetodoTab();
   if (tab === 'tarefas')   renderTarefasTab(); // aba Calendário
   if (tab === 'perfil')    renderPerfilTab();
   if (tab === 'vagas')     renderVagasTab();
-}
-
-// ── Ranking ──────────────────────────────────────────────────
-const stageLabel = {
-  todo:      'Para Aplicar',
-  applied:   'Aplicada',
-  recruiter: 'Entrevista Agendada',
-  waiting:   'Aguardando Retorno',
-  decision:  'Entrevista Decisor',
-  offer:     'Oferta',
-  lost:      'Lost'
-};
-
-function rankingBarColor(fit) {
-  if (fit >= 85) return '#22c55e';
-  if (fit >= 70) return '#a3e635';
-  if (fit >= 55) return '#f59e0b';
-  return '#f87171';
-}
-
-function renderRanking() {
-  const sorted = [...opps]
-    .filter(o => o.fit != null)
-    .sort((a, b) => (b.fit ?? 0) - (a.fit ?? 0));
-
-  const noFit = opps.filter(o => o.fit == null);
-
-  const wrap = document.getElementById('ranking');
-
-  let html = `
-    <div class="ranking-header">
-      <div>
-        <h2>Ranking de Compatibilidade</h2>
-        <p>${sorted.length} vagas ordenadas por % de fit com o seu perfil</p>
-      </div>
-    </div>`;
-
-  sorted.forEach((opp, i) => {
-    const pos = i + 1;
-    const color = rankingBarColor(opp.fit);
-    const isTop3 = pos <= 3 ? ' top3' : '';
-    const medal = pos === 1 ? '🥇' : pos === 2 ? '🥈' : pos === 3 ? '🥉' : pos;
-    const stage = stageLabel[opp.stage] || opp.stage;
-    html += `
-      <div class="ranking-row" onclick="openModal(opps.find(o=>o.id===${opp.id}))">
-        <div class="ranking-pos${isTop3}">${medal}</div>
-        <div class="ranking-info">
-          <div class="ranking-company">${opp.company}</div>
-          <div class="ranking-role">${opp.role}</div>
-        </div>
-        <div class="ranking-bar-wrap">
-          <div class="ranking-bar" style="width:${opp.fit}%;background:${color}"></div>
-        </div>
-        <div class="ranking-pct" style="color:${color}">${opp.fit}%</div>
-        <div class="ranking-stage-tag">${stage}</div>
-      </div>`;
-  });
-
-  if (noFit.length) {
-    html += `<p style="font-size:0.75rem;color:var(--dim);margin-top:16px">+ ${noFit.length} vaga(s) sem % definido</p>`;
-  }
-
-  wrap.innerHTML = html;
 }
 
 function updateTopbarCount() {
@@ -4623,64 +4342,6 @@ Gere exatamente 3 dicas de empresa, 3 dicas de cargo/senioridade, 3 evites. Seja
   }
 }
 
-// ── Aba Método ───────────────────────────────────────────────────
-function renderMetodoTab() {
-  const wrap = document.getElementById('metodo-wrap');
-
-  // Fluxo
-  const fluxo = [
-    { label: 'Analise as vagas',    sub: 'Análise',     tab: 'analyzer', icon: '◎', color: '#c9974a' },
-    { label: 'Construa presença',   sub: 'Marca',       tab: 'marca',    icon: '◈', color: '#f472b6' },
-    { label: 'Gerencie o pipeline', sub: 'Kanban',       tab: 'kanban',   icon: '▦', color: '#63b3ed' },
-    { label: 'Prepare entrevistas', sub: 'Entrevistas',  tab: 'interview',icon: '◷', color: '#a78bfa' },
-    { label: 'Veja seus resultados',sub: 'Ranking',      tab: 'ranking',  icon: '◆', color: '#68d391' },
-  ];
-
-  wrap.innerHTML = `
-    <!-- Hero -->
-    <div style="position:relative;overflow:hidden;padding:48px 32px 40px;margin-bottom:32px;border-radius:18px;border:1px solid rgba(224,68,120,0.14);background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(224,68,120,0.08) 0%,transparent 70%),var(--surface);text-align:center">
-      <div style="position:absolute;top:-60px;left:30%;width:420px;height:280px;background:radial-gradient(ellipse at center,rgba(224,68,120,0.18) 0%,transparent 70%);border-radius:50%;pointer-events:none;animation:heroGlow 4s ease-in-out infinite;transform-origin:0 0"></div>
-      <div style="position:relative;z-index:2">
-        <div style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;background:rgba(224,68,120,0.12);border:1px solid rgba(224,68,120,0.28);border-radius:20px;font-size:0.72rem;font-weight:700;color:var(--rose);letter-spacing:.04em;text-transform:uppercase;margin-bottom:20px"><span style="font-size:0.72rem;line-height:1;vertical-align:middle">✦</span> Método Liplop</div>
-        <h2 style="font-size:2rem;font-weight:800;line-height:1.15;letter-spacing:-.03em;color:var(--text);margin-bottom:14px">Esta é sua central de comando.<br><span style="background:linear-gradient(90deg,#E04478,#C9974A,#E04478);background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradientText 4s linear infinite">Comece por aqui.</span></h2>
-        <p style="font-size:0.9rem;color:var(--mid);line-height:1.7;max-width:480px;margin:0 auto">O Liplop funciona em duas frentes ao mesmo tempo: você aplica para as vagas certas enquanto sua marca atrai as melhores. Abaixo você entende o método, vê o fluxo completo e sabe exatamente o que fazer hoje.</p>
-      </div>
-    </div>
-
-    <!-- Duas frentes -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:32px">
-      <div style="padding:20px;border-radius:14px;border:1px solid rgba(244,114,182,0.2);background:rgba(244,114,182,0.04)">
-        <div style="font-size:10px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Inbound · Marca</div>
-        <div style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:6px">As vagas vêm até você</div>
-        <div style="font-size:12px;color:var(--mid);line-height:1.6">Construa presença no LinkedIn com projeto real, tom de voz próprio e consistência. Recrutadores passam a te encontrar.</div>
-      </div>
-      <div style="padding:20px;border-radius:14px;border:1px solid rgba(99,179,237,0.2);background:rgba(99,179,237,0.04)">
-        <div style="font-size:10px;font-weight:700;color:#63b3ed;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Outbound · Pipeline</div>
-        <div style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:6px">Você vai atrás das certas</div>
-        <div style="font-size:12px;color:var(--mid);line-height:1.6">Analise fit com IA, adapte currículo, gerencie aplicações e chegue preparado em cada entrevista.</div>
-      </div>
-    </div>
-
-    <!-- Fluxo -->
-    <div style="margin-bottom:32px">
-      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px">O fluxo do método</div>
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;align-items:center">
-        ${fluxo.map((s, i) => `
-          <div style="display:flex;align-items:center;flex-shrink:0;min-width:0">
-            <div onclick="switchTab('${s.tab}')" style="display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;padding:12px 8px;border-radius:12px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);width:100%;transition:border-color .15s;text-align:center"
-              onmouseover="this.style.borderColor='${s.color}';this.style.background='rgba(255,255,255,0.05)'"
-              onmouseout="this.style.borderColor='rgba(255,255,255,0.07)';this.style.background='rgba(255,255,255,0.02)'">
-              <div style="font-size:22px;color:${s.color}">${s.icon}</div>
-              <div style="font-size:11px;font-weight:700;color:var(--text);line-height:1.3">${s.label}</div>
-              <div style="font-size:10px;color:var(--dim)">${s.sub}</div>
-            </div>
-          </div>`).join('')}
-      </div>
-    </div>
-
-    `;
-}
-
 // ── Aba Perfil & Vagas ───────────────────────────────────────────
 const PROFILE_OBJECTIVES_KEY = 'liplop-profile-objectives-v1';
 const PROFILE_ROLES_KEY      = 'liplop-profile-roles-v1';
@@ -4841,7 +4502,7 @@ function renderVagasTab() {
 
   wrap.innerHTML = `
     <div style="margin-bottom:24px">
-      <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">✦ Vagas para você</div>
+      <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">✦ Keywords</div>
       <h2 style="font-size:1.6rem;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.2">Palavras-chave<br>para buscar vagas</h2>
       <p style="font-size:13px;color:var(--mid);line-height:1.6;margin-bottom:16px">A IA analisa seu perfil e sugere os melhores termos de busca. Clique em LinkedIn, Google Jobs ou Gupy para ver vagas reais abertas agora.</p>
       <button onclick="searchJobs()" id="btn-search-jobs" style="padding:12px 24px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
@@ -6073,7 +5734,7 @@ function saveAnalysisToKanban() {
 }
 
 // Inicializa ao carregar — chamado depois de todas as declarações
-switchTab('metodo');
+switchTab('kanban');
 initAnalyzer();
 </script>
 </div><!-- /page-content -->
