@@ -1928,8 +1928,8 @@
     <div id="resume-modal-content" style="flex:1;overflow-y:auto;background:#fff;border-radius:10px;padding:0;box-shadow:0 4px 32px rgba(0,0,0,0.4);min-height:0"></div>
     <!-- Barra de ações fixa sempre visível -->
     <div id="resume-action-bar" style="display:none;flex-shrink:0;gap:10px;margin-top:12px">
-      <button onclick="downloadResumePDF()" style="flex:1;padding:13px;background:linear-gradient(135deg,#e91e8c,#f472b6);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(233,30,140,0.3)">⬇ Baixar PDF</button>
-      <button onclick="generateResume(true)" style="flex:1;padding:13px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#e2e8f0;font-size:14px;font-weight:600;cursor:pointer">🔄 Gerar novamente</button>
+      <button onclick="downloadResumePDF()" style="flex:1;padding:13px;background:linear-gradient(135deg,#e91e8c,#f472b6);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(233,30,140,0.3)">⬇ Salvar como PDF</button>
+      <button id="btn-regen" onclick="runResumeRegen('')" style="flex:1;padding:13px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#e2e8f0;font-size:14px;font-weight:600;cursor:pointer">🔄 Gerar novamente</button>
     </div>
     <!-- Rodapé: feedback -->
     <div style="flex-shrink:0;margin-top:10px;border-top:1px solid rgba(255,255,255,0.07);padding-top:10px">
@@ -1938,12 +1938,13 @@
         <input id="resume-feedback" type="text" placeholder="Ex: coloque o cargo como Manager, destaque mais a experiência com parceiros..."
           style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 12px;color:#e2e8f0;font-size:0.82rem;outline:none"
           onkeydown="if(event.key==='Enter') regenerateWithFeedback()" />
-        <button onclick="regenerateWithFeedback()"
+        <button id="btn-refazer" onclick="regenerateWithFeedback()"
           style="padding:8px 16px;background:rgba(244,114,182,0.15);border:1px solid rgba(244,114,182,0.4);border-radius:8px;color:#f472b6;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap"
           onmouseover="this.style.background='rgba(244,114,182,0.25)'" onmouseout="this.style.background='rgba(244,114,182,0.15)'">
           Refazer →
         </button>
       </div>
+      <div id="resume-viewer-status" style="display:none;font-size:0.8rem;color:#f9a8d4;margin-bottom:8px;text-align:center;line-height:1.4"></div>
     </div>
   </div>
 </div>
@@ -3575,24 +3576,37 @@ Responda APENAS com o texto do currículo. Zero explicações, zero comentários
 let _resumeText = '';
 let _resumeOpp  = null;
 
+async function runResumeRegen(feedback) {
+  const refBtn   = document.getElementById('btn-refazer');
+  const regBtn   = document.getElementById('btn-regen');
+  const statusEl = document.getElementById('resume-viewer-status');
+  [refBtn, regBtn].forEach(b => { if (b) b.disabled = true; });
+  if (statusEl) { statusEl.style.display = 'block'; statusEl.style.color = '#f9a8d4'; statusEl.textContent = '⏳ Refazendo o currículo com IA… pode levar até ~30s.'; }
+  window._resumeFeedback = (feedback || '').trim() || null;
+  const ok = await generateResume(true);
+  [refBtn, regBtn].forEach(b => { if (b) b.disabled = false; });
+  if (statusEl) {
+    if (ok) { statusEl.style.display = 'none'; }
+    else { statusEl.style.color = '#f87171'; statusEl.textContent = '✗ Não consegui refazer agora. Tente de novo — se continuar, a IA pode estar temporariamente fora do ar.'; }
+  }
+}
+
 async function regenerateWithFeedback() {
-  const feedback = document.getElementById('resume-feedback').value.trim();
-  if (!feedback) { generateResume(true); return; }
-  // Append feedback instruction to the prompt via a flag picked up in generateResume
-  window._resumeFeedback = feedback;
-  document.getElementById('resume-feedback').value = '';
-  generateResume(true);
+  const input = document.getElementById('resume-feedback');
+  const fb = input ? input.value : '';
+  if (input) input.value = '';
+  await runResumeRegen(fb);
 }
 
 async function generateResume(retry = false) {
   const opp = _modalOpp;
-  if (!opp) return;
+  if (!opp) return false;
 
   const profile = localStorage.getItem(PROFILE_KEY);
   if (!profile) {
     document.getElementById('resume-gen-status').style.display = 'block';
     document.getElementById('resume-gen-status').textContent = '⚠ Configure seu perfil primeiro em Configurações.';
-    return;
+    return false;
   }
 
   // Lê o campo inline se estiver visível (pode ter sido editado agora)
@@ -3605,7 +3619,7 @@ async function generateResume(retry = false) {
   if (!jd) {
     document.getElementById('resume-gen-status').style.display = 'block';
     document.getElementById('resume-gen-status').textContent = '⚠ Cole a descrição da vaga no campo acima para gerar o currículo adaptado.';
-    return;
+    return false;
   }
 
   // Verifica cota (admin tem acesso ilimitado)
@@ -3734,9 +3748,11 @@ Responda APENAS com o texto do currículo. Zero explicações, zero comentários
     _resumeGenerated = true;
     incFreeCount();
     showResumeModal(opp, text);
+    return true;
   } catch(e) {
     st.style.display = 'block';
     st.textContent = '✗ Erro: ' + e.message;
+    return false;
   } finally {
     btn.disabled = false;
     btn.innerHTML = '✨ Gerar currículo adaptado para esta vaga';
@@ -3915,9 +3931,10 @@ function downloadResumePDF() {
     </head><body>
     <div style="max-width:780px;margin:0 auto;padding:28px 40px">${editedHTML}</div>
     <div class="no-print" style="max-width:780px;margin:20px auto;text-align:center;padding:16px;background:#fdf0f7;border-radius:8px;border:1px solid #f9c8e5">
-      <p style="color:#555;font-size:9pt;margin-bottom:12px">Ctrl+P / Cmd+P → Destino: <strong>Salvar como PDF</strong> → desmarque cabeçalhos → Salvar</p>
+      <p style="color:#555;font-size:9pt;margin-bottom:12px">Abrindo a janela de impressão… No campo <strong>Destino</strong>, escolha <strong>Salvar como PDF</strong> (desmarque cabeçalhos e rodapés).</p>
       <button onclick="window.print()" style="background:${color};color:#fff;border:none;padding:10px 32px;border-radius:6px;font-size:10pt;font-weight:700;cursor:pointer">⬇ Salvar como PDF</button>
     </div>
+    <script>window.addEventListener('load',function(){setTimeout(function(){window.print();},500);});<\/script>
     </body></html>`);
     win.document.close();
     return;
