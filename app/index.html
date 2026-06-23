@@ -3598,6 +3598,37 @@ async function regenerateWithFeedback() {
   await runResumeRegen(fb);
 }
 
+// Helper de IA com retry automático em falhas transitórias (rede, 5xx, 429).
+// Evita que um soluço momentâneo da API mostre erro pra quem está no momento crítico.
+async function callAI(body, tries = 3) {
+  let lastErr;
+  for (let i = 0; i < tries; i++) {
+    try {
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        const e = new Error(err.error || ('Erro no servidor (' + res.status + ')'));
+        e.status = res.status;
+        throw e;
+      }
+      const data = await res.json();
+      if (data.result == null) throw new Error('Resposta vazia da IA');
+      return data.result;
+    } catch (e) {
+      lastErr = e;
+      const st = e.status;
+      const permanente = st && st >= 400 && st < 500 && st !== 429; // auth/cota/request inválido — não adianta repetir
+      if (permanente || i === tries - 1) break;
+      await new Promise(r => setTimeout(r, 800 * (i + 1))); // backoff: 0.8s, 1.6s
+    }
+  }
+  throw lastErr;
+}
+
 async function generateResume(retry = false) {
   const opp = _modalOpp;
   if (!opp) return false;
@@ -3727,18 +3758,9 @@ Responda APENAS com o texto do currículo. Zero explicações, zero comentários
   window._resumeFeedback = null;
 
   try {
-    const res = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, json_mode: false })
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Erro no servidor');
-    }
-    const data = await res.json();
+    const result = await callAI({ prompt, json_mode: false });
     // Remove JSON wrapper se vier
-    let text = data.result || '';
+    let text = result || '';
     try { const parsed = JSON.parse(text); text = parsed.curriculo || parsed.resume || parsed.text || text; } catch(e) {}
     // Remove travessões que a IA insistir em usar
     text = text.replace(/—/g, '-').replace(/–/g, '-');
@@ -5745,20 +5767,8 @@ Responda SOMENTE com um JSON válido neste formato exato (sem markdown, sem text
 }`;
 
   try {
-    let raw;
-
-    // Sempre usa o backend Vercel
-    const res = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Erro no servidor (' + res.status + ')');
-    }
-    const data = await res.json();
-    raw = data.result;
+    // Backend Vercel, com retry automático em falhas transitórias
+    const raw = await callAI({ prompt });
     incFreeCount(); // só conta quando deu certo
 
     const json = JSON.parse(raw.replace(/^```json?\n?/, '').replace(/\n?```$/, ''));
@@ -5766,11 +5776,10 @@ Responda SOMENTE com um JSON válido neste formato exato (sem markdown, sem text
     _resumeGenerated = false; // reset ao fazer nova análise
     renderAnalysisResult(json);
   } catch(e) {
-    let msg = e.message;
-    if (msg.includes('quota') || msg.includes('billing')) {
-      msg = 'Cota da API esgotada. Acesse <a href="https://platform.openai.com/settings/billing" target="_blank" style="color:#f87171">platform.openai.com/billing</a> e adicione créditos (mín. $5). Cada análise custa ~$0,01.';
-    } else if (msg.includes('Incorrect API key') || msg.includes('invalid_api_key')) {
-      msg = 'Chave de API inválida. Clique em <strong>Chave de IA → Editar</strong> e cole a chave correta do <a href="https://platform.openai.com/api-keys" target="_blank" style="color:#f87171">painel da OpenAI</a>.';
+    const m = (e.message || '').toLowerCase();
+    let msg = 'A IA demorou ou veio incompleta. Tenta de novo — costuma funcionar na segunda. 🙏';
+    if (m.includes('quota') || m.includes('billing') || m.includes('credit')) {
+      msg = 'A IA está temporariamente indisponível. Já estamos verificando — tenta de novo em alguns minutos.';
     }
     showAnalyzeError(msg);
   } finally {
