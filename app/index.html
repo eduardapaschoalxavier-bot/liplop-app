@@ -1924,28 +1924,24 @@
         </div>
       </div>
     </div>
-    <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:8px">✏️ Clique em qualquer texto do currículo para editar diretamente.</div>
-    <div id="resume-modal-content" style="flex:1;overflow-y:auto;background:#fff;border-radius:10px;padding:0;box-shadow:0 4px 32px rgba(0,0,0,0.4);min-height:0"></div>
+    <div id="resume-edit-wrap" style="flex:1;min-height:0;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px">
+        <span style="font-size:12px;color:rgba(255,255,255,0.55);line-height:1.3">✏️ Este currículo é editável — clique em qualquer texto e digite para ajustar.</span>
+        <button id="resume-edit-btn" onclick="focusResumeEditor()"
+          title="Clique em qualquer texto do currículo para editar"
+          style="flex-shrink:0;display:flex;align-items:center;gap:6px;padding:8px 16px;background:linear-gradient(135deg,#e91e8c,#f472b6);border:none;border-radius:999px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 10px rgba(233,30,140,0.35);transition:transform .15s"
+          onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
+          ✏️ Editar
+        </button>
+      </div>
+      <div id="resume-modal-content" style="flex:1;overflow-y:auto;background:#fff;border-radius:10px;padding:0;box-shadow:0 4px 32px rgba(0,0,0,0.4);min-height:0;cursor:text"></div>
+    </div>
     <!-- Barra de ações fixa sempre visível -->
     <div id="resume-action-bar" style="display:none;flex-shrink:0;gap:10px;margin-top:12px">
       <button onclick="downloadResumePDF()" style="flex:1;padding:13px;background:linear-gradient(135deg,#e91e8c,#f472b6);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(233,30,140,0.3)">⬇ Salvar como PDF</button>
       <button id="btn-regen" onclick="runResumeRegen('')" style="flex:1;padding:13px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#e2e8f0;font-size:14px;font-weight:600;cursor:pointer">🔄 Gerar novamente</button>
     </div>
-    <!-- Rodapé: feedback -->
-    <div style="flex-shrink:0;margin-top:10px;border-top:1px solid rgba(255,255,255,0.07);padding-top:10px">
-      <div style="font-size:0.75rem;color:var(--dim);margin-bottom:6px">Quer ajustar algo? Descreva o que mudar:</div>
-      <div style="display:flex;gap:8px;margin-bottom:10px">
-        <input id="resume-feedback" type="text" placeholder="Ex: coloque o cargo como Manager, destaque mais a experiência com parceiros..."
-          style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 12px;color:#e2e8f0;font-size:0.82rem;outline:none"
-          onkeydown="if(event.key==='Enter') regenerateWithFeedback()" />
-        <button id="btn-refazer" onclick="regenerateWithFeedback()"
-          style="padding:8px 16px;background:rgba(244,114,182,0.15);border:1px solid rgba(244,114,182,0.4);border-radius:8px;color:#f472b6;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap"
-          onmouseover="this.style.background='rgba(244,114,182,0.25)'" onmouseout="this.style.background='rgba(244,114,182,0.15)'">
-          Refazer →
-        </button>
-      </div>
-      <div id="resume-viewer-status" style="display:none;font-size:0.8rem;color:#f9a8d4;margin-bottom:8px;text-align:center;line-height:1.4"></div>
-    </div>
+    <div id="resume-viewer-status" style="display:none;flex-shrink:0;margin-top:8px;font-size:0.8rem;color:#f9a8d4;text-align:center;line-height:1.4"></div>
   </div>
 </div>
 
@@ -3586,25 +3582,38 @@ let _resumeText = '';
 let _resumeOpp  = null;
 
 async function runResumeRegen(feedback) {
-  const refBtn   = document.getElementById('btn-refazer');
   const regBtn   = document.getElementById('btn-regen');
   const statusEl = document.getElementById('resume-viewer-status');
-  [refBtn, regBtn].forEach(b => { if (b) b.disabled = true; });
+  if (regBtn) regBtn.disabled = true;
   if (statusEl) { statusEl.style.display = 'block'; statusEl.style.color = '#f9a8d4'; statusEl.textContent = '⏳ Refazendo o currículo com IA… pode levar até ~30s.'; }
   window._resumeFeedback = (feedback || '').trim() || null;
   const ok = await generateResume(true);
-  [refBtn, regBtn].forEach(b => { if (b) b.disabled = false; });
+  if (regBtn) regBtn.disabled = false;
   if (statusEl) {
     if (ok) { statusEl.style.display = 'none'; }
     else { statusEl.style.color = '#f87171'; statusEl.textContent = '✗ Não consegui refazer agora. Tente de novo — se continuar, a IA pode estar temporariamente fora do ar.'; }
   }
 }
 
-async function regenerateWithFeedback() {
-  const input = document.getElementById('resume-feedback');
-  const fb = input ? input.value : '';
-  if (input) input.value = '';
-  await runResumeRegen(fb);
+// Foca o currículo no início e dá um pulso visual — deixa claro que dá pra digitar direto.
+function focusResumeEditor() {
+  const el = document.getElementById('resume-editable');
+  if (!el) return;
+  el.focus();
+  try {
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    range.collapse(true);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  } catch (e) {}
+  const box = document.getElementById('resume-modal-content');
+  if (box) {
+    box.style.transition = 'box-shadow .2s';
+    box.style.boxShadow = '0 0 0 3px rgba(233,30,140,0.6), 0 4px 32px rgba(0,0,0,0.4)';
+    setTimeout(() => { box.style.boxShadow = '0 4px 32px rgba(0,0,0,0.4)'; }, 800);
+  }
 }
 
 // Helper de IA com retry automático em falhas transitórias (rede, 5xx, 429).
