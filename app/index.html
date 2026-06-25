@@ -5392,6 +5392,20 @@ function renderMarcaStep3(calendar, enabled) {
   const monthLabel = monthNames[startDate.getMonth()] + ' ' + startDate.getFullYear();
   const progress = Math.round((published / calendar.length) * 100);
 
+  // Fila: próximo post a publicar = primeiro que ainda não foi publicado (não depende mais da data)
+  const nextIdx = calendar.findIndex(d => d.status !== 'published');
+  // Histórico: posts publicados, mais recente primeiro (pela data de publicação)
+  const fmtDate = (iso) => { const dt = new Date(iso + 'T12:00:00'); return dt.getDate() + ' de ' + monthNames[dt.getMonth()]; };
+  const publishedHistory = calendar
+    .map((d, i) => ({ d, i }))
+    .filter(x => x.d.status === 'published')
+    .map(x => {
+      let iso = x.d.publishedAt, agendado = false;
+      if (!iso) { const dd = new Date(startDate); dd.setDate(dd.getDate() + x.i); iso = dd.toISOString().split('T')[0]; agendado = true; }
+      return { i: x.i, theme: x.d.theme, sortKey: iso, label: fmtDate(iso) + (agendado ? ' (agendado)' : '') };
+    })
+    .sort((a, b) => b.sortKey.localeCompare(a.sortKey));
+
   return `
     <!-- Estratégia -->
     ${estrategia ? `
@@ -5434,6 +5448,19 @@ function renderMarcaStep3(calendar, enabled) {
       </div>
     </div>
 
+    <!-- Próximo post a publicar (fila) -->
+    ${nextIdx !== -1 ? `
+    <div onclick="openMarcaDay(${nextIdx})" style="cursor:pointer;margin-bottom:18px;padding:15px 18px;background:linear-gradient(135deg,rgba(244,114,182,0.1),rgba(168,85,247,0.07));border:1px solid rgba(244,114,182,0.3);border-radius:14px;display:flex;align-items:center;justify-content:space-between;gap:12px"
+      onmouseover="this.style.borderColor='rgba(244,114,182,0.55)'" onmouseout="this.style.borderColor='rgba(244,114,182,0.3)'">
+      <div style="min-width:0">
+        <div style="font-size:10px;font-weight:800;color:#f472b6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Próximo post a publicar</div>
+        <div style="font-size:14px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${calendar[nextIdx].theme}</div>
+        <div style="font-size:11px;color:var(--dim);margin-top:2px">${statusLabel[calendar[nextIdx].status]} · ideia ${nextIdx + 1} de ${calendar.length}</div>
+      </div>
+      <span style="flex-shrink:0;padding:8px 16px;background:linear-gradient(135deg,#f472b6,#ec4899);border-radius:999px;color:#fff;font-size:12px;font-weight:700;white-space:nowrap">Abrir →</span>
+    </div>` : `
+    <div style="margin-bottom:18px;padding:16px;background:rgba(72,187,120,0.08);border:1px solid rgba(72,187,120,0.25);border-radius:14px;text-align:center;font-size:13px;color:#68d391;font-weight:600">🎉 Você publicou todos os posts do calendário!</div>`}
+
     <!-- Legenda -->
     <div style="display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap;padding:12px 16px;background:rgba(255,255,255,0.02);border-radius:10px;border:1px solid rgba(255,255,255,0.05)">
       ${Object.entries(statusLabel).map(([k,v]) => `
@@ -5456,11 +5483,10 @@ function renderMarcaStep3(calendar, enabled) {
         const dateNum = d.getDate();
         const today = new Date(); today.setHours(0,0,0,0); d.setHours(0,0,0,0);
         const isToday = d.getTime() === today.getTime();
-        const isPast  = d < today && day.status === 'pending';
         const glowColor = { draft:'rgba(245,158,11,0.15)', written:'rgba(99,179,237,0.15)', published:'rgba(72,187,120,0.15)' }[day.status] || '';
         return `
           <div onclick="openMarcaDay(${idx})"
-            style="padding:8px 7px 10px;border-radius:12px;border:1px solid ${isToday ? 'rgba(244,114,182,0.7)' : statusBorder[day.status]};background:${isToday ? 'rgba(244,114,182,0.08)' : statusColors[day.status]};cursor:pointer;min-height:80px;transition:all .18s;position:relative;${isPast ? 'opacity:0.4' : ''}${glowColor ? ';box-shadow:0 0 12px ' + glowColor : ''}"
+            style="padding:8px 7px 10px;border-radius:12px;border:1px solid ${isToday ? 'rgba(244,114,182,0.7)' : statusBorder[day.status]};background:${isToday ? 'rgba(244,114,182,0.08)' : statusColors[day.status]};cursor:pointer;min-height:80px;transition:all .18s;position:relative;${glowColor ? ';box-shadow:0 0 12px ' + glowColor : ''}"
             onmouseover="this.style.transform='translateY(-2px) scale(1.02)';this.style.borderColor='rgba(244,114,182,0.55)';this.style.boxShadow='0 6px 20px rgba(244,114,182,0.15)'"
             onmouseout="this.style.transform='';this.style.borderColor='${isToday ? 'rgba(244,114,182,0.7)' : statusBorder[day.status]}';this.style.boxShadow='${glowColor ? '0 0 12px ' + glowColor : 'none'}'">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
@@ -5472,7 +5498,23 @@ function renderMarcaStep3(calendar, enabled) {
       }).join('')}
     </div>
 
-
+    <!-- Histórico de publicações -->
+    ${publishedHistory.length ? `
+    <div style="margin-top:8px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.07)">
+      <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:2px">Histórico de publicações</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:14px">${publishedHistory.length} ${publishedHistory.length > 1 ? 'posts publicados' : 'post publicado'}</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${publishedHistory.map(h => `
+          <div onclick="openMarcaDay(${h.i})" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(72,187,120,0.06);border:1px solid rgba(72,187,120,0.18);border-radius:10px"
+            onmouseover="this.style.background='rgba(72,187,120,0.1)'" onmouseout="this.style.background='rgba(72,187,120,0.06)'">
+            <div style="width:8px;height:8px;border-radius:50%;background:#68d391;flex-shrink:0;box-shadow:0 0 6px #68d391"></div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;color:var(--text);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h.theme}</div>
+              <div style="font-size:11px;color:#68d391;margin-top:1px">Publicado ${h.label}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>` : ''}
   `;
 }
 
@@ -5645,6 +5687,12 @@ function closeMarcaDay() {
 function setDayStatus(index, status) {
   const calendar = getMarcaCalendar();
   calendar[index].status = status;
+  // Carimba a data real ao publicar (alimenta o histórico); limpa se sair de publicado
+  if (status === 'published') {
+    if (!calendar[index].publishedAt) calendar[index].publishedAt = new Date().toISOString().split('T')[0];
+  } else {
+    delete calendar[index].publishedAt;
+  }
   saveMarcaCalendar(calendar);
   // Atualiza só as pílulas (sem reconstruir o modal, pra não perder o texto não salvo)
   const sc = document.getElementById('marca-day-status');
