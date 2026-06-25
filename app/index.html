@@ -5540,14 +5540,23 @@ Gere exatamente 30 itens em dias.`;
   }
 }
 
+// Renderiza só as pílulas de status — usado pra atualizar sem reconstruir o modal inteiro (e perder o texto).
+function renderDayStatusPills(index) {
+  const calendar = getMarcaCalendar();
+  const day = calendar[index];
+  if (!day) return '';
+  const statusOptions = ['pending','draft','written','published'];
+  const statusLabels  = { pending:'Pendente', draft:'Rascunho', written:'Escrito', published:'Publicado' };
+  const statusColors  = { pending:'var(--dim)', draft:'#f59e0b', written:'#63b3ed', published:'#68d391' };
+  return statusOptions.map(s => `<button onclick="setDayStatus(${index},'${s}')"
+    style="padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid ${day.status===s ? statusColors[s] : 'rgba(255,255,255,0.1)'};background:${day.status===s ? 'rgba(255,255,255,0.06)' : 'transparent'};color:${day.status===s ? statusColors[s] : 'var(--dim)'}">${statusLabels[s]}</button>`).join('');
+}
+
 function openMarcaDay(index) {
   const calendar = getMarcaCalendar();
   const day = calendar[index];
   const modal = document.getElementById('marca-day-modal');
   const content = document.getElementById('marca-day-content');
-  const statusOptions = ['pending','draft','written','published'];
-  const statusLabels  = { pending:'Pendente', draft:'Rascunho', written:'Escrito', published:'Publicado' };
-  const statusColors  = { pending:'var(--dim)', draft:'#f59e0b', written:'#63b3ed', published:'#68d391' };
 
   const startStr  = localStorage.getItem('liplop-marca-cal-start-v1') || new Date().toISOString().split('T')[0];
   const startDate = new Date(startStr + 'T12:00:00');
@@ -5568,10 +5577,7 @@ function openMarcaDay(index) {
     </div>
 
     <!-- Status -->
-    <div style="display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap">
-      ${statusOptions.map(s => `<button onclick="setDayStatus(${index},'${s}')"
-        style="padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid ${day.status===s ? statusColors[s] : 'rgba(255,255,255,0.1)'};background:${day.status===s ? 'rgba(255,255,255,0.06)' : 'transparent'};color:${day.status===s ? statusColors[s] : 'var(--dim)'}">${statusLabels[s]}</button>`).join('')}
-    </div>
+    <div id="marca-day-status" style="display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap">${renderDayStatusPills(index)}</div>
 
     <!-- Área de escrita -->
     <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Seu post</div>
@@ -5604,8 +5610,9 @@ function setDayStatus(index, status) {
   const calendar = getMarcaCalendar();
   calendar[index].status = status;
   saveMarcaCalendar(calendar);
-  openMarcaDay(index);
-  // Atualiza grid sem fechar modal
+  // Atualiza só as pílulas (sem reconstruir o modal, pra não perder o texto não salvo)
+  const sc = document.getElementById('marca-day-status');
+  if (sc) sc.innerHTML = renderDayStatusPills(index);
   const step3 = document.getElementById('marca-step3');
   if (step3) step3.innerHTML = renderMarcaStep3(calendar, true);
 }
@@ -5625,9 +5632,18 @@ function saveDayDraft(index) {
   calendar[index].draft = draft;
   if (calendar[index].status === 'pending' && draft.trim()) calendar[index].status = 'draft';
   saveMarcaCalendar(calendar);
-  openMarcaDay(index);
+  // Atualiza pílulas de status e grid sem reconstruir o modal (preserva o texto)
+  const sc = document.getElementById('marca-day-status');
+  if (sc) sc.innerHTML = renderDayStatusPills(index);
   const step3 = document.getElementById('marca-step3');
   if (step3) step3.innerHTML = renderMarcaStep3(calendar, true);
+  // Feedback visual claro: a falta disso fazia parecer que "não salvava"
+  const btn = document.querySelector('#marca-day-content button[onclick="saveDayDraft(' + index + ')"]');
+  if (btn) {
+    btn.textContent = '✓ Salvo!';
+    btn.style.background = 'linear-gradient(135deg,#48bb78,#38a169)';
+    setTimeout(() => { if (btn.isConnected) { btn.textContent = 'Salvar'; btn.style.background = 'linear-gradient(135deg,#f472b6,#ec4899)'; } }, 1600);
+  }
 }
 
 async function generateDayPost(index) {
