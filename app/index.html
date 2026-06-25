@@ -5281,7 +5281,7 @@ function renderMarcaStep2(tone, enabled) {
   return `
     <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:20px;background:rgba(255,255,255,0.02)">
       <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">2. Tom de voz</div>
-      <p style="font-size:13px;color:var(--mid);margin-bottom:20px;line-height:1.6">Para replicar como você escreve, preciso te ouvir de verdade — não do jeito "LinkedIn formal", mas do jeito que você fala.</p>
+      <p style="font-size:13px;color:var(--mid);margin-bottom:20px;line-height:1.6">Para replicar como você escreve, preciso te ouvir de verdade, não do jeito "LinkedIn formal", mas do jeito que você fala.</p>
       ${questions.map(q => `
         <div style="margin-bottom:16px">
           <label style="font-size:12px;font-weight:600;color:var(--text);display:block;margin-bottom:6px">${q.label}</label>
@@ -5313,7 +5313,7 @@ Como ela descreveu o que faz (jeito natural de escrever):
 O que ela detesta ver no LinkedIn:
 "${answers[1]}"
 
-Escreva UM parágrafo curto — no máximo 4 frases — descrevendo o tom de voz dela. Use segunda pessoa (você). Capture o jeito real que ela escreve: cadência, vocabulário, o que evita, o que a diferencia. Seja específico e direto. Sem títulos, sem markdown, sem listas, sem tabelas — apenas o parágrafo. Português brasileiro correto com todos os acentos.`;
+Escreva UM parágrafo curto, no máximo 4 frases, descrevendo o tom de voz dela. Use segunda pessoa (você). Capture o jeito real que ela escreve: cadência, vocabulário, o que evita, o que a diferencia. Seja específico e direto. Sem títulos, sem markdown, sem listas, sem tabelas, apenas o parágrafo. NÃO use travessão (—) nem (–); use vírgula, ponto ou dois-pontos. Português brasileiro correto com todos os acentos.`;
 
   try {
     const res = await fetch('/api/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt, json_mode:false}) });
@@ -5504,14 +5504,16 @@ VAGAS PERSEGUIDAS: ${vagas || ''}
 
 Sua tarefa tem duas partes:
 
-1. Escreva uma ESTRATÉGIA EDITORIAL em 3-4 frases explicando como os 30 dias vão construir a imagem desejada — quais pilares de conteúdo serão usados, por quê essa sequência funciona, e o que a pessoa vai transmitir ao final do mês.
+1. Escreva uma ESTRATÉGIA EDITORIAL em 3-4 frases explicando como os 30 dias vão construir a imagem desejada: quais pilares de conteúdo serão usados, por quê essa sequência funciona, e o que a pessoa vai transmitir ao final do mês.
 
 2. Monte um CALENDÁRIO de 30 dias para LinkedIn. Cada post deve ter tema distinto e ângulo específico. Varie os formatos: reflexão, bastidor do projeto, aprendizado, opinião de mercado, resultado, processo, erro, dica prática. Tudo alinhado à imagem que a pessoa quer passar.
 
 Responda SOMENTE em JSON:
 {"estrategia":"texto da estratégia aqui","dias":[{"tema":"tema curto","angulo":"como abordar esse tema em 1 frase"}]}
 
-Gere exatamente 30 itens em dias.`;
+Gere exatamente 30 itens em dias.
+
+Na estratégia e nos temas, NÃO use travessão (—) nem (–); use vírgula, ponto ou dois-pontos.`;
 
   try {
     const res = await fetch('/api/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt, json_mode:true}) });
@@ -5612,7 +5614,7 @@ function openMarcaDay(index) {
       <button onclick="getDayFeedback(${index})" style="padding:10px;background:transparent;border:1px solid rgba(244,114,182,0.4);border-radius:8px;color:#f472b6;font-size:12px;font-weight:600;cursor:pointer">✨ Feedback da IA</button>
     </div>
 
-    <div id="marca-review-note" style="display:none;margin-top:12px;padding:11px 13px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.35);border-radius:8px;font-size:12px;color:#fcd34d;line-height:1.55">⚠️ A IA ajustou seu texto. Revise com calma e confira se ficou com a <strong>sua cara</strong> e o <strong>seu tom de voz</strong>. O post é seu — não publique no automático pra não virar "IA slop".</div>
+    <div id="marca-review-note" style="display:none;margin-top:12px;padding:11px 13px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.35);border-radius:8px;font-size:12px;color:#fcd34d;line-height:1.55">⚠️ A IA ajustou seu texto. Revise com calma e confira se ficou com a <strong>sua cara</strong> e o <strong>seu tom de voz</strong>. O post é seu, então não publique no automático pra não virar "IA slop".</div>
 
     <div id="marca-day-ai-status" style="display:none;font-size:12px;color:var(--mid);text-align:center;margin-top:8px"></div>
 
@@ -5673,7 +5675,7 @@ function dayImageHTML(url) {
   const safe = String(url).replace(/"/g,'&quot;');
   return `<img src="${safe}" alt="prévia da imagem" style="max-width:100%;max-height:240px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);display:block"
       onerror="this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='block'">
-    <div style="display:none;font-size:11px;color:#fc8181;margin-top:6px">Não consegui carregar essa imagem — confere se o link aponta direto pra um arquivo de imagem (.jpg, .png...).</div>`;
+    <div style="display:none;font-size:11px;color:#fc8181;margin-top:6px">Não consegui carregar essa imagem. Confere se o link aponta direto pra um arquivo de imagem (.jpg, .png...).</div>`;
 }
 
 function refreshDayImagePreview(index) {
@@ -5705,7 +5707,7 @@ function saveDayDraft(index) {
 async function improveDayPost(index) {
   const ta = document.getElementById('marca-draft-input');
   const draft = ta?.value?.trim();
-  if (!draft) { alert('Escreva seu post primeiro — a IA melhora o que você escreveu, ela não inventa do zero.'); return; }
+  if (!draft) { alert('Escreva seu post primeiro. A IA melhora o que você escreveu, ela não inventa do zero.'); return; }
 
   const calendar = getMarcaCalendar();
   const day = calendar[index];
@@ -5724,7 +5726,7 @@ TEMA DO POST: ${day.theme}
 RASCUNHO ORIGINAL DA PESSOA:
 "${draft}"
 ${feedback ? `
-FEEDBACK QUE VOCÊ JÁ DEU SOBRE ESSE RASCUNHO — aplique cada ponto dele na reescrita:
+FEEDBACK QUE VOCÊ JÁ DEU SOBRE ESSE RASCUNHO, aplique cada ponto dele na reescrita:
 "${feedback}"
 ` : ''}
 Sua tarefa: reescreva o rascunho ${feedback ? 'APLICANDO o feedback acima' : 'deixando-o mais claro, envolvente e bem estruturado'}, PRESERVANDO a voz, as ideias e os fatos da pessoa.
@@ -5733,6 +5735,7 @@ REGRAS INQUEBRÁVEIS:
 - NÃO invente fatos, números, resultados, métricas, experiências, empresas ou histórias que não estão no rascunho. Trabalhe SÓ com o que a pessoa escreveu.
 - Preserve o tom de voz dela — o texto final tem que soar como a pessoa, não como um robô.
 - Sem hashtags excessivas (máximo 3 no final), sem frases motivacionais genéricas, sem "hoje aprendi que", sem ganchos baratos.
+- NÃO use travessão (—) nem (–). Use vírgula, ponto ou dois-pontos.
 - Português brasileiro correto, com todos os acentos.
 
 Responda APENAS com o post reescrito. Zero explicações, zero comentários.`;
@@ -5782,7 +5785,7 @@ Dê um feedback direto e útil. Aponte:
 2. O que pode melhorar (máximo 2 pontos)
 3. Uma sugestão concreta de reescrita para a parte mais fraca
 
-Não reescreva o post inteiro. Preserve o tom de voz da pessoa. Seja direto, sem enrolação. Português brasileiro correto com todos os acentos.`;
+Não reescreva o post inteiro. Preserve o tom de voz da pessoa. Seja direto, sem enrolação. NÃO use travessão (—) nem (–); use vírgula, ponto ou dois-pontos. Português brasileiro correto com todos os acentos.`;
 
   try {
     const result = await callAI({ prompt, json_mode: false });
