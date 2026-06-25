@@ -5607,11 +5607,12 @@ function openMarcaDay(index) {
       style="width:100%;min-height:180px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;color:#cbd5e0;font-size:13px;line-height:1.7;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
       onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">${day.draft || ''}</textarea>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
       <button onclick="saveDayDraft(${index})" style="padding:10px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer">Salvar</button>
-      <button onclick="getDayFeedback(${index})" style="padding:10px;background:transparent;border:1px solid rgba(244,114,182,0.4);border-radius:8px;color:#f472b6;font-size:12px;font-weight:600;cursor:pointer">Feedback IA</button>
-      <button onclick="improveDayPost(${index})" style="padding:10px;background:transparent;border:1px solid rgba(99,179,237,0.4);border-radius:8px;color:#63b3ed;font-size:12px;font-weight:600;cursor:pointer">✨ Melhorar com a IA</button>
+      <button onclick="getDayFeedback(${index})" style="padding:10px;background:transparent;border:1px solid rgba(244,114,182,0.4);border-radius:8px;color:#f472b6;font-size:12px;font-weight:600;cursor:pointer">✨ Feedback da IA</button>
     </div>
+
+    <div id="marca-review-note" style="display:none;margin-top:12px;padding:11px 13px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.35);border-radius:8px;font-size:12px;color:#fcd34d;line-height:1.55">⚠️ A IA ajustou seu texto. Revise com calma e confira se ficou com a <strong>sua cara</strong> e o <strong>seu tom de voz</strong>. O post é seu — não publique no automático pra não virar "IA slop".</div>
 
     <div id="marca-day-ai-status" style="display:none;font-size:12px;color:var(--mid);text-align:center;margin-top:8px"></div>
 
@@ -5629,6 +5630,7 @@ function openMarcaDay(index) {
       <div style="margin-top:16px;padding:14px;background:rgba(244,114,182,0.06);border:1px solid rgba(244,114,182,0.2);border-radius:10px">
         <div style="font-size:11px;font-weight:700;color:#f472b6;margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em">Feedback</div>
         <div style="font-size:12px;color:#cbd5e0;line-height:1.7">${formatFeedbackHTML(day.feedback)}</div>
+        <button onclick="improveDayPost(${index})" style="margin-top:14px;width:100%;padding:11px;background:linear-gradient(135deg,#63b3ed,#4299e1);border:none;border-radius:8px;color:#fff;font-size:12.5px;font-weight:700;cursor:pointer">✨ Aplicar melhorias com a IA</button>
       </div>` : ''}`;
 
   modal.style.display = 'flex';
@@ -5705,14 +5707,13 @@ async function improveDayPost(index) {
   const draft = ta?.value?.trim();
   if (!draft) { alert('Escreva seu post primeiro — a IA melhora o que você escreveu, ela não inventa do zero.'); return; }
 
-  const status = document.getElementById('marca-day-ai-status');
-  const btn = document.querySelector('#marca-day-content button[onclick="improveDayPost(' + index + ')"]');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Melhorando...'; }
-  if (status) { status.style.display = 'block'; status.textContent = ''; }
-
   const calendar = getMarcaCalendar();
   const day = calendar[index];
   const tone = getMarcaTone();
+  const feedback = (day.feedback || '').trim();
+
+  const btn = document.querySelector('#marca-day-content button[onclick="improveDayPost(' + index + ')"]');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Aplicando...'; }
 
   const prompt = `Você é um editor especializado em posts de LinkedIn para marca pessoal.
 
@@ -5722,17 +5723,19 @@ TEMA DO POST: ${day.theme}
 
 RASCUNHO ORIGINAL DA PESSOA:
 "${draft}"
-
-Sua tarefa: MELHORE esse rascunho — deixe mais claro, envolvente e bem estruturado para o LinkedIn, PRESERVANDO a voz, as ideias e os fatos da pessoa.
+${feedback ? `
+FEEDBACK QUE VOCÊ JÁ DEU SOBRE ESSE RASCUNHO — aplique cada ponto dele na reescrita:
+"${feedback}"
+` : ''}
+Sua tarefa: reescreva o rascunho ${feedback ? 'APLICANDO o feedback acima' : 'deixando-o mais claro, envolvente e bem estruturado'}, PRESERVANDO a voz, as ideias e os fatos da pessoa.
 
 REGRAS INQUEBRÁVEIS:
 - NÃO invente fatos, números, resultados, métricas, experiências, empresas ou histórias que não estão no rascunho. Trabalhe SÓ com o que a pessoa escreveu.
 - Preserve o tom de voz dela — o texto final tem que soar como a pessoa, não como um robô.
-- Pode reorganizar, cortar gordura, melhorar o gancho de abertura e o ritmo, deixar mais direto.
 - Sem hashtags excessivas (máximo 3 no final), sem frases motivacionais genéricas, sem "hoje aprendi que", sem ganchos baratos.
 - Português brasileiro correto, com todos os acentos.
 
-Responda APENAS com o post melhorado. Zero explicações, zero comentários.`;
+Responda APENAS com o post reescrito. Zero explicações, zero comentários.`;
 
   try {
     const result = await callAI({ prompt, json_mode: false });
@@ -5745,11 +5748,13 @@ Responda APENAS com o post melhorado. Zero explicações, zero comentários.`;
     if (sc) sc.innerHTML = renderDayStatusPills(index);
     const step3 = document.getElementById('marca-step3');
     if (step3) step3.innerHTML = renderMarcaStep3(calendar, true);
-    if (status) status.style.display = 'none';
-    if (btn) { btn.disabled = false; btn.textContent = '✨ Melhorar com a IA'; }
+    const note = document.getElementById('marca-review-note');
+    if (note) note.style.display = 'block';
+    if (btn) { btn.disabled = false; btn.textContent = '✨ Aplicar melhorias com a IA'; }
+    if (ta) ta.scrollIntoView({ behavior: 'smooth', block: 'center' });
   } catch(e) {
-    if (btn) { btn.disabled = false; btn.textContent = '✨ Melhorar com a IA'; }
-    if (status) { status.style.display = 'block'; status.textContent = 'Não consegui melhorar agora. Tente de novo em instantes.'; }
+    if (btn) { btn.disabled = false; btn.textContent = '✨ Aplicar melhorias com a IA'; }
+    alert('Não consegui aplicar as melhorias agora. Tente de novo em instantes.');
   }
 }
 
@@ -5780,15 +5785,15 @@ Dê um feedback direto e útil. Aponte:
 Não reescreva o post inteiro. Preserve o tom de voz da pessoa. Seja direto, sem enrolação. Português brasileiro correto com todos os acentos.`;
 
   try {
-    const res = await fetch('/api/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt, json_mode:false}) });
-    const data = await res.json();
-    const feedback = data.result?.trim();
+    const result = await callAI({ prompt, json_mode: false });
+    const feedback = (result || '').trim();
     calendar[index].draft    = draft;
     calendar[index].feedback = feedback;
     saveMarcaCalendar(calendar);
     openMarcaDay(index);
   } catch(e) {
-    btn.disabled = false; btn.textContent = 'Pedir feedback da IA';
+    btn.disabled = false; btn.textContent = '✨ Feedback da IA';
+    alert('Não consegui gerar o feedback agora. Tente de novo em instantes.');
   }
 }
 
