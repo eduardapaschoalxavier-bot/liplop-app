@@ -837,9 +837,9 @@
       flex-shrink: 0;
     }
 
-    /* Active tab underline */
+    /* Active tab underline (menu é rosa, então a aba ativa fica branca) */
     .tab-btn.active {
-      color: var(--rose);
+      color: #fff;
       font-weight: 600;
       position: relative;
     }
@@ -851,7 +851,7 @@
       left: 10%;
       width: 80%;
       height: 2px;
-      background: var(--rose);
+      background: #fff;
       border-radius: 2px 2px 0 0;
     }
 
@@ -1197,10 +1197,10 @@
       margin-bottom: 12px;
     }
 
-    .fit-high    { background: #16a34a; color: #fff; border: 1px solid #15803d; }   /* verde: alto fit */
-    .fit-good    { background: #4d9e2a; color: #fff; border: 1px solid #3f7f22; }   /* verde-limão */
-    .fit-mid     { background: #e08a0f; color: #fff; border: 1px solid #b9720c; }   /* laranja */
-    .fit-low     { background: #dc3a3a; color: #fff; border: 1px solid #c22b2b; }   /* vermelho: baixo fit */
+    .fit-high    { background: #16a34a; color: #fff; border: none; }   /* verde: alto fit */
+    .fit-good    { background: #4d9e2a; color: #fff; border: none; }   /* verde-limão */
+    .fit-mid     { background: #e08a0f; color: #fff; border: none; }   /* laranja */
+    .fit-low     { background: #d6395e; color: #fff; border: none; }   /* rosa-vermelho: baixo fit, combina com a marca */
 
     /* Contacts */
     .card-contacts {
@@ -2493,26 +2493,12 @@ function renderFunnel() {
 
   const funnelEl = document.getElementById("funnel");
   funnelEl.innerHTML = stages.map((s, i) => {
-    const n       = counts[i];
-    const nF      = countsFunnel[i];
-    const prevF   = countsFunnel[i - 1];
-    const pct     = Math.round((n / max) * 100);
-    const excl    = n !== nF;
-
-    let rate;
-    if (i === 0) {
-      rate = `<span>${opps.filter(o => !isExtra(o)).length} no funil</span>`;
-    } else if (prevF > 0) {
-      rate = `${Math.round((nF / prevF) * 100)}%${excl ? '*' : ''} <span>conv.</span>`;
-    } else {
-      rate = `— <span>sem dado</span>`;
-    }
-
+    const n   = counts[i];
+    const pct = Math.round((n / max) * 100);
     return `<div class="funnel-stage">
         <div class="funnel-bar-wrap"><div class="funnel-bar ${s.barCls}" style="width:${pct}%"></div></div>
         <div class="funnel-count">${n}</div>
         <div class="funnel-label">${s.label}</div>
-        <div class="funnel-rate">${rate}</div>
       </div>`;
   }).join("");
 
