@@ -145,6 +145,10 @@
       font-weight: 600;
     }
 
+    /* Tira o contorno azul do navegador ao clicar; mantém um anel branco só no teclado (acessibilidade) */
+    .tab-btn:focus { outline: none; }
+    .tab-btn:focus-visible { outline: 2px solid rgba(255,255,255,0.85); outline-offset: 2px; }
+
     /* Underline indicator */
     .tab-nav-track {
       position: relative;
