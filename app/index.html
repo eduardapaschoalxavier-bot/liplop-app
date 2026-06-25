@@ -5770,20 +5770,33 @@ async function getDayFeedback(index) {
   const tone    = getMarcaTone();
   const calendar = getMarcaCalendar();
   const day = calendar[index];
+  const estrategia = localStorage.getItem('liplop-marca-estrategia-v1') || '';
+  const mensagem   = getMarcaMessage();
 
-  const prompt = `Você é um editor especializado em conteúdo para LinkedIn.
+  const prompt = `Você é um editor especializado em conteúdo para LinkedIn e em marca pessoal estratégica.
 
 TOM DE VOZ DA PESSOA: ${tone?.summary || ''}
-TEMA DO POST: ${day.theme}
+IMAGEM/POSICIONAMENTO QUE A PESSOA QUER PASSAR: ${mensagem || 'não informado'}
+ESTRATÉGIA EDITORIAL DO MÊS: ${estrategia || 'não informada'}
+TEMA DESTE POST: ${day.theme}
 ÂNGULO SUGERIDO: ${day.angle}
 
-RASCUNHO:
+RASCUNHO DA PESSOA:
 "${draft}"
 
-Dê um feedback direto e útil. Aponte:
-1. O que está funcionando (seja específico)
-2. O que pode melhorar (máximo 2 pontos)
-3. Uma sugestão concreta de reescrita para a parte mais fraca
+Dê um feedback direto e útil, com estes pontos NESTA ordem e com estes títulos:
+
+## Alinhamento com sua estratégia
+Compare o rascunho com a ESTRATÉGIA EDITORIAL e com a IMAGEM que a pessoa quer passar. Esse post está construindo esse posicionamento? Diga de forma específica onde ele CONECTA com a estratégia e onde DESVIA ou desperdiça a oportunidade. Se não houver estratégia informada, diga isso em uma frase.
+
+## O que está funcionando
+Seja específico.
+
+## O que pode melhorar
+No máximo 2 pontos.
+
+## Sugestão de reescrita
+Uma sugestão concreta para a parte mais fraca.
 
 Não reescreva o post inteiro. Preserve o tom de voz da pessoa. Seja direto, sem enrolação. NÃO use travessão (—) nem (–); use vírgula, ponto ou dois-pontos. Português brasileiro correto com todos os acentos.`;
 
