@@ -5700,7 +5700,7 @@ function openMarcaDay(index) {
       <button onclick="getDayFeedback(${index})" style="padding:10px;background:transparent;border:1px solid rgba(244,114,182,0.4);border-radius:8px;color:#f472b6;font-size:12px;font-weight:600;cursor:pointer">✨ Feedback da IA</button>
     </div>
 
-    <div id="marca-review-note" style="display:none;margin-top:12px;padding:11px 13px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.35);border-radius:8px;font-size:12px;color:#fcd34d;line-height:1.55">⚠️ A IA ajustou seu texto. Revise com calma e confira se ficou com a <strong>sua cara</strong> e o <strong>seu tom de voz</strong>. O post é seu, então não publique no automático pra não virar "IA slop".</div>
+    <div id="marca-review-note" style="display:none;margin-top:12px;padding:11px 13px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.4);border-radius:8px;font-size:12px;color:var(--text);line-height:1.55">⚠️ A IA ajustou seu texto. Revise com calma e confira se ficou com a <strong>sua cara</strong> e o <strong>seu tom de voz</strong>. O post é seu, então não publique no automático pra não virar "IA slop".</div>
 
     <div id="marca-day-ai-status" style="display:none;font-size:12px;color:var(--mid);text-align:center;margin-top:8px"></div>
 
@@ -5718,7 +5718,7 @@ function openMarcaDay(index) {
       <div id="marca-feedback-block" style="margin-top:16px;padding:14px;background:rgba(244,114,182,0.06);border:1px solid rgba(244,114,182,0.2);border-radius:10px">
         <div style="font-size:11px;font-weight:700;color:#f472b6;margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em">Feedback</div>
         <div style="font-size:12px;color:var(--text);line-height:1.7">${formatFeedbackHTML(day.feedback)}</div>
-        <button onclick="improveDayPost(${index})" style="margin-top:14px;width:100%;padding:11px;background:linear-gradient(135deg,#63b3ed,#4299e1);border:none;border-radius:8px;color:#fff;font-size:12.5px;font-weight:700;cursor:pointer">✨ Aplicar melhorias com a IA</button>
+        <button onclick="improveDayPost(${index})" style="margin-top:14px;width:100%;padding:11px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:12.5px;font-weight:700;cursor:pointer">✨ Aplicar melhorias com a IA</button>
       </div>` : ''}`;
 
   modal.style.display = 'flex';
