@@ -1084,6 +1084,28 @@
     .bar-offer     { background: var(--rose); }
     .bar-lost      { background: var(--dim); }
 
+    /* Ranking */
+    .ranking-wrap { max-width: 780px; margin: 0 auto; }
+    .ranking-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .ranking-header h2 { font-size: 1rem; font-weight: 700; color: var(--text); }
+    .ranking-header p { font-size: 0.8rem; color: var(--dim); }
+    .ranking-row {
+      display: flex; align-items: center; gap: 16px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 18px; margin-bottom: 8px;
+      cursor: pointer; transition: border-color 0.15s, transform 0.15s;
+    }
+    .ranking-row:hover { border-color: var(--rose-s); transform: translateY(-1px); }
+    .ranking-pos { font-size: 0.85rem; font-weight: 700; color: var(--dim); width: 24px; text-align: right; flex-shrink: 0; }
+    .ranking-pos.top3 { color: var(--gold); }
+    .ranking-info { flex: 1; min-width: 0; }
+    .ranking-company { font-size: 0.9rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ranking-role { font-size: 0.75rem; color: var(--mid); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ranking-bar-wrap { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .ranking-bar { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+    .ranking-pct { font-size: 0.85rem; font-weight: 700; width: 52px; text-align: right; flex-shrink: 0; }
+    .ranking-stage-tag { font-size: 0.68rem; font-weight: 600; padding: 2px 8px; border-radius: 5px; background: var(--card); color: var(--mid); border: 1px solid var(--border); white-space: nowrap; flex-shrink: 0; }
+
     .funnel-footnote {
       font-size: 0.72rem;
       color: var(--dim);
@@ -2038,6 +2060,12 @@
       </svg>
       Kanban
     </button>
+    <button class="tab-btn" onclick="switchTab('ranking')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M8 2l1.5 3.5L13 6l-2.5 2.5.5 3.5L8 10.5 5 12l.5-3.5L3 6l3.5-.5z"/>
+      </svg>
+      Ranking
+    </button>
     <button class="tab-btn" onclick="switchTab('interview')">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
         <circle cx="8" cy="5" r="3"/>
@@ -2162,6 +2190,10 @@
 </div>
 
 <!-- INTERVIEW TAB -->
+<div class="tab-view" id="tab-ranking">
+  <div class="ranking-wrap" id="ranking"></div>
+</div>
+
 <div class="tab-view" id="tab-interview">
   <div id="interview-wrap" style="max-width:720px;margin:0 auto;padding:24px 16px"></div>
 </div>
@@ -2481,6 +2513,76 @@ let dropPos     = 'after'; // 'before' | 'after'
 let draggedColId = null;   // id da coluna sendo arrastada (reordenação)
 
 // ── funnel ───────────────────────────────────────────────────
+// ── Ranking de Compatibilidade ───────────────────────────────
+const stageLabel = {
+  todo:      'Para Aplicar',
+  applied:   'Aplicada',
+  recruiter: 'Entrevista Agendada',
+  waiting:   'Aguardando Retorno',
+  decision:  'Entrevista Decisor',
+  case:      'Case',
+  offer:     'Oferta',
+  lost:      'Lost'
+};
+
+function rankingBarColor(fit) {
+  if (fit >= 85) return '#16a34a';
+  if (fit >= 70) return '#4d9e2a';
+  if (fit >= 55) return '#e08a0f';
+  return '#d6395e';
+}
+
+function renderRanking() {
+  const sorted = [...opps].filter(o => o.fit != null).sort((a, b) => (b.fit ?? 0) - (a.fit ?? 0));
+  const noFit  = opps.filter(o => o.fit == null);
+  const wrap = document.getElementById('ranking');
+  if (!wrap) return;
+
+  if (!sorted.length) {
+    wrap.innerHTML = `<div style="text-align:center;padding:56px 24px;border:1px dashed var(--border);border-radius:16px;color:var(--mid)">
+      <div style="font-size:36px;margin-bottom:12px">🏆</div>
+      <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px">Ainda sem ranking</div>
+      <div style="font-size:13px">Adicione vagas e use a Análise pra gerar o % de fit. As mais compatíveis aparecem aqui no topo.</div>
+    </div>`;
+    return;
+  }
+
+  let html = `
+    <div class="ranking-header">
+      <div>
+        <h2>Ranking de Compatibilidade</h2>
+        <p>${sorted.length} vaga${sorted.length !== 1 ? 's' : ''} ordenada${sorted.length !== 1 ? 's' : ''} por % de fit com o seu perfil</p>
+      </div>
+    </div>`;
+
+  sorted.forEach((opp, i) => {
+    const pos = i + 1;
+    const color = rankingBarColor(opp.fit);
+    const isTop3 = pos <= 3 ? ' top3' : '';
+    const medal = pos === 1 ? '🥇' : pos === 2 ? '🥈' : pos === 3 ? '🥉' : pos;
+    const stage = stageLabel[opp.stage] || opp.stage;
+    html += `
+      <div class="ranking-row" onclick="openModal(opps.find(o=>o.id===${opp.id}))">
+        <div class="ranking-pos${isTop3}">${medal}</div>
+        <div class="ranking-info">
+          <div class="ranking-company">${opp.company}</div>
+          <div class="ranking-role">${opp.role}</div>
+        </div>
+        <div class="ranking-bar-wrap">
+          <div class="ranking-bar" style="width:${opp.fit}%;background:${color}"></div>
+        </div>
+        <div class="ranking-pct" style="color:${color}">${opp.fit}%</div>
+        <div class="ranking-stage-tag">${stage}</div>
+      </div>`;
+  });
+
+  if (noFit.length) {
+    html += `<p style="font-size:0.75rem;color:var(--dim);margin-top:16px">+ ${noFit.length} vaga(s) sem % definido</p>`;
+  }
+
+  wrap.innerHTML = html;
+}
+
 function renderFunnel() {
   const stages = [
     { id: "todo",      label: "Para Aplicar",       barCls: "bar-todo" },
@@ -3192,7 +3294,7 @@ function switchTab(tab) {
   _currentTab = tab;
 
   // Esconde todas as abas explicitamente
-  ['analyzer','kanban','interview','marca','tarefas','perfil','vagas'].forEach(id => {
+  ['analyzer','kanban','ranking','interview','marca','tarefas','perfil','vagas'].forEach(id => {
     const el = document.getElementById('tab-' + id);
     if (el) { el.style.display = 'none'; el.classList.remove('active'); }
   });
@@ -3212,6 +3314,7 @@ function switchTab(tab) {
 
   // Renderiza conteúdo da aba
   if (tab === 'kanban')    { renderFunnel(); renderBoard(); }
+  if (tab === 'ranking')   renderRanking();
   if (tab === 'analyzer')  initAnalyzer();
   if (tab === 'interview') renderInterviewTab();
   if (tab === 'marca')     renderMarcaTab();
