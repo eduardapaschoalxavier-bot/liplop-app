@@ -5629,7 +5629,7 @@ function openMarcaDay(index) {
     </div>
 
     ${day.feedback ? `
-      <div style="margin-top:16px;padding:14px;background:rgba(244,114,182,0.06);border:1px solid rgba(244,114,182,0.2);border-radius:10px">
+      <div id="marca-feedback-block" style="margin-top:16px;padding:14px;background:rgba(244,114,182,0.06);border:1px solid rgba(244,114,182,0.2);border-radius:10px">
         <div style="font-size:11px;font-weight:700;color:#f472b6;margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em">Feedback</div>
         <div style="font-size:12px;color:#cbd5e0;line-height:1.7">${formatFeedbackHTML(day.feedback)}</div>
         <button onclick="improveDayPost(${index})" style="margin-top:14px;width:100%;padding:11px;background:linear-gradient(135deg,#63b3ed,#4299e1);border:none;border-radius:8px;color:#fff;font-size:12.5px;font-weight:700;cursor:pointer">✨ Aplicar melhorias com a IA</button>
@@ -5745,15 +5745,17 @@ Responda APENAS com o post reescrito. Zero explicações, zero comentários.`;
     const post = (result || '').trim();
     if (ta) ta.value = post;
     calendar[index].draft = post;
+    calendar[index].feedback = ''; // feedback era sobre o texto antigo: vira obsoleto após aplicar
     if (calendar[index].status === 'pending') calendar[index].status = 'draft';
     saveMarcaCalendar(calendar);
     const sc = document.getElementById('marca-day-status');
     if (sc) sc.innerHTML = renderDayStatusPills(index);
     const step3 = document.getElementById('marca-step3');
     if (step3) step3.innerHTML = renderMarcaStep3(calendar, true);
+    const fbEl = document.getElementById('marca-feedback-block');
+    if (fbEl) fbEl.remove();
     const note = document.getElementById('marca-review-note');
     if (note) note.style.display = 'block';
-    if (btn) { btn.disabled = false; btn.textContent = '✨ Aplicar melhorias com a IA'; }
     if (ta) ta.scrollIntoView({ behavior: 'smooth', block: 'center' });
   } catch(e) {
     if (btn) { btn.disabled = false; btn.textContent = '✨ Aplicar melhorias com a IA'; }
