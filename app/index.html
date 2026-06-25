@@ -5603,17 +5603,27 @@ function openMarcaDay(index) {
 
     <!-- Área de escrita -->
     <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Seu post</div>
-    <textarea id="marca-draft-input" placeholder="Escreva do seu jeito. Quando quiser, peça feedback ou deixa a IA gerar uma versão para você editar."
+    <textarea id="marca-draft-input" placeholder="Escreva do seu jeito. Depois, peça feedback ou peça pra IA melhorar o que você escreveu."
       style="width:100%;min-height:180px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;color:#cbd5e0;font-size:13px;line-height:1.7;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
       onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">${day.draft || ''}</textarea>
 
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px">
       <button onclick="saveDayDraft(${index})" style="padding:10px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer">Salvar</button>
       <button onclick="getDayFeedback(${index})" style="padding:10px;background:transparent;border:1px solid rgba(244,114,182,0.4);border-radius:8px;color:#f472b6;font-size:12px;font-weight:600;cursor:pointer">Feedback IA</button>
-      <button onclick="generateDayPost(${index})" style="padding:10px;background:transparent;border:1px solid rgba(99,179,237,0.4);border-radius:8px;color:#63b3ed;font-size:12px;font-weight:600;cursor:pointer">✨ Gerar com IA</button>
+      <button onclick="improveDayPost(${index})" style="padding:10px;background:transparent;border:1px solid rgba(99,179,237,0.4);border-radius:8px;color:#63b3ed;font-size:12px;font-weight:600;cursor:pointer">✨ Melhorar com a IA</button>
     </div>
 
     <div id="marca-day-ai-status" style="display:none;font-size:12px;color:var(--mid);text-align:center;margin-top:8px"></div>
+
+    <!-- Imagem do post (link por enquanto — upload real depende de storage) -->
+    <div style="margin-top:18px">
+      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Imagem do post (opcional)</div>
+      <input id="marca-img-input" type="url" value="${(day.image || '').replace(/"/g,'&quot;')}" placeholder="Cole o link de uma imagem (https://...)"
+        oninput="saveDayImage(${index}, this.value)" onchange="refreshDayImagePreview(${index})"
+        style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;color:#cbd5e0;font-size:13px;outline:none;box-sizing:border-box"
+        onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+      <div id="marca-img-preview" style="margin-top:10px">${dayImageHTML(day.image)}</div>
+    </div>
 
     ${day.feedback ? `
       <div style="margin-top:16px;padding:14px;background:rgba(244,114,182,0.06);border:1px solid rgba(244,114,182,0.2);border-radius:10px">
@@ -5648,6 +5658,28 @@ function saveDayTheme(index, value) {
   if (step3) step3.innerHTML = renderMarcaStep3(calendar, true);
 }
 
+// Imagem do post — por enquanto só o link (upload real precisa de storage; localStorage estouraria com base64)
+function saveDayImage(index, url) {
+  const calendar = getMarcaCalendar();
+  if (!calendar[index]) return;
+  calendar[index].image = (url || '').trim();
+  saveMarcaCalendar(calendar);
+}
+
+function dayImageHTML(url) {
+  if (!url || !String(url).trim()) return '';
+  const safe = String(url).replace(/"/g,'&quot;');
+  return `<img src="${safe}" alt="prévia da imagem" style="max-width:100%;max-height:240px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);display:block"
+      onerror="this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='block'">
+    <div style="display:none;font-size:11px;color:#fc8181;margin-top:6px">Não consegui carregar essa imagem — confere se o link aponta direto pra um arquivo de imagem (.jpg, .png...).</div>`;
+}
+
+function refreshDayImagePreview(index) {
+  const calendar = getMarcaCalendar();
+  const prev = document.getElementById('marca-img-preview');
+  if (prev) prev.innerHTML = dayImageHTML(calendar[index]?.image);
+}
+
 function saveDayDraft(index) {
   const draft = document.getElementById('marca-draft-input')?.value || '';
   const calendar = getMarcaCalendar();
@@ -5668,45 +5700,56 @@ function saveDayDraft(index) {
   }
 }
 
-async function generateDayPost(index) {
+async function improveDayPost(index) {
+  const ta = document.getElementById('marca-draft-input');
+  const draft = ta?.value?.trim();
+  if (!draft) { alert('Escreva seu post primeiro — a IA melhora o que você escreveu, ela não inventa do zero.'); return; }
+
   const status = document.getElementById('marca-day-ai-status');
-  const btn = document.querySelector('#marca-day-content button[onclick="generateDayPost(' + index + ')"]');
-  btn.disabled = true; btn.textContent = '⏳ Gerando...';
-  status.style.display = 'block'; status.textContent = '';
+  const btn = document.querySelector('#marca-day-content button[onclick="improveDayPost(' + index + ')"]');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Melhorando...'; }
+  if (status) { status.style.display = 'block'; status.textContent = ''; }
 
   const calendar = getMarcaCalendar();
   const day = calendar[index];
   const tone = getMarcaTone();
-  const project = getMarcaProject();
-  const mensagem = getMarcaMessage();
 
-  const prompt = `Você é redator especializado em LinkedIn para marca pessoal.
+  const prompt = `Você é um editor especializado em posts de LinkedIn para marca pessoal.
 
-TOM DE VOZ: ${tone?.summary || ''}
-IMAGEM QUE QUER PASSAR: ${mensagem || ''}
-PROJETO/CASE: ${project?.text?.slice(0,400) || ''}
-
-Escreva um post completo para LinkedIn sobre:
-TEMA: ${day.theme}
+TOM DE VOZ DA PESSOA: ${tone?.summary || ''}
+TEMA DO POST: ${day.theme}
 ÂNGULO: ${day.angle}
 
-Regras: escreva no tom de voz da pessoa, sem hashtags excessivas (máximo 3 no final), sem frases genéricas motivacionais, sem "hoje aprendi que", sem ganchos baratos. Português brasileiro correto. Entre 150 e 300 palavras.`;
+RASCUNHO ORIGINAL DA PESSOA:
+"${draft}"
+
+Sua tarefa: MELHORE esse rascunho — deixe mais claro, envolvente e bem estruturado para o LinkedIn, PRESERVANDO a voz, as ideias e os fatos da pessoa.
+
+REGRAS INQUEBRÁVEIS:
+- NÃO invente fatos, números, resultados, métricas, experiências, empresas ou histórias que não estão no rascunho. Trabalhe SÓ com o que a pessoa escreveu.
+- Preserve o tom de voz dela — o texto final tem que soar como a pessoa, não como um robô.
+- Pode reorganizar, cortar gordura, melhorar o gancho de abertura e o ritmo, deixar mais direto.
+- Sem hashtags excessivas (máximo 3 no final), sem frases motivacionais genéricas, sem "hoje aprendi que", sem ganchos baratos.
+- Português brasileiro correto, com todos os acentos.
+
+Responda APENAS com o post melhorado. Zero explicações, zero comentários.`;
 
   try {
-    const res = await fetch('/api/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt, json_mode:false}) });
-    const data = await res.json();
-    const post = data.result?.trim();
-    document.getElementById('marca-draft-input').value = post;
+    const result = await callAI({ prompt, json_mode: false });
+    const post = (result || '').trim();
+    if (ta) ta.value = post;
     calendar[index].draft = post;
     if (calendar[index].status === 'pending') calendar[index].status = 'draft';
     saveMarcaCalendar(calendar);
-    status.style.display = 'none';
-    btn.disabled = false; btn.textContent = '✨ Gerar com IA';
+    const sc = document.getElementById('marca-day-status');
+    if (sc) sc.innerHTML = renderDayStatusPills(index);
     const step3 = document.getElementById('marca-step3');
     if (step3) step3.innerHTML = renderMarcaStep3(calendar, true);
+    if (status) status.style.display = 'none';
+    if (btn) { btn.disabled = false; btn.textContent = '✨ Melhorar com a IA'; }
   } catch(e) {
-    btn.disabled = false; btn.textContent = '✨ Gerar com IA';
-    status.textContent = 'Erro ao gerar. Tente novamente.';
+    if (btn) { btn.disabled = false; btn.textContent = '✨ Melhorar com a IA'; }
+    if (status) { status.style.display = 'block'; status.textContent = 'Não consegui melhorar agora. Tente de novo em instantes.'; }
   }
 }
 
