@@ -29,23 +29,27 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:      #0C0509;
-      --bg2:     #100810;
-      --card:    #15101A;
-      --card2:   #1C1320;
-      --border:  #2a1a28;
-      --rose:    #E04478;
-      --rose-d:  #B8305A;
-      --rose-bg: rgba(224,68,120,0.12);
-      --text:    #F0E8EE;
-      --mid:     #9B7389;
-      --dim:     #5c3f55;
-      --green:   #22c55e;
-      --green-bg:#14301e;
-      --red:     #f87171;
-      --red-bg:  #2d1010;
-      --yellow:  #fbbf24;
-      --yellow-bg:#2d2010;
+      /* TEMA CLARO (identidade do app) */
+      --bg:      #FFFFFF;
+      --bg2:     #F7F2F5;
+      --card:    #FFFFFF;
+      --card2:   #F7F2F5;
+      --border:  #ECE2E8;
+      --rose:    #D43A6E;
+      --rose-d:  #A8305A;
+      --rose-bg: rgba(212,58,110,0.08);
+      --text:    #1A0E15;
+      --mid:     #6E5762;
+      --dim:     #A2909B;
+      --gold:    #B07F33;
+      --topbar-bg: linear-gradient(90deg,#E0457A,#D4356C);
+      --btn-rose: linear-gradient(135deg,#f472b6,#ec4899);
+      --green:   #16a34a;
+      --green-bg:#e8f6ee;
+      --red:     #dc2626;
+      --red-bg:  #fbeaea;
+      --yellow:  #b07f33;
+      --yellow-bg:#f6efdf;
     }
 
     html { scroll-behavior: smooth; }
@@ -66,10 +70,9 @@
       justify-content: space-between;
       padding: 0 64px;
       height: 64px;
-      border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
-      background: rgba(12,5,9,0.9);
+      background: var(--topbar-bg);
       backdrop-filter: blur(16px);
       z-index: 100;
     }
@@ -79,7 +82,7 @@
       gap: 10px;
       font-weight: 800;
       font-size: 18px;
-      color: var(--text);
+      color: #fff;
       text-decoration: none;
     }
     .nav-logo img { width: 30px; height: 30px; border-radius: 50%; }
@@ -87,13 +90,13 @@
     .nav-links a {
       font-size: 14px;
       font-weight: 500;
-      color: var(--mid);
+      color: rgba(255,255,255,0.85);
       text-decoration: none;
       transition: color 0.2s;
     }
-    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover { color: #fff; }
     .nav-links .btn-entrar {
-      color: var(--text);
+      color: #fff;
       font-weight: 600;
     }
 
@@ -114,16 +117,16 @@
       width: 1200px;
       height: 680px;
       background:
-        radial-gradient(ellipse 70% 60% at 50% 0%, rgba(224,68,120,0.38) 0%, transparent 65%),
-        radial-gradient(ellipse 40% 35% at 50% 0%, rgba(200,50,100,0.22) 0%, transparent 50%);
+        radial-gradient(ellipse 70% 60% at 50% 0%, rgba(212,58,110,0.10) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 35% at 50% 0%, rgba(212,58,110,0.06) 0%, transparent 50%);
       pointer-events: none;
     }
     .beta-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(224,68,120,0.12);
-      border: 1px solid rgba(224,68,120,0.3);
+      background: rgba(212,58,110,0.08);
+      border: 1px solid rgba(212,58,110,0.25);
       color: var(--rose);
       font-size: 12px;
       font-weight: 600;
@@ -168,16 +171,17 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: var(--rose);
+      background: var(--btn-rose);
       color: #fff;
       font-size: 15px;
       font-weight: 700;
       padding: 14px 28px;
       border-radius: 10px;
       text-decoration: none;
-      transition: background 0.2s, transform 0.15s;
+      box-shadow: 0 8px 24px rgba(212,58,110,0.28);
+      transition: filter 0.2s, transform 0.15s;
     }
-    .btn-rose:hover { background: var(--rose-d); transform: translateY(-1px); }
+    .btn-rose:hover { filter: brightness(1.06); transform: translateY(-1px); }
     .btn-outline {
       display: inline-flex;
       align-items: center;
@@ -203,7 +207,7 @@
       overflow: hidden;
       border: 1px solid var(--border);
       border-bottom: none;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.55), 0 0 0 1px rgba(224,68,120,0.08);
+      box-shadow: 0 24px 64px rgba(26,14,21,0.12), 0 0 0 1px rgba(212,58,110,0.06);
       position: relative;
     }
     .hero-screenshot img { width: 100%; display: block; max-height: 460px; object-fit: cover; object-position: top; }
@@ -331,7 +335,7 @@
       border-radius: 12px;
       overflow: hidden;
       border: 1px solid var(--border);
-      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+      box-shadow: 0 16px 48px rgba(26,14,21,0.10);
     }
     .feat-img img { width: 100%; display: block; }
 
@@ -344,7 +348,7 @@
     }
     .compat-cta-btn {
       display: block;
-      background: var(--rose);
+      background: var(--btn-rose);
       color: #fff;
       text-align: center;
       font-size: 14px;
@@ -636,7 +640,7 @@
     .plan-features li .chk { color: var(--rose); flex-shrink: 0; font-size: 13px; }
     .btn-plan-rose {
       display: block;
-      background: var(--rose);
+      background: var(--btn-rose);
       color: #fff;
       text-align: center;
       font-size: 15px;
@@ -644,9 +648,10 @@
       padding: 14px;
       border-radius: 10px;
       text-decoration: none;
-      transition: background 0.2s;
+      box-shadow: 0 8px 24px rgba(212,58,110,0.25);
+      transition: filter 0.2s, transform 0.15s;
     }
-    .btn-plan-rose:hover { background: var(--rose-d); }
+    .btn-plan-rose:hover { filter: brightness(1.06); transform: translateY(-1px); }
     .btn-plan-outline {
       display: block;
       border: 1.5px solid var(--rose);
@@ -679,8 +684,8 @@
       width: 1200px;
       height: 600px;
       background:
-        radial-gradient(ellipse 70% 60% at 50% 100%, rgba(224,68,120,0.32) 0%, transparent 65%),
-        radial-gradient(ellipse 40% 35% at 50% 100%, rgba(200,50,100,0.18) 0%, transparent 50%);
+        radial-gradient(ellipse 70% 60% at 50% 100%, rgba(212,58,110,0.10) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 35% at 50% 100%, rgba(212,58,110,0.06) 0%, transparent 50%);
       pointer-events: none;
     }
     .cta-inner { max-width: 700px; margin: 0 auto; }
@@ -743,7 +748,7 @@
   <a class="nav-logo" href="#">
     <img src="liplop-favicon.png" alt="Liplop" />
     Liplop
-    <span style="font-size:10px;font-weight:700;letter-spacing:0.08em;background:rgba(224,68,120,0.15);color:#E04478;border:1px solid rgba(224,68,120,0.3);border-radius:4px;padding:2px 6px;margin-left:4px">BETA</span>
+    <span style="font-size:10px;font-weight:700;letter-spacing:0.08em;background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:4px;padding:2px 6px;margin-left:4px">BETA</span>
   </a>
   <div class="nav-links">
   </div>
