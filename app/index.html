@@ -1026,9 +1026,11 @@
       padding: 18px 20px;
       position: relative;
       border-right: 1px solid var(--border);
+      transition: background 0.15s, transform 0.15s;
     }
 
     .funnel-stage:last-child { border-right: none; }
+    .funnel-stage:hover { background: rgba(var(--ink),0.03); }
 
     .funnel-bar-wrap {
       height: 4px;
@@ -1045,10 +1047,11 @@
     }
 
     .funnel-count {
-      font-size: 1.7rem;
-      font-weight: 700;
-      color: var(--text);
+      font-size: 2rem;
+      font-weight: 800;
       line-height: 1;
+      letter-spacing: -0.02em;
+      transition: color 0.25s;
     }
 
     .funnel-label {
@@ -2492,36 +2495,40 @@ function renderFunnel() {
   const max = counts[0] || 1;
 
   const funnelEl = document.getElementById("funnel");
+  const stageColor = {
+    todo: 'var(--rose)', applied: 'var(--rose-s)', recruiter: 'var(--gold)',
+    waiting: '#a78bfa', decision: 'var(--mid)', case: '#2dd4bf',
+    offer: 'var(--rose)', lost: 'var(--dim)'
+  };
+  const prev = window._prevFunnelCounts || counts.map(() => 0);
+
   funnelEl.innerHTML = stages.map((s, i) => {
     const n   = counts[i];
     const pct = Math.round((n / max) * 100);
+    const col = n > 0 ? (stageColor[s.id] || 'var(--text)') : 'var(--dim)';
     return `<div class="funnel-stage">
-        <div class="funnel-bar-wrap"><div class="funnel-bar ${s.barCls}" style="width:${pct}%"></div></div>
-        <div class="funnel-count">${n}</div>
+        <div class="funnel-bar-wrap"><div class="funnel-bar ${s.barCls}" data-w="${pct}" style="width:0%"></div></div>
+        <div class="funnel-count" data-n="${n}" style="color:${col}">${prev[i] || 0}</div>
         <div class="funnel-label">${s.label}</div>
       </div>`;
   }).join("");
+  window._prevFunnelCounts = counts.slice();
 
-  // extras box
-  const extras = opps.filter(isExtra);
-  if (extras.length) {
-    const rows = extras.map(o => {
-      const tag = o.organic
-        ? '<span class="tag-organic">Orgânico</span>'
-        : '<span class="tag-referred">Indicação</span>';
-      return `<div class="funnel-extras-row">
-          <span class="funnel-extras-count">1</span>
-          <span style="font-size:.78rem;color:var(--mid)">${o.company} ${tag}</span>
-        </div>`;
-    }).join("");
-    funnelEl.innerHTML += `
-      <div class="funnel-sep"></div>
-      <div class="funnel-extras">
-        <div class="funnel-extras-label">Extras / Networking</div>
-        ${rows}
-        <div style="font-size:.7rem;color:var(--dim);margin-top:6px">* fora da taxa de conv.</div>
-      </div>`;
-  }
+  // Anima: barras crescem e os números sobem do valor anterior pro novo (count-up)
+  requestAnimationFrame(() => {
+    funnelEl.querySelectorAll('.funnel-bar').forEach(b => { b.style.width = (b.dataset.w || 0) + '%'; });
+  });
+  funnelEl.querySelectorAll('.funnel-count').forEach((el, i) => {
+    const from = prev[i] || 0, to = +el.dataset.n || 0;
+    if (from === to) { el.textContent = to; return; }
+    const dur = 500, t0 = performance.now();
+    (function tick(now) {
+      if (!el.isConnected) return;
+      const p = Math.min(1, (now - t0) / dur);
+      el.textContent = Math.round(from + (to - from) * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) requestAnimationFrame(tick); else el.textContent = to;
+    })(performance.now());
+  });
 
   const note = document.getElementById("funnel-note");
   note.style.display = "none";
