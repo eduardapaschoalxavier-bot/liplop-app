@@ -22,7 +22,7 @@
       --border:  #ECE2E8;
       --gold:    #B07F33;
       --ink:     0,0,0;
-      --topbar-bg: rgba(255,255,255,0.82);
+      --topbar-bg: linear-gradient(90deg,#E0457A,#D4356C);
     }
     [data-theme="dark"] {
       --bg:      #0C0509;
@@ -37,7 +37,7 @@
       --border:  #221018;
       --gold:    #C9974A;
       --ink:     255,255,255;
-      --topbar-bg: rgba(12,5,9,0.85);
+      --topbar-bg: linear-gradient(90deg,#C9356A,#9E2D54);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -166,6 +166,16 @@
       padding: 2px 10px;
       letter-spacing: 0.3px;
     }
+
+    /* Topbar é rosa nos dois temas: texto e controles em branco para legibilidade */
+    .topbar { border-bottom: 1px solid rgba(255,255,255,0.14); }
+    .topbar-logo-name { color: #fff; }
+    .topbar-logo-dot { background: #fff; color: var(--rose); }
+    .tab-btn { color: rgba(255,255,255,0.82); }
+    .tab-btn svg { opacity: 0.9; }
+    .tab-btn:hover { color: #fff; background: rgba(255,255,255,0.16); }
+    .tab-btn.active { color: #fff; }
+    .topbar .topbar-badge { background: rgba(255,255,255,0.2); color: #fff; border-color: rgba(255,255,255,0.4); }
 
     /* Page content */
     .page-content {
@@ -1968,7 +1978,7 @@
   <a class="topbar-logo" href="#">
     <div class="topbar-logo-dot">L</div>
     <span class="topbar-logo-name">Liplop</span>
-    <span style="font-size:10px;font-weight:700;letter-spacing:0.08em;background:rgba(244,114,182,0.15);color:#f472b6;border:1px solid rgba(244,114,182,0.3);border-radius:4px;padding:2px 6px;margin-left:4px">BETA</span>
+    <span style="font-size:10px;font-weight:700;letter-spacing:0.08em;background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.45);border-radius:4px;padding:2px 6px;margin-left:4px">BETA</span>
   </a>
 
   <nav class="tab-nav">
@@ -2028,7 +2038,7 @@
   </nav>
 
   <div class="topbar-right" style="display:flex;align-items:center;gap:8px">
-    <button id="theme-toggle" onclick="toggleTheme()" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro" style="background:transparent;border:1px solid var(--border);color:var(--mid);width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0">🌙</button>
+    <button id="theme-toggle" onclick="toggleTheme()" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.4);color:#fff;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0">🌙</button>
     <span class="topbar-badge" id="topbar-count">— vagas</span>
   </div>
 </header>
@@ -5417,69 +5427,69 @@ function renderMarcaStep3(calendar, enabled) {
   const weekDays     = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
   const monthNames   = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
-  const firstDow = startDate.getDay();
-  const cells = [];
-  for (let i = 0; i < firstDow; i++) cells.push(null);
-  for (let i = 0; i < calendar.length; i++) cells.push(i);
-  while (cells.length % 7 !== 0) cells.push(null);
-  const weeks = [];
-  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i+7));
-
   const published = calendar.filter(d => d.status === 'published').length;
   const draft     = calendar.filter(d => d.status === 'draft' || d.status === 'written').length;
   const pending   = calendar.filter(d => d.status === 'pending').length;
-  const monthLabel = monthNames[startDate.getMonth()] + ' ' + startDate.getFullYear();
-  const progress = Math.round((published / calendar.length) * 100);
+  const progress  = Math.round((published / calendar.length) * 100);
+  const nextIdx   = calendar.findIndex(d => d.status !== 'published');
 
-  // Fila: próximo post a publicar = primeiro que ainda não foi publicado (não depende mais da data)
-  const nextIdx = calendar.findIndex(d => d.status !== 'published');
-  // Histórico: posts publicados, mais recente primeiro (pela data de publicação)
-  const fmtDate = (iso) => { const dt = new Date(iso + 'T12:00:00'); return dt.getDate() + ' de ' + monthNames[dt.getMonth()]; };
-  const publishedHistory = calendar
-    .map((d, i) => ({ d, i }))
-    .filter(x => x.d.status === 'published')
-    .map(x => {
-      let iso = x.d.publishedAt, agendado = false;
-      if (!iso) { const dd = new Date(startDate); dd.setDate(dd.getDate() + x.i); iso = dd.toISOString().split('T')[0]; agendado = true; }
-      return { i: x.i, theme: x.d.theme, sortKey: iso, label: fmtDate(iso) + (agendado ? ' (agendado)' : '') };
-    })
-    .sort((a, b) => b.sortKey.localeCompare(a.sortKey));
-
-  // O que vem por aí: posts ainda não publicados, em ordem de fila (fora o já destacado no topo)
-  const upcoming = calendar
-    .map((d, i) => ({ d, i }))
-    .filter(x => x.d.status !== 'published' && x.i !== nextIdx)
-    .map(x => {
-      const dd = new Date(startDate); dd.setDate(dd.getDate() + x.i);
-      return { i: x.i, theme: x.d.theme, status: x.d.status, label: fmtDate(dd.toISOString().split('T')[0]) };
-    });
+  // Calendário navegável por mês: cada post fica na sua data (início + índice).
+  // As setas passam os meses (histórico atrás, futuro à frente) sem precisar de listas separadas.
+  const postByDate = {};
+  let minD = null, maxD = null;
+  calendar.forEach((d, i) => {
+    const dd = new Date(startDate); dd.setDate(dd.getDate() + i); dd.setHours(0,0,0,0);
+    postByDate[dd.getFullYear() + '-' + dd.getMonth() + '-' + dd.getDate()] = i;
+    if (!minD || dd < minD) minD = new Date(dd);
+    if (!maxD || dd > maxD) maxD = new Date(dd);
+  });
+  const monthKeyOf = (dt) => dt.getFullYear() * 12 + dt.getMonth();
+  const minMK = monthKeyOf(minD), maxMK = monthKeyOf(maxD);
+  const today0 = new Date(); today0.setHours(0,0,0,0);
+  let viewMK = (window._marcaViewMK != null) ? window._marcaViewMK : monthKeyOf(today0);
+  viewMK = Math.min(Math.max(viewMK, minMK), maxMK);
+  window._marcaViewMK = viewMK;
+  const viewYear = Math.floor(viewMK / 12), viewMonth = ((viewMK % 12) + 12) % 12;
+  const monthFirstDow = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const canPrev = viewMK > minMK, canNext = viewMK < maxMK;
+  const monthLabel = monthNames[viewMonth] + ' ' + viewYear;
+  const monthCells = [];
+  for (let i = 0; i < monthFirstDow; i++) monthCells.push(null);
+  for (let n = 1; n <= daysInMonth; n++) monthCells.push(n);
+  while (monthCells.length % 7 !== 0) monthCells.push(null);
+  const arrowStyle = (on) => 'width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:transparent;color:' + (on ? 'var(--mid)' : 'var(--dim)') + ';font-size:13px;cursor:' + (on ? 'pointer' : 'default') + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;opacity:' + (on ? 1 : 0.4);
 
   return `
     <!-- Estratégia -->
     ${estrategia ? `
     <div style="background:linear-gradient(135deg,rgba(244,114,182,0.08),rgba(168,85,247,0.06));border:1px solid rgba(244,114,182,0.2);border-radius:16px;padding:20px 24px;margin-bottom:20px">
-      <div style="font-size:10px;font-weight:800;color:#f472b6;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px;display:flex;align-items:center;gap:8px">
-        <span style="display:inline-block;width:3px;height:12px;background:linear-gradient(#f472b6,#a855f7);border-radius:2px"></span>Estratégia editorial
+      <div style="font-size:10px;font-weight:800;color:var(--rose);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+        <span style="display:inline-block;width:3px;height:12px;background:linear-gradient(var(--rose),#a855f7);border-radius:2px"></span>Estratégia editorial
       </div>
       <div style="font-size:13px;color:var(--text);line-height:1.8">${estrategia}</div>
     </div>` : ''}
 
-    <!-- Header com stats -->
+    <!-- Header: navegação de mês + stats -->
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px">
-      <div>
-        <div style="font-size:20px;font-weight:800;color:var(--text)">${monthLabel}</div>
-        <div style="font-size:12px;color:var(--dim);margin-top:2px">30 dias de conteúdo</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <button onclick="marcaCalNav(-1)" ${canPrev ? '' : 'disabled'} aria-label="Mês anterior" style="${arrowStyle(canPrev)}">◀</button>
+        <div style="min-width:130px;text-align:center">
+          <div style="font-size:19px;font-weight:800;color:var(--text)">${monthLabel}</div>
+          <div style="font-size:11px;color:var(--dim);margin-top:1px">${calendar.length} posts no plano</div>
+        </div>
+        <button onclick="marcaCalNav(1)" ${canNext ? '' : 'disabled'} aria-label="Próximo mês" style="${arrowStyle(canNext)}">▶</button>
       </div>
       <div style="display:flex;gap:10px">
-        <div style="text-align:center;padding:10px 16px;background:rgba(72,187,120,0.08);border:1px solid rgba(72,187,120,0.2);border-radius:12px">
-          <div style="font-size:18px;font-weight:800;color:#68d391">${published}</div>
+        <div style="text-align:center;padding:10px 16px;background:rgba(72,187,120,0.1);border:1px solid rgba(72,187,120,0.25);border-radius:12px">
+          <div style="font-size:18px;font-weight:800;color:#2f9e5f">${published}</div>
           <div style="font-size:10px;color:var(--dim);margin-top:1px">Publicados</div>
         </div>
-        <div style="text-align:center;padding:10px 16px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:12px">
-          <div style="font-size:18px;font-weight:800;color:#f59e0b">${draft}</div>
+        <div style="text-align:center;padding:10px 16px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.28);border-radius:12px">
+          <div style="font-size:18px;font-weight:800;color:#c2780a">${draft}</div>
           <div style="font-size:10px;color:var(--dim);margin-top:1px">Rascunhos</div>
         </div>
-        <div style="text-align:center;padding:10px 16px;background:rgba(var(--ink),0.03);border:1px solid rgba(var(--ink),0.08);border-radius:12px">
+        <div style="text-align:center;padding:10px 16px;background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.1);border-radius:12px">
           <div style="font-size:18px;font-weight:800;color:var(--mid)">${pending}</div>
           <div style="font-size:10px;color:var(--dim);margin-top:1px">Pendentes</div>
         </div>
@@ -5488,29 +5498,29 @@ function renderMarcaStep3(calendar, enabled) {
 
     <!-- Barra de progresso -->
     <div style="margin-bottom:20px">
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-bottom:6px">
-        <span>Progresso do mês</span><span style="color:${progress > 0 ? '#f472b6' : 'var(--dim)'}">${progress}%</span>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mid);margin-bottom:6px">
+        <span>Progresso do plano</span><span style="color:${progress > 0 ? 'var(--rose)' : 'var(--dim)'};font-weight:700">${progress}%</span>
       </div>
-      <div style="height:4px;background:rgba(var(--ink),0.06);border-radius:4px;overflow:hidden">
-        <div style="height:100%;width:${progress}%;background:linear-gradient(90deg,#f472b6,#a855f7);border-radius:4px;transition:width .3s"></div>
+      <div style="height:4px;background:rgba(var(--ink),0.08);border-radius:4px;overflow:hidden">
+        <div style="height:100%;width:${progress}%;background:linear-gradient(90deg,var(--rose),#a855f7);border-radius:4px;transition:width .3s"></div>
       </div>
     </div>
 
-    <!-- Próximo post a publicar (fila) -->
+    <!-- Próximo post a publicar -->
     ${nextIdx !== -1 ? `
     <div onclick="openMarcaDay(${nextIdx})" style="cursor:pointer;margin-bottom:18px;padding:15px 18px;background:linear-gradient(135deg,rgba(244,114,182,0.1),rgba(168,85,247,0.07));border:1px solid rgba(244,114,182,0.3);border-radius:14px;display:flex;align-items:center;justify-content:space-between;gap:12px"
       onmouseover="this.style.borderColor='rgba(244,114,182,0.55)'" onmouseout="this.style.borderColor='rgba(244,114,182,0.3)'">
       <div style="min-width:0">
-        <div style="font-size:10px;font-weight:800;color:#f472b6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Próximo post a publicar</div>
+        <div style="font-size:10px;font-weight:800;color:var(--rose);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Próximo post a publicar</div>
         <div style="font-size:14px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${calendar[nextIdx].theme}</div>
-        <div style="font-size:11px;color:var(--dim);margin-top:2px">${statusLabel[calendar[nextIdx].status]} · ideia ${nextIdx + 1} de ${calendar.length}</div>
+        <div style="font-size:11px;color:var(--mid);margin-top:2px">${statusLabel[calendar[nextIdx].status]} · ideia ${nextIdx + 1} de ${calendar.length}</div>
       </div>
       <span style="flex-shrink:0;padding:8px 16px;background:linear-gradient(135deg,#f472b6,#ec4899);border-radius:999px;color:#fff;font-size:12px;font-weight:700;white-space:nowrap">Abrir →</span>
     </div>` : `
-    <div style="margin-bottom:18px;padding:16px;background:rgba(72,187,120,0.08);border:1px solid rgba(72,187,120,0.25);border-radius:14px;text-align:center;font-size:13px;color:#68d391;font-weight:600">🎉 Você publicou todos os posts do calendário!</div>`}
+    <div style="margin-bottom:18px;padding:16px;background:rgba(72,187,120,0.1);border:1px solid rgba(72,187,120,0.3);border-radius:14px;text-align:center;font-size:13px;color:#2f9e5f;font-weight:700">🎉 Você publicou todos os posts do calendário!</div>`}
 
     <!-- Legenda -->
-    <div style="display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap;padding:12px 16px;background:rgba(var(--ink),0.02);border-radius:10px;border:1px solid rgba(var(--ink),0.05)">
+    <div style="display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap;padding:12px 16px;background:rgba(var(--ink),0.02);border-radius:10px;border:1px solid rgba(var(--ink),0.06)">
       ${Object.entries(statusLabel).map(([k,v]) => `
         <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--mid)">
           <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${statusDot[k]}"></span>${v}
@@ -5519,18 +5529,22 @@ function renderMarcaStep3(calendar, enabled) {
 
     <!-- Dias da semana -->
     <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:5px">
-      ${weekDays.map(d => `<div style="text-align:center;font-size:10px;font-weight:700;color:rgba(var(--ink),0.25);padding:6px 0;letter-spacing:.06em;text-transform:uppercase">${d}</div>`).join('')}
+      ${weekDays.map(d => `<div style="text-align:center;font-size:10px;font-weight:700;color:rgba(var(--ink),0.4);padding:6px 0;letter-spacing:.06em;text-transform:uppercase">${d}</div>`).join('')}
     </div>
 
-    <!-- Grid -->
-    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:28px">
-      ${weeks.flat().map(idx => {
-        if (idx === null) return `<div></div>`;
+    <!-- Grade do mês visível -->
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:10px">
+      ${monthCells.map(n => {
+        if (n === null) return `<div></div>`;
+        const cellDate = new Date(viewYear, viewMonth, n); cellDate.setHours(0,0,0,0);
+        const isToday = cellDate.getTime() === today0.getTime();
+        const idx = postByDate[viewYear + '-' + viewMonth + '-' + n];
+        if (idx === undefined) {
+          return `<div style="min-height:80px;border-radius:12px;border:1px dashed rgba(var(--ink),0.08);padding:8px 7px;display:flex;justify-content:flex-end;${isToday ? 'border-color:rgba(244,114,182,0.5);background:rgba(244,114,182,0.04)' : ''}">
+            <div style="font-size:11px;font-weight:700;color:${isToday ? 'var(--rose)' : 'rgba(var(--ink),0.3)'}">${n}</div>
+          </div>`;
+        }
         const day = calendar[idx];
-        const d = new Date(startDate); d.setDate(d.getDate() + idx);
-        const dateNum = d.getDate();
-        const today = new Date(); today.setHours(0,0,0,0); d.setHours(0,0,0,0);
-        const isToday = d.getTime() === today.getTime();
         const glowColor = { draft:'rgba(245,158,11,0.15)', written:'rgba(99,179,237,0.15)', published:'rgba(72,187,120,0.15)' }[day.status] || '';
         return `
           <div onclick="openMarcaDay(${idx})"
@@ -5539,50 +5553,23 @@ function renderMarcaStep3(calendar, enabled) {
             onmouseout="this.style.transform='';this.style.borderColor='${isToday ? 'rgba(244,114,182,0.7)' : statusBorder[day.status]}';this.style.boxShadow='${glowColor ? '0 0 12px ' + glowColor : 'none'}'">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
               <div style="width:6px;height:6px;border-radius:50%;background:${statusDot[day.status]};box-shadow:0 0 4px ${statusDot[day.status]};flex-shrink:0"></div>
-              <div style="font-size:11px;font-weight:800;color:${isToday ? '#f472b6' : 'rgba(var(--ink),0.35)'}">${dateNum}</div>
+              <div style="font-size:11px;font-weight:800;color:${isToday ? 'var(--rose)' : 'rgba(var(--ink),0.5)'}">${n}</div>
             </div>
-            <div style="font-size:9px;color:${day.status==='pending' ? 'rgba(var(--ink),0.3)' : 'rgba(var(--ink),0.75)'};line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;font-weight:${day.status==='pending' ? '400' : '500'}">${day.theme}</div>
+            <div style="font-size:9px;color:${day.status==='pending' ? 'rgba(var(--ink),0.5)' : 'rgba(var(--ink),0.8)'};line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;font-weight:${day.status==='pending' ? '400' : '500'}">${day.theme}</div>
           </div>`;
       }).join('')}
     </div>
-
-    <!-- Próximas publicações (o que vem por aí) -->
-    ${upcoming.length ? `
-    <div style="margin-top:8px;padding-top:20px;border-top:1px solid rgba(var(--ink),0.07)">
-      <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:2px">Próximas publicações</div>
-      <div style="font-size:11px;color:var(--dim);margin-bottom:14px">${upcoming.length} ${upcoming.length > 1 ? 'posts a caminho' : 'post a caminho'}</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        ${upcoming.slice(0, 6).map(u => `
-          <div onclick="openMarcaDay(${u.i})" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(var(--ink),0.02);border:1px solid rgba(var(--ink),0.07);border-radius:10px"
-            onmouseover="this.style.borderColor='rgba(244,114,182,0.3)'" onmouseout="this.style.borderColor='rgba(var(--ink),0.07)'">
-            <div style="width:8px;height:8px;border-radius:50%;background:${statusDot[u.status]};flex-shrink:0"></div>
-            <div style="flex:1;min-width:0">
-              <div style="font-size:13px;color:var(--text);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.theme}</div>
-              <div style="font-size:11px;color:var(--dim);margin-top:1px">${statusLabel[u.status]} · ${u.label}</div>
-            </div>
-          </div>`).join('')}
-      </div>
-      ${upcoming.length > 6 ? `<div style="font-size:11px;color:var(--dim);text-align:center;margin-top:10px">+ ${upcoming.length - 6} ${upcoming.length - 6 > 1 ? 'posts' : 'post'} a caminho (veja na grade acima)</div>` : ''}
-    </div>` : ''}
-
-    <!-- Histórico de publicações -->
-    ${publishedHistory.length ? `
-    <div style="margin-top:8px;padding-top:20px;border-top:1px solid rgba(var(--ink),0.07)">
-      <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:2px">Histórico de publicações</div>
-      <div style="font-size:11px;color:var(--dim);margin-bottom:14px">${publishedHistory.length} ${publishedHistory.length > 1 ? 'posts publicados' : 'post publicado'}</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        ${publishedHistory.map(h => `
-          <div onclick="openMarcaDay(${h.i})" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(72,187,120,0.06);border:1px solid rgba(72,187,120,0.18);border-radius:10px"
-            onmouseover="this.style.background='rgba(72,187,120,0.1)'" onmouseout="this.style.background='rgba(72,187,120,0.06)'">
-            <div style="width:8px;height:8px;border-radius:50%;background:#68d391;flex-shrink:0;box-shadow:0 0 6px #68d391"></div>
-            <div style="flex:1;min-width:0">
-              <div style="font-size:13px;color:var(--text);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h.theme}</div>
-              <div style="font-size:11px;color:#68d391;margin-top:1px">Publicado ${h.label}</div>
-            </div>
-          </div>`).join('')}
-      </div>
-    </div>` : ''}
+    <div style="font-size:11px;color:var(--dim);text-align:center;margin-bottom:24px">Use ◀ ▶ para navegar entre os meses do plano (atrás: já publicados; à frente: o que vem).</div>
   `;
+}
+
+function marcaCalNav(delta) {
+  window._marcaViewMK = (window._marcaViewMK || 0) + delta;
+  const cal = getMarcaCalendar();
+  const step3 = document.getElementById('marca-step3');
+  if (step3) step3.innerHTML = renderMarcaStep3(cal, true);
+  const calBody = document.getElementById('cal-tab-body');
+  if (calBody) calBody.innerHTML = renderMarcaStep3(cal, true);
 }
 
 function confirmRegenerateCalendar() {
