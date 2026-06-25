@@ -4545,11 +4545,28 @@ function renderInterviewTab() {
   const recruiterOpps = opps.filter(o => o.stage === 'recruiter');
 
   if (!recruiterOpps.length) {
+    const exBlock = (title, items) => `
+      <div style="font-size:10px;font-weight:800;color:var(--dim);text-transform:uppercase;letter-spacing:.07em;margin:16px 0 6px">${title}</div>
+      ${items.map(t => `<div style="display:flex;gap:8px;margin:5px 0;font-size:12.5px;color:var(--text);line-height:1.6"><span style="color:var(--rose);flex-shrink:0">›</span><span>${t}</span></div>`).join('')}`;
     wrap.innerHTML = `
-      <div style="text-align:center;padding:60px 20px">
-        <div style="font-size:2.5rem;margin-bottom:16px">🎯</div>
-        <div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px">Nenhuma entrevista ativa</div>
-        <div style="font-size:0.88rem;color:var(--mid)">Quando uma vaga chegar na coluna <strong style="color:#f472b6">Entrevista Agendada</strong> no Kanban, ela aparece aqui com seu preparação personalizada.</div>
+      <div style="margin-bottom:22px">
+        <h2 style="font-size:1.25rem;font-weight:800;color:var(--text);margin-bottom:4px">Preparação para Entrevista</h2>
+        <p style="font-size:0.85rem;color:var(--mid);line-height:1.6">Quando uma vaga chega na coluna <strong style="color:var(--rose)">Entrevista Agendada</strong> no Kanban, a IA monta aqui sua preparação: o que a empresa valoriza, o que avaliam no cargo, o que destacar na sua narrativa e o que evitar falar.</p>
+      </div>
+
+      <div style="font-size:11px;font-weight:800;color:var(--rose);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Veja um exemplo do que você vai receber</div>
+      <div style="border:1px solid rgba(var(--ink),0.08);border-radius:14px;padding:20px;background:rgba(var(--ink),0.02)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:10px">
+          <div>
+            <div style="font-size:1rem;font-weight:800;color:var(--text)">TikTok <span style="font-size:10px;font-weight:700;color:var(--rose);background:rgba(244,114,182,0.12);border:1px solid rgba(244,114,182,0.35);border-radius:5px;padding:2px 7px;margin-left:6px;vertical-align:middle">Exemplo</span></div>
+            <div style="font-size:0.85rem;color:var(--rose);margin-top:2px">User Growth, LATAM</div>
+          </div>
+          <span style="flex-shrink:0;font-size:0.8rem;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(244,114,182,0.12);color:var(--rose)">82% fit</span>
+        </div>
+        <div style="font-size:12.5px;color:var(--text);line-height:1.7;background:rgba(244,114,182,0.06);border-left:2px solid var(--rose);border-radius:8px;padding:12px 14px;margin-bottom:6px">Esta entrevista avalia sua capacidade de escalar bases de usuários em mercados emergentes da LATAM, equilibrando crescimento com qualidade de engajamento.</div>
+        ${exBlock('Sobre a empresa', ['Prioriza velocidade de execução: tenha exemplos de growth lançado em semanas, não meses.', 'Cultura data-driven ao extremo: domine métricas de produto social (DAU/MAU, retenção, viral coefficient).'])}
+        ${exBlock('O que avaliam nesse cargo', ['Domínio de loops virais e efeito de rede: mostre mecanismos de crescimento orgânico que você construiu.', 'Visão sistêmica de growth em múltiplos vetores (aquisição, criadores, parcerias).'])}
+        ${exBlock('O que evitar', ['Focar só em growth transacional sem traduzir para engajamento e hábito de uso.', 'Apostar só em mídia paga: o cargo pede crescimento orgânico e construção de comunidade.'])}
       </div>`;
     return;
   }
