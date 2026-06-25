@@ -5406,6 +5406,15 @@ function renderMarcaStep3(calendar, enabled) {
     })
     .sort((a, b) => b.sortKey.localeCompare(a.sortKey));
 
+  // O que vem por aí: posts ainda não publicados, em ordem de fila (fora o já destacado no topo)
+  const upcoming = calendar
+    .map((d, i) => ({ d, i }))
+    .filter(x => x.d.status !== 'published' && x.i !== nextIdx)
+    .map(x => {
+      const dd = new Date(startDate); dd.setDate(dd.getDate() + x.i);
+      return { i: x.i, theme: x.d.theme, status: x.d.status, label: fmtDate(dd.toISOString().split('T')[0]) };
+    });
+
   return `
     <!-- Estratégia -->
     ${estrategia ? `
@@ -5497,6 +5506,25 @@ function renderMarcaStep3(calendar, enabled) {
           </div>`;
       }).join('')}
     </div>
+
+    <!-- Próximas publicações (o que vem por aí) -->
+    ${upcoming.length ? `
+    <div style="margin-top:8px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.07)">
+      <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:2px">Próximas publicações</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:14px">${upcoming.length} ${upcoming.length > 1 ? 'posts a caminho' : 'post a caminho'}</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${upcoming.slice(0, 6).map(u => `
+          <div onclick="openMarcaDay(${u.i})" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:10px"
+            onmouseover="this.style.borderColor='rgba(244,114,182,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'">
+            <div style="width:8px;height:8px;border-radius:50%;background:${statusDot[u.status]};flex-shrink:0"></div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;color:var(--text);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.theme}</div>
+              <div style="font-size:11px;color:var(--dim);margin-top:1px">${statusLabel[u.status]} · ${u.label}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+      ${upcoming.length > 6 ? `<div style="font-size:11px;color:var(--dim);text-align:center;margin-top:10px">+ ${upcoming.length - 6} ${upcoming.length - 6 > 1 ? 'posts' : 'post'} a caminho (veja na grade acima)</div>` : ''}
+    </div>` : ''}
 
     <!-- Histórico de publicações -->
     ${publishedHistory.length ? `
