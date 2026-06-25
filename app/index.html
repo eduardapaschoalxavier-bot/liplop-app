@@ -2550,7 +2550,7 @@ function buildCard(opp) {
 
   const linkBtn = opp.link
     ? `<a class="card-link-btn" href="${opp.link}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Ver vaga →</a>`
-    : `<span class="card-link-btn card-link-missing">Buscar no LinkedIn</span>`;
+    : '';
 
   card.innerHTML = `
     <button class="card-delete" title="Excluir vaga">✕</button>
@@ -2563,13 +2563,6 @@ function buildCard(opp) {
       <span class="card-fit ${fitClass(opp.fit ?? 0)}">${opp.fit != null ? opp.fit + '% fit' : '— %'}</span>
       ${linkBtn}
     </div>
-    ${(opp.contacts || []).length ? `
-      <div class="card-contacts">
-        ${(opp.contacts).map(c => `
-          <a class="contact-chip" href="${c.linkedin}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
-            👤 ${c.name}
-          </a>`).join('')}
-      </div>` : ''}
   `;
 
   card.querySelector(".card-delete").addEventListener("click", e => {
