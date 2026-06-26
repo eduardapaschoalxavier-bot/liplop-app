@@ -72,7 +72,8 @@
       height: 64px;
       position: sticky;
       top: 0;
-      background: var(--topbar-bg);
+      background: linear-gradient(180deg, #FBEAF1 0%, #FFFFFF 100%);
+      border-bottom: 1px solid var(--border);
       backdrop-filter: blur(16px);
       z-index: 100;
     }
@@ -82,11 +83,11 @@
       gap: 10px;
       font-weight: 800;
       font-size: 18px;
-      color: #fff;
+      color: var(--text);
       text-decoration: none;
     }
     .nav-logo img { width: 30px; height: 30px; border-radius: 50%; }
-    .nav-logo-dot { width: 30px; height: 30px; border-radius: 50%; background: #fff; color: var(--rose); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; flex-shrink: 0; }
+    .nav-logo-dot { width: 30px; height: 30px; border-radius: 50%; background: var(--rose); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; flex-shrink: 0; }
     .nav-links { display: flex; align-items: center; gap: 32px; }
     .nav-links a {
       font-size: 14px;
@@ -747,7 +748,7 @@
   <a class="nav-logo" href="#">
     <span class="nav-logo-dot">L</span>
     Liplop
-    <span style="font-size:10px;font-weight:700;letter-spacing:0.08em;background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:4px;padding:2px 6px;margin-left:4px">BETA</span>
+    <span style="font-size:10px;font-weight:700;letter-spacing:0.08em;background:rgba(212,58,110,0.1);color:var(--rose);border:1px solid rgba(212,58,110,0.3);border-radius:4px;padding:2px 6px;margin-left:4px">BETA</span>
   </a>
   <div class="nav-links">
   </div>
