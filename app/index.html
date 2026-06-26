@@ -2037,14 +2037,14 @@
     <div class="nav-stage" data-stage="config">
       <button class="tab-btn" data-stage="config" onclick="switchTab('perfil')">Configurações</button>
     </div>
-    <div class="nav-stage" data-stage="aplicar">
+    <div class="nav-stage" data-stage="aplicar" onmouseenter="openStageHover(this)" onmouseleave="scheduleCloseStages()">
       <button class="tab-btn" data-stage="aplicar" onclick="toggleStage(this)">Aplicar <span class="nav-caret">▾</span></button>
       <div class="nav-dropdown">
         <a onclick="switchTab('analyzer')">Análise</a>
         <a onclick="switchTab('vagas')">Keywords</a>
       </div>
     </div>
-    <div class="nav-stage" data-stage="servisto">
+    <div class="nav-stage" data-stage="servisto" onmouseenter="openStageHover(this)" onmouseleave="scheduleCloseStages()">
       <button class="tab-btn" data-stage="servisto" onclick="toggleStage(this)">Ser visto <span class="nav-caret">▾</span></button>
       <div class="nav-dropdown">
         <a onclick="switchTab('marca')">Marca</a>
@@ -2054,7 +2054,7 @@
     <div class="nav-stage" data-stage="aprovado">
       <button class="tab-btn" data-stage="aprovado" onclick="switchTab('interview')">Ser aprovado</button>
     </div>
-    <div class="nav-stage" data-stage="acompanhar">
+    <div class="nav-stage" data-stage="acompanhar" onmouseenter="openStageHover(this)" onmouseleave="scheduleCloseStages()">
       <button class="tab-btn" data-stage="acompanhar" onclick="toggleStage(this)">Acompanhar <span class="nav-caret">▾</span></button>
       <div class="nav-dropdown">
         <a onclick="switchTab('kanban')">Kanban</a>
@@ -3275,7 +3275,7 @@ renderBoard();
 updateTopbarCount();
 
 // ── Tab switching ────────────────────────────────────────────
-let _currentTab = 'kanban';
+let _currentTab = 'analyzer';
 
 function switchTab(tab) {
   _currentTab = tab;
@@ -3312,7 +3312,29 @@ function switchTab(tab) {
 }
 
 // Abre/fecha o dropdown de uma etapa do menu (dropdown é position:fixed, posicionado aqui)
+let _stageCloseTimer;
 function closeStages() { document.querySelectorAll('.nav-stage.open').forEach(s => s.classList.remove('open')); }
+function positionDropdown(stage) {
+  const btn = stage.querySelector('.tab-btn');
+  const dd = stage.querySelector('.nav-dropdown');
+  if (!btn || !dd) return;
+  const rect = btn.getBoundingClientRect();
+  dd.style.top  = (rect.bottom + 6) + 'px';
+  dd.style.left = (rect.left + rect.width / 2) + 'px';
+}
+// Abre no hover (passar o mouse)
+function openStageHover(stage) {
+  clearTimeout(_stageCloseTimer);
+  if (!stage.querySelector('.nav-dropdown')) return;
+  document.querySelectorAll('.nav-stage.open').forEach(s => { if (s !== stage) s.classList.remove('open'); });
+  stage.classList.add('open');
+  positionDropdown(stage);
+}
+// Fecha com um pequeno atraso (pra atravessar o vão entre o botão e o menu sem piscar)
+function scheduleCloseStages() {
+  clearTimeout(_stageCloseTimer);
+  _stageCloseTimer = setTimeout(closeStages, 180);
+}
 function toggleStage(btn) {
   const stage = btn.closest('.nav-stage');
   if (!stage) return;
@@ -4572,10 +4594,22 @@ function renderInterviewTab() {
           </div>
           <span style="flex-shrink:0;font-size:0.8rem;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(244,114,182,0.12);color:var(--rose)">82% fit</span>
         </div>
-        <div style="font-size:12.5px;color:var(--text);line-height:1.7;background:rgba(244,114,182,0.06);border-left:2px solid var(--rose);border-radius:8px;padding:12px 14px;margin-bottom:6px">Esta entrevista avalia sua capacidade de escalar bases de usuários em mercados emergentes da LATAM, equilibrando crescimento com qualidade de engajamento.</div>
-        ${exBlock('Sobre a empresa', ['Prioriza velocidade de execução: tenha exemplos de growth lançado em semanas, não meses.', 'Cultura data-driven ao extremo: domine métricas de produto social (DAU/MAU, retenção, viral coefficient).'])}
-        ${exBlock('O que avaliam nesse cargo', ['Domínio de loops virais e efeito de rede: mostre mecanismos de crescimento orgânico que você construiu.', 'Visão sistêmica de growth em múltiplos vetores (aquisição, criadores, parcerias).'])}
-        ${exBlock('O que evitar', ['Focar só em growth transacional sem traduzir para engajamento e hábito de uso.', 'Apostar só em mídia paga: o cargo pede crescimento orgânico e construção de comunidade.'])}
+        <div style="font-size:12.5px;color:var(--text);line-height:1.7;background:rgba(244,114,182,0.06);border-left:2px solid var(--rose);border-radius:8px;padding:12px 14px;margin-bottom:6px">Esta entrevista vai avaliar sua capacidade de escalar bases de usuários em mercados emergentes da LATAM, equilibrando crescimento quantitativo com qualidade de engajamento e retenção em plataformas de conteúdo.</div>
+        ${exBlock('Sobre a TikTok', [
+          'Prioriza velocidade de execução e teste acelerado: prepare exemplos de como você lançou iniciativas de growth em semanas, não meses, com foco em experimentação rápida e pivots baseados em dados de comportamento do usuário.',
+          'Cultura data-driven ao extremo: estude métricas específicas de plataformas sociais como DAU/MAU ratio, tempo médio na plataforma, frequência de postagem e viral coefficient. Demonstre familiaridade com análise de cohorts e funis de ativação de criadores.',
+          'A ByteDance (empresa-mãe) valoriza o conceito de "context, not control": mostre que você sabe adaptar estratégias globais para nuances culturais da LATAM (Brasil, México, Argentina) sem perder alinhamento com objetivos corporativos centralizados.'
+        ])}
+        ${exBlock('O que avaliam nesse cargo', [
+          'User Growth em plataformas sociais exige domínio de loops virais e network effects: prepare cases mostrando como você construiu mecanismos de crescimento orgânico através de incentivos, gamificação ou programas de referral que se auto-alimentam.',
+          'Capacidade de orquestrar growth em múltiplos vetores ao mesmo tempo: aquisição de usuários, recrutamento de criadores de conteúdo, parcerias com marcas e agências. Demonstre visão sistêmica de como esses públicos se complementam.',
+          'Fluência em frameworks de growth específicos para produtos sociais: hook model, retention curves, magic number analysis e creator funnel optimization. Conecte sua experiência com fintechs e marketplaces a dinâmicas de engagement e UGC.'
+        ])}
+        ${exBlock('O que evitar', [
+          'Focar excessivamente em growth transacional (típico de fintech e marketplace) sem traduzir para métricas de engajamento e tempo de uso: a TikTok se preocupa menos com conversão imediata e mais com hábito diário e criação de conteúdo.',
+          'Sugerir estratégias que dependam apenas de mídia paga ou performance marketing tradicional: o cargo exige criatividade em growth orgânico, parcerias estratégicas e construção de comunidades.',
+          'Apresentar growth como uma função isolada: aqui ele é cruzado com produto, conteúdo e comunidade, então mostre como você trabalha junto dessas áreas, não em silos.'
+        ])}
       </div>`;
     return;
   }
@@ -6225,7 +6259,7 @@ function saveAnalysisToKanban() {
 }
 
 // Inicializa ao carregar — chamado depois de todas as declarações
-switchTab('kanban');
+switchTab('analyzer');
 initAnalyzer();
 </script>
 </div><!-- /page-content -->
