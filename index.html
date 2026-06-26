@@ -146,13 +146,25 @@
     }
     .hero h1 {
       font-size: clamp(34px, 4.5vw, 58px);
-      font-weight: 700;
-      line-height: 1.1;
+      font-weight: 900;
+      line-height: 1.12;
       letter-spacing: -0.025em;
-      max-width: 860px;
+      max-width: 920px;
       margin: 0 auto 22px;
     }
     .hero h1 em { font-style: normal; color: var(--rose); }
+    .hero h1 .circled { position: relative; display: inline-block; white-space: nowrap; }
+    .hero h1 .circled .scribble {
+      position: absolute; left: -6%; top: -18%; width: 112%; height: 136%;
+      overflow: visible; pointer-events: none;
+    }
+    .hero h1 .circled .scribble path {
+      fill: none; stroke: var(--rose); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
+      vector-effect: non-scaling-stroke; opacity: .85;
+      stroke-dasharray: 1; stroke-dashoffset: 1;
+      animation: heroScribble .85s ease-out .5s forwards;
+    }
+    @keyframes heroScribble { to { stroke-dashoffset: 0; } }
     .hero-sub {
       font-size: 18px;
       color: var(--mid);
@@ -760,7 +772,7 @@
 <!-- HERO -->
 <section class="hero">
   <div class="beta-badge" style="pointer-events:none;cursor:default;">Acesso beta disponível</div>
-  <h1>Seu CRM de busca de emprego com IA.<br /><em>Candidate-se menos. Acerte mais.</em></h1>
+  <h1>Seu CRM de busca de emprego com IA. <em>Candidate-se menos. <span class="circled">Acerte mais<svg class="scribble" viewBox="0 0 320 110" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M161 8 C88 4 17 23 11 53 C5 86 95 101 181 98 C265 95 316 76 306 48 C297 23 226 11 145 15" /></svg></span>.</em></h1>
   <p class="hero-sub">A maioria chega na fila. O Liplop te coloca na entrevista.</p>
   <div class="hero-screenshot">
     <img src="kanban.png" alt="Kanban de vagas no Liplop" />
