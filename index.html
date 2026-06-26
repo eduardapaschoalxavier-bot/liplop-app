@@ -226,9 +226,50 @@
       content: '';
       position: absolute;
       bottom: 0; left: 0; right: 0;
-      height: 50%;
-      background: linear-gradient(to bottom, transparent 0%, var(--bg) 90%);
+      height: 13%;
+      background: linear-gradient(to bottom, transparent 0%, var(--bg) 96%);
       pointer-events: none;
+    }
+
+    /* ── Mockup da Análise de Fit no hero ── */
+    .fit-mock { background: var(--card); text-align: left; }
+    .fm-chrome { display: flex; align-items: center; gap: 8px; padding: 13px 18px; background: var(--card2); border-bottom: 1px solid var(--border); }
+    .fm-chrome i { width: 11px; height: 11px; border-radius: 50%; display: block; }
+    .fm-chrome i:nth-child(1) { background: #F0938C; }
+    .fm-chrome i:nth-child(2) { background: #F3C97E; }
+    .fm-chrome i:nth-child(3) { background: #A6D49B; }
+    .fm-chrome span { margin-left: 12px; font-size: 12.5px; color: var(--dim); font-weight: 500; }
+    .fm-body { padding: 30px 36px 40px; }
+    .fm-head { display: flex; gap: 22px; align-items: center; margin-bottom: 28px; }
+    .fm-score { flex: none; width: 88px; height: 88px; border-radius: 50%; border: 3px solid var(--red); color: var(--red); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; }
+    .fm-score b { font-size: 32px; font-weight: 800; }
+    .fm-score span { font-size: 12px; font-weight: 600; margin-top: 3px; }
+    .fm-title { font-size: 21px; font-weight: 800; color: var(--text); margin: 0 0 7px; }
+    .fm-desc { font-size: 14.5px; color: var(--mid); line-height: 1.5; margin: 0; max-width: 600px; }
+    .fm-bars { display: flex; flex-direction: column; gap: 13px; margin-bottom: 30px; }
+    .fm-row { display: flex; align-items: center; gap: 16px; }
+    .fm-label { width: 140px; flex: none; font-size: 14.5px; color: var(--text); }
+    .fm-track { flex: 1; height: 10px; border-radius: 999px; background: var(--card2); overflow: hidden; }
+    .fm-track i { display: block; height: 100%; border-radius: 999px; }
+    .fm-pct { width: 48px; flex: none; text-align: right; font-weight: 700; font-size: 14.5px; }
+    .b-red { background: #dc2626; } .b-amber { background: #E0922A; } .b-lime { background: #7FB539; } .b-green { background: #16a34a; }
+    .c-red { color: #dc2626; } .c-amber { color: #E0922A; } .c-lime { color: #5e9a1f; } .c-green { color: #16a34a; }
+    .fm-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+    .fm-col { background: var(--card2); border: 1px solid var(--border); border-radius: 16px; padding: 20px 22px; }
+    .fm-col-h { font-size: 12px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 14px; }
+    .fm-col-h.yes { color: var(--green); } .fm-col-h.no { color: var(--red); }
+    .fm-col ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 11px; }
+    .fm-col li { font-size: 13.5px; color: var(--text); line-height: 1.5; padding-left: 16px; position: relative; }
+    .fm-col li::before { content: '·'; position: absolute; left: 3px; top: -1px; color: var(--dim); font-weight: 800; font-size: 16px; }
+    @media (max-width: 720px) {
+      .fm-body { padding: 22px 20px 30px; }
+      .fm-head { gap: 16px; margin-bottom: 22px; }
+      .fm-score { width: 70px; height: 70px; }
+      .fm-score b { font-size: 26px; }
+      .fm-title { font-size: 18px; }
+      .fm-desc { font-size: 13px; }
+      .fm-label { width: 104px; font-size: 13px; }
+      .fm-cols { grid-template-columns: 1fr; gap: 14px; }
     }
 
     /* ── SECTION BASE ── */
@@ -775,7 +816,42 @@
   <h1>Seu CRM de busca de emprego com IA. <em>Candidate-se menos. <span class="circled">Acerte mais<svg class="scribble" viewBox="0 0 320 110" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M161 8 C88 4 17 23 11 53 C5 86 95 101 181 98 C265 95 316 76 306 48 C297 23 226 11 145 15" /></svg></span>.</em></h1>
   <p class="hero-sub">A maioria chega na fila. O Liplop te coloca na entrevista.</p>
   <div class="hero-screenshot">
-    <img src="kanban.png" alt="Kanban de vagas no Liplop" />
+    <div class="fit-mock">
+      <div class="fm-chrome"><i></i><i></i><i></i><span>app.myliplop.com · Análise de Fit</span></div>
+      <div class="fm-body">
+        <div class="fm-head">
+          <div class="fm-score"><b>42</b><span>fit</span></div>
+          <div>
+            <div class="fm-title">Fit parcial</div>
+            <p class="fm-desc">Forte experiência em growth e gestão de times em fintechs e marketplaces, com gap na formação técnica exigida e na gestão hands-on de budgets de mídia paga.</p>
+          </div>
+        </div>
+        <div class="fm-bars">
+          <div class="fm-row"><span class="fm-label">Experiência</span><span class="fm-track"><i class="b-amber" style="width:65%"></i></span><span class="fm-pct c-amber">65%</span></div>
+          <div class="fm-row"><span class="fm-label">Skills técnicas</span><span class="fm-track"><i class="b-red" style="width:35%"></i></span><span class="fm-pct c-red">35%</span></div>
+          <div class="fm-row"><span class="fm-label">Senioridade</span><span class="fm-track"><i class="b-lime" style="width:70%"></i></span><span class="fm-pct c-lime">70%</span></div>
+          <div class="fm-row"><span class="fm-label">Contexto/setor</span><span class="fm-track"><i class="b-lime" style="width:75%"></i></span><span class="fm-pct c-lime">75%</span></div>
+          <div class="fm-row"><span class="fm-label">LATAM / idioma</span><span class="fm-track"><i class="b-green" style="width:85%"></i></span><span class="fm-pct c-green">85%</span></div>
+        </div>
+        <div class="fm-cols">
+          <div class="fm-col">
+            <div class="fm-col-h yes">✅ Você tem</div>
+            <ul>
+              <li>Experiência in-house em fintechs e marketplaces (Nomad, Hotmart, Singu)</li>
+              <li>Gestão de times multidisciplinares de 20+ pessoas</li>
+              <li>Vivência em LATAM e growth orientado a dados (CPA, ROI)</li>
+            </ul>
+          </div>
+          <div class="fm-col">
+            <div class="fm-col-h no">❌ Gaps</div>
+            <ul>
+              <li>Formação em ciências duras ou perfil quantitativo comprovado</li>
+              <li>Gestão hands-on de Google, Meta e TikTok Ads em budget volumoso</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
