@@ -1844,6 +1844,34 @@
       .board { flex-direction: column; }
       .column { flex: none; width: 100%; }
     }
+
+    /* ── Walkthrough (tour guiado de primeira vez) ── */
+    #wt-root { position: fixed; inset: 0; z-index: 10050; }
+    .wt-backdrop { position: absolute; inset: 0; cursor: default; }
+    .wt-spot {
+      position: fixed; border-radius: 12px; pointer-events: none;
+      box-shadow: 0 0 0 9999px rgba(12,5,9,0.62), 0 0 0 3px var(--rose);
+      transition: left .3s cubic-bezier(.4,0,.2,1), top .3s cubic-bezier(.4,0,.2,1), width .3s cubic-bezier(.4,0,.2,1), height .3s cubic-bezier(.4,0,.2,1);
+    }
+    .wt-tip {
+      position: fixed; width: 320px; max-width: calc(100vw - 24px); z-index: 10052;
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+      box-shadow: 0 18px 54px rgba(0,0,0,0.32); padding: 18px 20px;
+      transition: left .3s cubic-bezier(.4,0,.2,1), top .3s cubic-bezier(.4,0,.2,1);
+    }
+    .wt-tip h4 { font-size: 15px; font-weight: 800; color: var(--text); margin: 0 0 7px; line-height: 1.3; }
+    .wt-tip p { font-size: 13px; color: var(--mid); line-height: 1.6; margin: 0 0 16px; }
+    .wt-tip-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .wt-skip { background: none; border: none; color: var(--dim); font-size: 12px; cursor: pointer; padding: 4px 0; white-space: nowrap; }
+    .wt-skip:hover { color: var(--mid); }
+    .wt-next {
+      background: var(--topbar-bg); border: none; color: #fff; font-size: 13px; font-weight: 700;
+      padding: 9px 17px; border-radius: 9px; cursor: pointer; white-space: nowrap;
+    }
+    .wt-next:hover { filter: brightness(1.06); }
+    .wt-dots { display: flex; gap: 5px; }
+    .wt-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); transition: background .2s, width .2s; }
+    .wt-dot.active { background: var(--rose); width: 16px; border-radius: 3px; }
   </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -4386,8 +4414,11 @@ function closeWelcome() {
 const ONBOARDING_SKIP_KEY = 'liplop-onboarding-skipped-v1';
 
 function maybeShowOnboarding() {
-  if (localStorage.getItem(PROFILE_KEY)) return;          // já tem perfil
-  if (localStorage.getItem(ONBOARDING_SKIP_KEY)) return;  // já pulou antes
+  // já passou pelo onboarding (tem perfil ou pulou): mostra o tour uma vez
+  if (localStorage.getItem(PROFILE_KEY) || localStorage.getItem(ONBOARDING_SKIP_KEY)) {
+    setTimeout(() => startWalkthrough(), 600);
+    return;
+  }
   const m = document.getElementById('onboarding-modal');
   if (m) m.style.display = 'flex';
 }
@@ -4437,11 +4468,109 @@ function finishOnboarding() {
   if (fp) fp.value = profile;
   document.getElementById('onboarding-modal').style.display = 'none';
   switchTab('analyzer');  // cai direto na Análise para o momento "wow"
+  setTimeout(() => startWalkthrough(), 450);  // tour guiado logo após o perfil
+}
+
+/* ── Walkthrough (tour guiado de primeira vez) ────────────────────── */
+const WALKTHROUGH_KEY = 'liplop-walkthrough-v1';
+const WT_STEPS = [
+  { sel: null, title: '🎉 Bem-vinda ao Liplop!',
+    body: 'Em 30 segundos eu te mostro como o Liplop te ajuda a PASSAR nas vagas, não só se candidatar. O menu lá em cima é a sua jornada, etapa por etapa.' },
+  { sel: '.tab-btn[data-stage="aplicar"]', title: '1. Aplicar (comece por aqui)',
+    body: 'Cole uma vaga na Análise: a IA mostra seu fit, seus pontos fortes, as lacunas e gera um currículo adaptado pra ela. Esse é o seu primeiro passo.' },
+  { sel: '.tab-btn[data-stage="servisto"]', title: '2. Ser visto',
+    body: 'Monte sua marca pessoal e um calendário de posts pra as melhores vagas começarem a vir até você.' },
+  { sel: '.tab-btn[data-stage="aprovado"]', title: '3. Ser aprovado',
+    body: 'Quando uma vaga vira entrevista, a IA monta sua preparação: o que a empresa valoriza, o que destacar na sua narrativa e o que evitar.' },
+  { sel: '.tab-btn[data-stage="acompanhar"]', title: '4. Acompanhar',
+    body: 'Seu kanban e o ranking de compatibilidade pra acompanhar cada vaga e focar onde vale mais a pena.' },
+  { sel: null, title: 'Seu primeiro passo 🚀',
+    body: 'Bora começar: aqui na Análise, cole uma vaga que te interessa e veja seu fit em segundos. É o melhor jeito de entender o Liplop na prática.',
+    cta: 'Começar pela Análise' }
+];
+let _wtIndex = 0;
+
+function startWalkthrough(force) {
+  if (!force) { try { if (localStorage.getItem(WALKTHROUGH_KEY)) return; } catch(e){} }
+  if (document.getElementById('wt-root')) return;
+  // não abre por cima de outro modal
+  const onb = document.getElementById('onboarding-modal');
+  const wel = document.getElementById('welcome-modal');
+  if (!force && ((onb && onb.style.display === 'flex') || (wel && wel.style.display === 'flex'))) return;
+  closeStages && closeStages();
+  switchTab('analyzer');
+  const root = document.createElement('div');
+  root.id = 'wt-root';
+  root.innerHTML = '<div class="wt-backdrop"></div><div class="wt-spot"></div><div class="wt-tip"></div>';
+  document.body.appendChild(root);
+  _wtIndex = 0;
+  renderWalkStep();
+  window.addEventListener('resize', renderWalkStep);
+}
+
+function renderWalkStep() {
+  const root = document.getElementById('wt-root');
+  if (!root) return;
+  const step = WT_STEPS[_wtIndex];
+  const spot = root.querySelector('.wt-spot');
+  const tip  = root.querySelector('.wt-tip');
+  const target = step.sel ? document.querySelector(step.sel) : null;
+  let r = null;
+  if (target) {
+    r = target.getBoundingClientRect();
+    const p = 6;
+    spot.style.opacity = '1';
+    spot.style.left   = (r.left - p) + 'px';
+    spot.style.top    = (r.top - p) + 'px';
+    spot.style.width  = (r.width + p*2) + 'px';
+    spot.style.height = (r.height + p*2) + 'px';
+  } else {
+    spot.style.left = '50%'; spot.style.top = '42%';
+    spot.style.width = '0px'; spot.style.height = '0px';
+  }
+  const last = _wtIndex === WT_STEPS.length - 1;
+  const dots = WT_STEPS.map((_, i) => '<span class="wt-dot ' + (i === _wtIndex ? 'active' : '') + '"></span>').join('');
+  tip.innerHTML =
+    '<h4>' + step.title + '</h4>' +
+    '<p>' + step.body + '</p>' +
+    '<div class="wt-tip-actions">' +
+      '<button class="wt-skip" onclick="endWalkthrough()">Pular tour</button>' +
+      '<div style="display:flex;align-items:center;gap:12px">' +
+        '<div class="wt-dots">' + dots + '</div>' +
+        '<button class="wt-next" onclick="' + (last ? 'endWalkthrough(true)' : 'nextWalkStep()') + '">' +
+          (last ? (step.cta || 'Começar') : 'Próximo') + '</button>' +
+      '</div>' +
+    '</div>';
+  // posiciona o tooltip
+  const tw = tip.offsetWidth || 320;
+  const th = tip.offsetHeight || 170;
+  let tl, tt;
+  if (r) {
+    tl = r.left + r.width / 2 - tw / 2;
+    tt = r.bottom + 12;
+    if (tt + th > window.innerHeight - 12) tt = r.top - th - 12; // acima se não couber abaixo
+  } else {
+    tl = window.innerWidth / 2 - tw / 2;
+    tt = window.innerHeight * 0.42 + 16;
+  }
+  tip.style.left = Math.max(12, Math.min(tl, window.innerWidth - tw - 12)) + 'px';
+  tip.style.top  = Math.max(12, Math.min(tt, window.innerHeight - th - 12)) + 'px';
+}
+
+function nextWalkStep() { _wtIndex++; renderWalkStep(); }
+
+function endWalkthrough(goAnalyzer) {
+  try { localStorage.setItem(WALKTHROUGH_KEY, '1'); } catch(e){}
+  const root = document.getElementById('wt-root');
+  if (root) root.remove();
+  window.removeEventListener('resize', renderWalkStep);
+  if (goAnalyzer) switchTab('analyzer');
 }
 
 function skipOnboarding() {
   localStorage.setItem(ONBOARDING_SKIP_KEY, '1');
   document.getElementById('onboarding-modal').style.display = 'none';
+  setTimeout(() => startWalkthrough(), 450);
 }
 
 document.addEventListener('DOMContentLoaded', showWelcomeIfNeeded);
