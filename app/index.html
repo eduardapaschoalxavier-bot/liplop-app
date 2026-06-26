@@ -2086,7 +2086,7 @@
       <div class="hero-content">
         <div class="hero-badge">✦ Análise de Fit com IA</div>
         <h1 class="hero-title">Cole a vaga.<br><span class="hero-title-accent">Descubra seu fit.</span></h1>
-        <p class="hero-sub">Em segundos, a IA analisa a compatibilidade entre seu perfil e a vaga — e aponta seus pontos fortes, lacunas e como se posicionar.</p>
+        <p class="hero-sub">Em segundos, a IA analisa a compatibilidade entre seu perfil e a vaga, mostrando seus pontos fortes, lacunas e como se posicionar.</p>
         <div class="hero-chips">
           <div class="hero-chip hc-high">
             <span class="hero-chip-score">92%</span>
@@ -4673,7 +4673,7 @@ Gere uma preparação completa de entrevista. Responda SOMENTE em JSON válido, 
   "pergunta_para_fazer": "1 pergunta inteligente que o candidato pode fazer ao final da entrevista, específica para essa vaga"
 }
 
-Gere exatamente 3 dicas de empresa, 3 dicas de cargo/senioridade, 3 evites. Seja direto, prático e específico. Sem genéricos. Português brasileiro correto com todos os acentos.`;
+Gere exatamente 3 dicas de empresa, 3 dicas de cargo/senioridade, 3 evites. Seja direto, prático e específico. Sem genéricos. NÃO use travessão (—) nem (–); use vírgula, ponto ou dois-pontos. Português brasileiro correto com todos os acentos.`;
 
   try {
     const res = await fetch('/api/analyze', {
@@ -6161,8 +6161,10 @@ Responda SOMENTE com um JSON válido neste formato exato (sem markdown, sem text
   ],
   "has": ["<ponto forte 1>", "<ponto forte 2>", "<ponto forte 3>"],
   "lacks": ["<gap 1>", "<gap 2>"],
-  "tips": ["<dica específica de como adaptar o currículo ou posicionamento para passar na triagem do ATS e do recrutador para esta vaga — ex: quais keywords incluir, como reescrever o resumo, o que destacar>", "<dica 2>", "<dica 3>"]
-}`;
+  "tips": ["<dica específica de como adaptar o currículo ou posicionamento para passar na triagem do ATS e do recrutador para esta vaga, por exemplo: quais keywords incluir, como reescrever o resumo, o que destacar>", "<dica 2>", "<dica 3>"]
+}
+
+Nos textos (summary, has, lacks, tips), NÃO use travessão (—) nem (–); use vírgula, ponto ou dois-pontos. Português brasileiro correto com todos os acentos.`;
 
   try {
     // Backend Vercel, com retry automático em falhas transitórias
