@@ -100,32 +100,51 @@
     .tab-nav {
       display: flex;
       align-items: center;
-      gap: 2px;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
+      justify-content: safe center;
+      gap: 4px;
+      flex: 1;
+      min-width: 0;
       overflow-x: auto;
-      max-width: calc(100vw - 280px);
+      overflow-y: hidden;
       scrollbar-width: none;
       -ms-overflow-style: none;
     }
     .tab-nav::-webkit-scrollbar { display: none; }
 
+    /* Menu em etapas (dropdown) */
+    .nav-stage { position: relative; display: inline-flex; }
+    .nav-caret { font-size: 9px; margin-left: 1px; opacity: 0.85; transition: transform 0.15s; display: inline-block; }
+    .nav-stage.open .nav-caret { transform: rotate(180deg); }
+    .nav-dropdown {
+      position: fixed; top: 0; left: 0; transform: translateX(-50%);
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      box-shadow: 0 14px 36px rgba(0,0,0,0.14); padding: 6px; min-width: 158px;
+      display: none; flex-direction: column; gap: 2px; z-index: 200;
+    }
+    .nav-stage.open .nav-dropdown { display: flex; }
+    .nav-dropdown a {
+      display: block; padding: 9px 14px; border-radius: 7px; font-size: 0.84rem;
+      color: var(--text); cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.12s;
+    }
+    .nav-dropdown a:hover { background: var(--surface); }
+    .nav-dropdown a.active { color: var(--rose); font-weight: 700; background: rgba(212,58,110,0.08); }
+
     .tab-btn {
       background: transparent;
       border: none;
       color: var(--mid);
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 500;
-      padding: 6px 16px;
+      padding: 6px 10px;
       border-radius: 6px;
       cursor: pointer;
       transition: color 0.15s, background 0.15s;
       letter-spacing: 0.1px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       height: 32px;
+      white-space: nowrap;
     }
 
     .tab-btn svg {
@@ -2015,65 +2034,33 @@
   </a>
 
   <nav class="tab-nav">
-    <button class="tab-btn" onclick="switchTab('perfil')">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="8" cy="5" r="3"/>
-        <path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
-      </svg>
-      Perfil
-    </button>
-    <button class="tab-btn" onclick="switchTab('analyzer')">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="8" cy="8" r="6"/>
-        <path d="M8 5v3.5l2 2"/>
-      </svg>
-      Análise
-    </button>
-    <button class="tab-btn" onclick="switchTab('vagas')">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-        <rect x="2" y="3" width="12" height="10" rx="1.5"/>
-        <path d="M5 7h6M5 10h4"/>
-        <path d="M10 1v4M6 1v4"/>
-      </svg>
-      Keywords
-    </button>
-    <button class="tab-btn" onclick="switchTab('marca')">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M8 2C5 2 2 4 2 7c0 2 1.5 3.5 3 4.5V13h6v-1.5C12.5 10.5 14 9 14 7c0-3-3-5-6-5z"/>
-        <line x1="6" y1="13" x2="10" y2="13"/>
-        <line x1="7" y1="15" x2="9" y2="15"/>
-      </svg>
-      Marca
-    </button>
-    <button class="tab-btn" onclick="switchTab('tarefas')">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-        <rect x="2" y="1" width="12" height="14" rx="2"/>
-        <path d="M5 5h6M5 8h6M5 11h3"/>
-      </svg>
-      Calendário
-    </button>
-    <button class="tab-btn" onclick="switchTab('kanban')">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-        <rect x="1" y="1" width="5" height="14" rx="1.5"/>
-        <rect x="8" y="1" width="7" height="9" rx="1.5"/>
-        <rect x="8" y="12" width="7" height="3" rx="1.5"/>
-      </svg>
-      Kanban
-    </button>
-    <button class="tab-btn" onclick="switchTab('ranking')">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M8 2l1.5 3.5L13 6l-2.5 2.5.5 3.5L8 10.5 5 12l.5-3.5L3 6l3.5-.5z"/>
-      </svg>
-      Ranking
-    </button>
-    <button class="tab-btn" onclick="switchTab('interview')">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="8" cy="5" r="3"/>
-        <path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
-        <path d="M11 9.5l1.5 1.5-1.5 1.5"/>
-      </svg>
-      Entrevistas
-    </button>
+    <div class="nav-stage" data-stage="config">
+      <button class="tab-btn" data-stage="config" onclick="switchTab('perfil')">Configurações</button>
+    </div>
+    <div class="nav-stage" data-stage="aplicar">
+      <button class="tab-btn" data-stage="aplicar" onclick="toggleStage(this)">Aplicar <span class="nav-caret">▾</span></button>
+      <div class="nav-dropdown">
+        <a onclick="switchTab('analyzer')">Análise</a>
+        <a onclick="switchTab('vagas')">Keywords</a>
+      </div>
+    </div>
+    <div class="nav-stage" data-stage="servisto">
+      <button class="tab-btn" data-stage="servisto" onclick="toggleStage(this)">Ser visto <span class="nav-caret">▾</span></button>
+      <div class="nav-dropdown">
+        <a onclick="switchTab('marca')">Marca</a>
+        <a onclick="switchTab('tarefas')">Calendário</a>
+      </div>
+    </div>
+    <div class="nav-stage" data-stage="aprovado">
+      <button class="tab-btn" data-stage="aprovado" onclick="switchTab('interview')">Ser aprovado</button>
+    </div>
+    <div class="nav-stage" data-stage="acompanhar">
+      <button class="tab-btn" data-stage="acompanhar" onclick="toggleStage(this)">Acompanhar <span class="nav-caret">▾</span></button>
+      <div class="nav-dropdown">
+        <a onclick="switchTab('kanban')">Kanban</a>
+        <a onclick="switchTab('ranking')">Ranking</a>
+      </div>
+    </div>
   </nav>
 
   <div class="topbar-right" style="display:flex;align-items:center;gap:8px">
@@ -3306,11 +3293,12 @@ function switchTab(tab) {
     target.classList.add('active');
   }
 
-  // Atualiza botões
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    const matches = (btn.getAttribute('onclick') || '').includes("'" + tab + "'");
-    btn.classList.toggle('active', matches);
-  });
+  // Atualiza a etapa ativa do menu, destaca a página no dropdown e fecha os dropdowns
+  const stageOfTab = { perfil:'config', analyzer:'aplicar', vagas:'aplicar', marca:'servisto', tarefas:'servisto', interview:'aprovado', kanban:'acompanhar', ranking:'acompanhar' };
+  const activeStage = stageOfTab[tab];
+  document.querySelectorAll('.tab-btn[data-stage]').forEach(btn => btn.classList.toggle('active', btn.dataset.stage === activeStage));
+  document.querySelectorAll('.nav-dropdown a').forEach(a => a.classList.toggle('active', (a.getAttribute('onclick') || '').includes("'" + tab + "'")));
+  document.querySelectorAll('.nav-stage.open').forEach(s => s.classList.remove('open'));
 
   // Renderiza conteúdo da aba
   if (tab === 'kanban')    { renderFunnel(); renderBoard(); }
@@ -3322,6 +3310,27 @@ function switchTab(tab) {
   if (tab === 'perfil')    renderPerfilTab();
   if (tab === 'vagas')     renderVagasTab();
 }
+
+// Abre/fecha o dropdown de uma etapa do menu (dropdown é position:fixed, posicionado aqui)
+function closeStages() { document.querySelectorAll('.nav-stage.open').forEach(s => s.classList.remove('open')); }
+function toggleStage(btn) {
+  const stage = btn.closest('.nav-stage');
+  if (!stage) return;
+  const wasOpen = stage.classList.contains('open');
+  closeStages();
+  if (!wasOpen) {
+    stage.classList.add('open');
+    const dd = stage.querySelector('.nav-dropdown');
+    if (dd) {
+      const rect = btn.getBoundingClientRect();
+      dd.style.top  = (rect.bottom + 8) + 'px';
+      dd.style.left = (rect.left + rect.width / 2) + 'px';
+    }
+  }
+}
+document.addEventListener('click', e => { if (!e.target.closest('.nav-stage')) closeStages(); });
+window.addEventListener('resize', closeStages);
+document.addEventListener('DOMContentLoaded', () => { const n = document.querySelector('.tab-nav'); if (n) n.addEventListener('scroll', closeStages); });
 
 function updateTopbarCount() {
   const active = opps.filter(o => o.stage !== 'lost').length;
