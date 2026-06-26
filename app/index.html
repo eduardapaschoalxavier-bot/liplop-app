@@ -1872,6 +1872,10 @@
     .wt-dots { display: flex; gap: 5px; }
     .wt-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); transition: background .2s, width .2s; }
     .wt-dot.active { background: var(--rose); width: 16px; border-radius: 3px; }
+    .wt-actions-final { flex-direction: column; align-items: stretch; gap: 12px; }
+    .wt-actions-final .wt-dots { justify-content: center; }
+    .wt-next-full { width: 100%; padding: 11px 17px; font-size: 14px; }
+    .wt-actions-final .wt-skip { text-align: center; }
   </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -4530,17 +4534,20 @@ function renderWalkStep() {
   }
   const last = _wtIndex === WT_STEPS.length - 1;
   const dots = WT_STEPS.map((_, i) => '<span class="wt-dot ' + (i === _wtIndex ? 'active' : '') + '"></span>').join('');
-  tip.innerHTML =
-    '<h4>' + step.title + '</h4>' +
-    '<p>' + step.body + '</p>' +
-    '<div class="wt-tip-actions">' +
-      '<button class="wt-skip" onclick="endWalkthrough()">Pular tour</button>' +
-      '<div style="display:flex;align-items:center;gap:12px">' +
+  const actions = last
+    ? '<div class="wt-tip-actions wt-actions-final">' +
         '<div class="wt-dots">' + dots + '</div>' +
-        '<button class="wt-next" onclick="' + (last ? 'endWalkthrough(true)' : 'nextWalkStep()') + '">' +
-          (last ? (step.cta || 'Começar') : 'Próximo') + '</button>' +
-      '</div>' +
-    '</div>';
+        '<button class="wt-next wt-next-full" onclick="endWalkthrough(true)">' + (step.cta || 'Começar') + '</button>' +
+        '<button class="wt-skip" onclick="endWalkthrough()">Fechar</button>' +
+      '</div>'
+    : '<div class="wt-tip-actions">' +
+        '<button class="wt-skip" onclick="endWalkthrough()">Pular tour</button>' +
+        '<div style="display:flex;align-items:center;gap:12px">' +
+          '<div class="wt-dots">' + dots + '</div>' +
+          '<button class="wt-next" onclick="nextWalkStep()">Próximo</button>' +
+        '</div>' +
+      '</div>';
+  tip.innerHTML = '<h4>' + step.title + '</h4>' + '<p>' + step.body + '</p>' + actions;
   // posiciona o tooltip
   const tw = tip.offsetWidth || 320;
   const th = tip.offsetHeight || 170;
