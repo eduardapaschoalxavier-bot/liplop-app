@@ -1,10 +1,12 @@
-/* Liplop · auth (Etapa 1) — login opcional, não-bloqueante.
+/* Liplop · auth — login OBRIGATÓRIO (portão).
  *
- * Enquanto a migração dos pagantes não estiver garantida, login é ADITIVO:
- * quem não entra continua usando o app pelo cache, igual hoje. Quem entra
- * passa a ter sessão (e, nas próximas etapas, escrita dupla + migração).
+ * Onde há Supabase configurado, o app fica trancado atrás de um portão de
+ * login até a pessoa entrar. No 1º login, o cloud-sync migra o cache da pessoa
+ * pra conta (sem perder nada). Quando logada, libera o app + menu da conta.
  *
- * Se /api/config não trouxer SUPABASE_URL/ANON_KEY, este módulo não faz nada.
+ * Se /api/config não trouxer SUPABASE_URL/ANON_KEY (ex.: produção antes do
+ * cutover, ou local), este módulo NÃO faz nada: o app segue só com cache,
+ * sem portão. Assim a produção fica intocada até a virada combinada.
  */
 (function () {
   'use strict';
@@ -42,9 +44,11 @@
         border:1px solid rgba(255,255,255,0.4);color:#fff;font-size:13px;font-weight:600;
         padding:7px 14px;border-radius:999px;cursor:pointer;flex-shrink:0;font-family:inherit}
       .lp-auth-btn:hover{background:rgba(255,255,255,0.26)}
-      .lp-auth-overlay{position:fixed;inset:0;z-index:10060;background:rgba(12,5,9,0.55);
-        display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+      .lp-auth-overlay{position:fixed;inset:0;z-index:10060;background:linear-gradient(160deg,#ffffff 0%,#FCEFF4 100%);
+        display:none;align-items:center;justify-content:center;padding:20px}
       .lp-auth-overlay.open{display:flex}
+      .lp-auth-brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:20px;color:var(--text,#1A0E15);margin-bottom:18px;justify-content:center}
+      .lp-auth-logo{width:30px;height:30px;border-radius:50%;background:var(--rose,#D43A6E);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800}
       .lp-auth-card{background:var(--card,#fff);border:1px solid var(--border,#ECE2E8);border-radius:18px;
         width:380px;max-width:100%;padding:30px 28px;box-shadow:0 24px 60px rgba(0,0,0,0.3);text-align:center}
       .lp-auth-card h3{margin:0 0 6px;font-size:20px;font-weight:800;color:var(--text,#1A0E15)}
@@ -115,12 +119,12 @@
     if (!document.getElementById('lp-auth-overlay')) {
       const ov = document.createElement('div');
       ov.id = 'lp-auth-overlay';
-      ov.className = 'lp-auth-overlay';
+      ov.className = 'lp-auth-overlay open';   // portão visível por padrão até a sessão ser confirmada
       ov.innerHTML =
-        '<div class="lp-auth-card" style="position:relative">'
-        + '<button class="lp-auth-close" id="lp-auth-x">×</button>'
-        + '<h3>Entrar no Liplop</h3>'
-        + '<p>Crie sua conta pra salvar seu perfil, currículos e vagas com segurança, em qualquer dispositivo.</p>'
+        '<div class="lp-auth-card">'
+        + '<div class="lp-auth-brand"><span class="lp-auth-logo">L</span>Liplop</div>'
+        + '<h3>Entre pra acessar seu painel</h3>'
+        + '<p>O Liplop é uma conta sua: seu perfil, currículos e vagas ficam salvos com segurança, em qualquer dispositivo.</p>'
         + '<input class="lp-auth-input" id="lp-auth-email-input" type="email" placeholder="seu@email.com" autocomplete="email" />'
         + '<button class="lp-auth-primary" id="lp-auth-magic">Enviar link de acesso</button>'
         + '<div class="lp-auth-or">ou</div>'
@@ -130,23 +134,25 @@
         + '<div class="lp-auth-msg" id="lp-auth-msg"></div>'
         + '</div>';
       document.body.appendChild(ov);
-      ov.querySelector('#lp-auth-x').onclick = closeLogin;
-      ov.addEventListener('click', function (e) { if (e.target === ov) closeLogin(); });
       ov.querySelector('#lp-auth-magic').onclick = signInMagic;
       ov.querySelector('#lp-auth-google').onclick = signInGoogle;
     }
   }
 
   function render() {
+    const gate = document.getElementById('lp-auth-overlay');
     const btn = document.getElementById('lp-auth-btn');
-    if (!btn) return;
     if (user) {
-      const short = (user.email || 'conta').split('@')[0];
-      btn.textContent = '👤 ' + short;
+      if (gate) gate.classList.remove('open');            // libera o app
+      if (btn) {
+        btn.style.display = '';
+        btn.textContent = '👤 ' + (user.email || 'conta').split('@')[0];
+      }
       const em = document.getElementById('lp-auth-email');
       if (em) em.textContent = user.email || '';
     } else {
-      btn.textContent = 'Entrar';
+      if (gate) gate.classList.add('open');               // tranca o app
+      if (btn) btn.style.display = 'none';                // nada de "Entrar" solto no topbar
     }
   }
 
