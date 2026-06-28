@@ -94,9 +94,18 @@
         + '<button id="lp-auth-signout">Sair</button>';
       document.body.appendChild(menu);
       menu.querySelector('#lp-auth-signout').onclick = function () { closeMenu(); signOut(); };
-      menu.querySelector('#lp-auth-billing').onclick = function () {
+      menu.querySelector('#lp-auth-billing').onclick = async function () {
         closeMenu();
-        alert('Gestão de assinatura entra na etapa de pagamento (em breve).');
+        if (!sb) return;
+        try {
+          var sess = await sb.auth.getSession();
+          var token = sess && sess.data && sess.data.session && sess.data.session.access_token;
+          var r = await fetch('/api/portal', { method: 'POST', headers: { Authorization: 'Bearer ' + token } });
+          var d = await r.json();
+          if (d.url) { window.location.href = d.url; }
+          else if (d.error === 'no_customer') { alert('Não encontramos uma assinatura ligada ao seu e-mail. Se você assinou com outro e-mail, entre com ele.'); }
+          else { alert('Não foi possível abrir a gestão de assinatura: ' + (d.error || 'erro')); }
+        } catch (e) { alert('Erro ao abrir a gestão de assinatura: ' + e.message); }
       };
       document.addEventListener('click', function (e) {
         if (!e.target.closest('#lp-auth-menu') && e.target.id !== 'lp-auth-btn') closeMenu();
