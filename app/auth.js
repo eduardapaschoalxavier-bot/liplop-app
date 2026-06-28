@@ -1,0 +1,192 @@
+/* Liplop · auth (Etapa 1) — login opcional, não-bloqueante.
+ *
+ * Enquanto a migração dos pagantes não estiver garantida, login é ADITIVO:
+ * quem não entra continua usando o app pelo cache, igual hoje. Quem entra
+ * passa a ter sessão (e, nas próximas etapas, escrita dupla + migração).
+ *
+ * Se /api/config não trouxer SUPABASE_URL/ANON_KEY, este módulo não faz nada.
+ */
+(function () {
+  'use strict';
+  let sb = null;
+  let user = null;
+
+  async function init() {
+    let cfg;
+    try { cfg = await (await fetch('/api/config')).json(); } catch (e) { return; }
+    const ready = cfg && cfg.supabaseUrl && cfg.supabaseAnonKey
+      && window.supabase && window.supabase.createClient;
+    if (!ready) return; // sem config => app segue só com cache, sem UI de login
+
+    sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+    window.liplopSupabase = sb;
+    injectStyles();
+    injectUI();
+
+    const { data } = await sb.auth.getSession();
+    user = data.session && data.session.user || null;
+    render();
+    sb.auth.onAuthStateChange(function (_e, session) {
+      user = session && session.user || null;
+      render();
+    });
+  }
+
+  // ── UI ──────────────────────────────────────────────────────────────────
+  function injectStyles() {
+    if (document.getElementById('liplop-auth-css')) return;
+    const s = document.createElement('style');
+    s.id = 'liplop-auth-css';
+    s.textContent = `
+      .lp-auth-btn{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.16);
+        border:1px solid rgba(255,255,255,0.4);color:#fff;font-size:13px;font-weight:600;
+        padding:7px 14px;border-radius:999px;cursor:pointer;flex-shrink:0;font-family:inherit}
+      .lp-auth-btn:hover{background:rgba(255,255,255,0.26)}
+      .lp-auth-overlay{position:fixed;inset:0;z-index:10060;background:rgba(12,5,9,0.55);
+        display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+      .lp-auth-overlay.open{display:flex}
+      .lp-auth-card{background:var(--card,#fff);border:1px solid var(--border,#ECE2E8);border-radius:18px;
+        width:380px;max-width:100%;padding:30px 28px;box-shadow:0 24px 60px rgba(0,0,0,0.3);text-align:center}
+      .lp-auth-card h3{margin:0 0 6px;font-size:20px;font-weight:800;color:var(--text,#1A0E15)}
+      .lp-auth-card p{margin:0 0 22px;font-size:13.5px;color:var(--mid,#6E5762);line-height:1.5}
+      .lp-auth-input{width:100%;box-sizing:border-box;padding:12px 14px;border:1px solid var(--border,#ECE2E8);
+        border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:12px;color:var(--text,#1A0E15);outline:none}
+      .lp-auth-input:focus{border-color:var(--rose,#D43A6E)}
+      .lp-auth-primary{width:100%;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;
+        color:#fff;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,#f472b6,#ec4899)}
+      .lp-auth-primary:hover{filter:brightness(1.05)}
+      .lp-auth-or{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--dim,#A2909B);font-size:12px}
+      .lp-auth-or::before,.lp-auth-or::after{content:'';flex:1;height:1px;background:var(--border,#ECE2E8)}
+      .lp-auth-google{width:100%;border:1px solid var(--border,#ECE2E8);background:var(--card,#fff);border-radius:10px;
+        padding:11px;font-size:14px;font-weight:600;color:var(--text,#1A0E15);cursor:pointer;font-family:inherit;
+        display:flex;align-items:center;justify-content:center;gap:9px}
+      .lp-auth-google:hover{border-color:var(--rose,#D43A6E)}
+      .lp-auth-msg{margin-top:14px;font-size:13px;line-height:1.5;min-height:18px}
+      .lp-auth-close{position:absolute;background:none;border:none;color:var(--dim,#A2909B);font-size:22px;
+        cursor:pointer;top:14px;right:18px;line-height:1}
+      .lp-auth-menu{position:absolute;background:var(--card,#fff);border:1px solid var(--border,#ECE2E8);
+        border-radius:12px;box-shadow:0 14px 40px rgba(0,0,0,0.18);padding:6px;min-width:200px;z-index:10061;display:none}
+      .lp-auth-menu.open{display:block}
+      .lp-auth-menu .em{padding:9px 12px;font-size:12px;color:var(--dim,#A2909B);border-bottom:1px solid var(--border,#ECE2E8);
+        margin-bottom:4px;word-break:break-all}
+      .lp-auth-menu button{width:100%;text-align:left;background:none;border:none;padding:9px 12px;border-radius:8px;
+        font-size:13.5px;color:var(--text,#1A0E15);cursor:pointer;font-family:inherit}
+      .lp-auth-menu button:hover{background:var(--card2,#F7F2F5)}
+    `;
+    document.head.appendChild(s);
+  }
+
+  function injectUI() {
+    // botão no topbar
+    const right = document.querySelector('.topbar-right');
+    if (right && !document.getElementById('lp-auth-btn')) {
+      const btn = document.createElement('button');
+      btn.id = 'lp-auth-btn';
+      btn.className = 'lp-auth-btn';
+      btn.onclick = onBtnClick;
+      right.insertBefore(btn, right.firstChild);
+      // menu da conta
+      const menu = document.createElement('div');
+      menu.id = 'lp-auth-menu';
+      menu.className = 'lp-auth-menu';
+      menu.innerHTML = '<div class="em" id="lp-auth-email"></div>'
+        + '<button id="lp-auth-billing">Gerenciar assinatura</button>'
+        + '<button id="lp-auth-signout">Sair</button>';
+      document.body.appendChild(menu);
+      menu.querySelector('#lp-auth-signout').onclick = function () { closeMenu(); signOut(); };
+      menu.querySelector('#lp-auth-billing').onclick = function () {
+        closeMenu();
+        alert('Gestão de assinatura entra na etapa de pagamento (em breve).');
+      };
+      document.addEventListener('click', function (e) {
+        if (!e.target.closest('#lp-auth-menu') && e.target.id !== 'lp-auth-btn') closeMenu();
+      });
+    }
+    // modal de login
+    if (!document.getElementById('lp-auth-overlay')) {
+      const ov = document.createElement('div');
+      ov.id = 'lp-auth-overlay';
+      ov.className = 'lp-auth-overlay';
+      ov.innerHTML =
+        '<div class="lp-auth-card" style="position:relative">'
+        + '<button class="lp-auth-close" id="lp-auth-x">×</button>'
+        + '<h3>Entrar no Liplop</h3>'
+        + '<p>Crie sua conta pra salvar seu perfil, currículos e vagas com segurança, em qualquer dispositivo.</p>'
+        + '<input class="lp-auth-input" id="lp-auth-email-input" type="email" placeholder="seu@email.com" autocomplete="email" />'
+        + '<button class="lp-auth-primary" id="lp-auth-magic">Enviar link de acesso</button>'
+        + '<div class="lp-auth-or">ou</div>'
+        + '<button class="lp-auth-google" id="lp-auth-google">'
+        + '<svg width="17" height="17" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.3 6.1 29.4 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.3 6.1 29.4 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 10-2 13.6-5.2l-6.3-5.3C29.2 35 26.7 36 24 36c-5.3 0-9.7-3.1-11.3-7.6l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4 5.5l6.3 5.3C41.9 35.6 44 30.3 44 24c0-1.3-.1-2.3-.4-3.5z"/></svg>'
+        + 'Entrar com Google</button>'
+        + '<div class="lp-auth-msg" id="lp-auth-msg"></div>'
+        + '</div>';
+      document.body.appendChild(ov);
+      ov.querySelector('#lp-auth-x').onclick = closeLogin;
+      ov.addEventListener('click', function (e) { if (e.target === ov) closeLogin(); });
+      ov.querySelector('#lp-auth-magic').onclick = signInMagic;
+      ov.querySelector('#lp-auth-google').onclick = signInGoogle;
+    }
+  }
+
+  function render() {
+    const btn = document.getElementById('lp-auth-btn');
+    if (!btn) return;
+    if (user) {
+      const short = (user.email || 'conta').split('@')[0];
+      btn.textContent = '👤 ' + short;
+      const em = document.getElementById('lp-auth-email');
+      if (em) em.textContent = user.email || '';
+    } else {
+      btn.textContent = 'Entrar';
+    }
+  }
+
+  // ── ações ─────────────────────────────────────────────────────────────────
+  function onBtnClick() { user ? toggleMenu() : openLogin(); }
+  function openLogin() { const o = document.getElementById('lp-auth-overlay'); if (o) o.classList.add('open'); }
+  function closeLogin() { const o = document.getElementById('lp-auth-overlay'); if (o) o.classList.remove('open'); }
+  function toggleMenu() {
+    const m = document.getElementById('lp-auth-menu'); const b = document.getElementById('lp-auth-btn');
+    if (!m || !b) return;
+    const r = b.getBoundingClientRect();
+    m.style.top = (r.bottom + 8) + 'px';
+    m.style.right = Math.max(8, window.innerWidth - r.right) + 'px';
+    m.classList.toggle('open');
+  }
+  function closeMenu() { const m = document.getElementById('lp-auth-menu'); if (m) m.classList.remove('open'); }
+
+  function msg(text, ok) {
+    const el = document.getElementById('lp-auth-msg');
+    if (el) { el.textContent = text; el.style.color = ok ? 'var(--green,#16a34a)' : 'var(--rose,#D43A6E)'; }
+  }
+
+  async function signInMagic() {
+    const input = document.getElementById('lp-auth-email-input');
+    const email = (input && input.value || '').trim();
+    if (!email || email.indexOf('@') < 0) { msg('Digite um e-mail válido.'); return; }
+    msg('Enviando...', true);
+    const { error } = await sb.auth.signInWithOtp({
+      email: email,
+      options: { emailRedirectTo: window.location.origin }
+    });
+    msg(error ? ('Erro: ' + error.message) : 'Link enviado! Confira seu e-mail (e o spam).', !error);
+  }
+
+  async function signInGoogle() {
+    const { error } = await sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin }
+    });
+    if (error) msg('Erro: ' + error.message);
+  }
+
+  async function signOut() { await sb.auth.signOut(); }
+
+  window.liplopAuth = {
+    init: init, openLogin: openLogin, signOut: signOut,
+    getUser: function () { return user; }, client: function () { return sb; }
+  };
+
+  if (document.readyState !== 'loading') init();
+  else document.addEventListener('DOMContentLoaded', init);
+})();
