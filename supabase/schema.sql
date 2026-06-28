@@ -49,6 +49,9 @@ create table if not exists public.opportunities (
   updated_at  timestamptz not null default now()
 );
 create index if not exists opportunities_user_idx on public.opportunities(user_id);
+-- chave única (user_id, legacy_id) para o upsert da escrita dupla (Etapa 2)
+alter table public.opportunities drop constraint if exists opportunities_user_legacy_uniq;
+alter table public.opportunities add  constraint opportunities_user_legacy_uniq unique (user_id, legacy_id);
 
 -- ── CURRÍCULOS GERADOS ───────────────────────────────────────────────────────
 create table if not exists public.resumes (
