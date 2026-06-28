@@ -76,6 +76,13 @@
       .lp-auth-menu button{width:100%;text-align:left;background:none;border:none;padding:9px 12px;border-radius:8px;
         font-size:13.5px;color:var(--text,#1A0E15);cursor:pointer;font-family:inherit}
       .lp-auth-menu button:hover{background:var(--card2,#F7F2F5)}
+      .lp-sub-overlay{position:fixed;inset:0;z-index:10062;background:rgba(12,5,9,0.5);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+      .lp-sub-overlay.open{display:flex}
+      .lp-sub-rows{display:flex;flex-direction:column;margin-top:8px}
+      .lp-sub-row{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--border,#ECE2E8);font-size:14px}
+      .lp-sub-row:last-child{border-bottom:none}
+      .lp-sub-k{color:var(--mid,#6E5762);flex-shrink:0}
+      .lp-sub-v{color:var(--text,#1A0E15);font-weight:600;text-align:right;word-break:break-word}
     `;
     document.head.appendChild(s);
   }
@@ -94,23 +101,11 @@
       menu.id = 'lp-auth-menu';
       menu.className = 'lp-auth-menu';
       menu.innerHTML = '<div class="em" id="lp-auth-email"></div>'
-        + '<button id="lp-auth-billing">Gerenciar meios de pagamento</button>'
+        + '<button id="lp-auth-sub">Minha assinatura</button>'
         + '<button id="lp-auth-signout">Sair</button>';
       document.body.appendChild(menu);
       menu.querySelector('#lp-auth-signout').onclick = function () { closeMenu(); signOut(); };
-      menu.querySelector('#lp-auth-billing').onclick = async function () {
-        closeMenu();
-        if (!sb) return;
-        try {
-          var sess = await sb.auth.getSession();
-          var token = sess && sess.data && sess.data.session && sess.data.session.access_token;
-          var r = await fetch('/api/portal', { method: 'POST', headers: { Authorization: 'Bearer ' + token } });
-          var d = await r.json();
-          if (d.url) { window.location.href = d.url; }
-          else if (d.error === 'no_customer') { alert('Não encontramos um pagamento ligado ao seu e-mail. Se você assinou com outro e-mail, entre com ele.'); }
-          else { alert('Não foi possível abrir os meios de pagamento: ' + (d.error || 'erro')); }
-        } catch (e) { alert('Erro ao abrir os meios de pagamento: ' + e.message); }
-      };
+      menu.querySelector('#lp-auth-sub').onclick = function () { closeMenu(); openSubModal(); };
       document.addEventListener('click', function (e) {
         if (!e.target.closest('#lp-auth-menu') && e.target.id !== 'lp-auth-btn') closeMenu();
       });
@@ -136,6 +131,21 @@
       document.body.appendChild(ov);
       ov.querySelector('#lp-auth-magic').onclick = signInMagic;
       ov.querySelector('#lp-auth-google').onclick = signInGoogle;
+    }
+    // modal "Minha assinatura" (dismissível)
+    if (!document.getElementById('lp-sub-overlay')) {
+      const so = document.createElement('div');
+      so.id = 'lp-sub-overlay';
+      so.className = 'lp-sub-overlay';
+      so.innerHTML =
+        '<div class="lp-auth-card" style="position:relative;text-align:left">'
+        + '<button class="lp-auth-close" id="lp-sub-x">×</button>'
+        + '<h3 style="text-align:center">Minha assinatura</h3>'
+        + '<div id="lp-sub-body" style="margin-top:8px"></div>'
+        + '</div>';
+      document.body.appendChild(so);
+      so.querySelector('#lp-sub-x').onclick = function () { so.classList.remove('open'); };
+      so.addEventListener('click', function (e) { if (e.target === so) so.classList.remove('open'); });
     }
   }
 
@@ -196,6 +206,86 @@
   }
 
   async function signOut() { await sb.auth.signOut(); }
+
+  // ── Minha assinatura (tela no app) ─────────────────────────────────────────
+  async function token() {
+    const sess = await sb.auth.getSession();
+    return sess && sess.data && sess.data.session && sess.data.session.access_token;
+  }
+
+  async function openSubModal() {
+    const so = document.getElementById('lp-sub-overlay');
+    const body = document.getElementById('lp-sub-body');
+    if (!so || !body || !sb) return;
+    body.innerHTML = '<p style="text-align:center;color:var(--mid,#6E5762);margin:18px 0">Carregando…</p>';
+    so.classList.add('open');
+    try {
+      const r = await fetch('/api/subscription', { method: 'POST', headers: { Authorization: 'Bearer ' + (await token()) } });
+      renderSub(await r.json());
+    } catch (e) {
+      body.innerHTML = '<p style="text-align:center;color:var(--rose,#D43A6E)">Erro ao carregar: ' + e.message + '</p>';
+    }
+  }
+
+  function subRow(k, v) {
+    return '<div class="lp-sub-row"><span class="lp-sub-k">' + k + '</span><span class="lp-sub-v">' + v + '</span></div>';
+  }
+  function fmtDate(ts) { try { return new Date(ts * 1000).toLocaleDateString('pt-BR'); } catch (e) { return '—'; } }
+  function planLabel(s) {
+    if (s.amount == null) return s.nickname || '—';
+    let v;
+    try { v = (s.amount / 100).toLocaleString('pt-BR', { style: 'currency', currency: (s.currency || 'brl').toUpperCase() }); }
+    catch (e) { v = 'R$ ' + (s.amount / 100).toFixed(2); }
+    let per = '';
+    if (s.interval === 'month') per = s.intervalCount > 1 ? ('/' + s.intervalCount + ' meses') : '/mês';
+    else if (s.interval === 'year') per = '/ano';
+    else if (s.interval) per = '/' + s.interval;
+    return v + per + (s.nickname ? (' · ' + s.nickname) : '');
+  }
+  function statusLabel(st, cancel) {
+    const map = { active: 'Ativa', trialing: 'Em teste', past_due: 'Pagamento atrasado', canceled: 'Cancelada', unpaid: 'Não paga', incomplete: 'Incompleta', incomplete_expired: 'Expirada' };
+    let base = map[st] || st || '—';
+    if (cancel && st === 'active') base = 'Ativa (cancela no fim do período)';
+    return base;
+  }
+
+  function renderSub(d) {
+    const body = document.getElementById('lp-sub-body');
+    if (!body) return;
+    if (d && d.error) {
+      body.innerHTML = '<p style="text-align:center;color:var(--rose,#D43A6E);margin:14px 0">' + d.error + '</p>';
+      return;
+    }
+    const rows = [];
+    rows.push(subRow('Nome', d.name || '—'));
+    rows.push(subRow('E-mail', d.email || '—'));
+    if (!d.hasCustomer || !d.subscription) {
+      body.innerHTML = '<div class="lp-sub-rows">' + rows.join('') + '</div>'
+        + '<p style="font-size:13px;color:var(--mid,#6E5762);line-height:1.5;margin:16px 0 0">Não encontramos uma assinatura ativa ligada a este e-mail. Se você assinou com outro e-mail, entre com ele.</p>';
+      return;
+    }
+    const s = d.subscription;
+    rows.push(subRow('Plano', planLabel(s)));
+    rows.push(subRow('Status', statusLabel(s.status, s.cancelAtPeriodEnd)));
+    if (s.currentPeriodEnd) rows.push(subRow(s.cancelAtPeriodEnd ? 'Acesso até' : 'Próxima cobrança', fmtDate(s.currentPeriodEnd)));
+    if (d.card) rows.push(subRow('Cartão', (d.card.brand || 'cartão') + ' •••• ' + d.card.last4));
+    body.innerHTML = '<div class="lp-sub-rows">' + rows.join('') + '</div>'
+      + '<button class="lp-auth-primary" id="lp-sub-portal" style="margin-top:18px">Gerenciar meios de pagamento</button>'
+      + '<p style="font-size:11.5px;color:var(--dim,#A2909B);text-align:center;margin:10px 0 0">Trocar cartão e cancelar são feitos com segurança no ambiente da Stripe.</p>';
+    const pb = document.getElementById('lp-sub-portal');
+    if (pb) pb.onclick = openPortal;
+  }
+
+  async function openPortal() {
+    if (!sb) return;
+    try {
+      const r = await fetch('/api/portal', { method: 'POST', headers: { Authorization: 'Bearer ' + (await token()) } });
+      const d = await r.json();
+      if (d.url) { window.location.href = d.url; }
+      else if (d.error === 'no_customer') { alert('Não encontramos um pagamento ligado ao seu e-mail. Se você assinou com outro e-mail, entre com ele.'); }
+      else { alert('Não foi possível abrir os meios de pagamento: ' + (d.error || 'erro')); }
+    } catch (e) { alert('Erro ao abrir os meios de pagamento: ' + e.message); }
+  }
 
   window.liplopAuth = {
     init: init, openLogin: openLogin, signOut: signOut,
