@@ -111,6 +111,15 @@
     } catch (e) { console.warn('[liplop-sync] migracao', e && e.message || e); }
   }
 
+  // --- exclusão pontual de vaga (chamada pelo app ao excluir um card) ---
+  async function deleteOpp(legacyId) {
+    if (!user || !sb || legacyId == null) return;
+    try {
+      await sb.from('opportunities').delete().eq('user_id', user.id).eq('legacy_id', legacyId);
+    } catch (e) { console.warn('[liplop-sync] delete opp', e && e.message || e); }
+  }
+  window.liplopCloud = { deleteOpp: deleteOpp };
+
   // --- espera o cliente Supabase (auth.js) e assina mudanças de sessão ---
   var tries = 0;
   var wait = setInterval(function () {

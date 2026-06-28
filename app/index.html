@@ -2700,6 +2700,7 @@ function buildCard(opp) {
     const idx = opps.findIndex(o => o.id === opp.id);
     if (idx !== -1) opps.splice(idx, 1);
     saveOpps();
+    if (window.liplopCloud && window.liplopCloud.deleteOpp) window.liplopCloud.deleteOpp(opp.id);
     renderFunnel();
     renderBoard();
   });
