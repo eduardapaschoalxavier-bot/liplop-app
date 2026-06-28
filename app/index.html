@@ -2071,14 +2071,14 @@
       <button class="tab-btn" data-stage="config" onclick="switchTab('perfil')">Construir perfil</button>
     </div>
     <div class="nav-stage" data-stage="aplicar" onmouseenter="openStageHover(this)" onmouseleave="scheduleCloseStages()">
-      <button class="tab-btn" data-stage="aplicar" onclick="toggleStage(this)">Aplicar <span class="nav-caret">▾</span></button>
+      <button class="tab-btn" data-stage="aplicar" onclick="switchTab('analyzer')">Aplicar <span class="nav-caret">▾</span></button>
       <div class="nav-dropdown">
         <a onclick="switchTab('analyzer')">Análise</a>
         <a onclick="switchTab('vagas')">Keywords</a>
       </div>
     </div>
     <div class="nav-stage" data-stage="servisto" onmouseenter="openStageHover(this)" onmouseleave="scheduleCloseStages()">
-      <button class="tab-btn" data-stage="servisto" onclick="toggleStage(this)">Ser visto <span class="nav-caret">▾</span></button>
+      <button class="tab-btn" data-stage="servisto" onclick="switchTab('marca')">Ser visto <span class="nav-caret">▾</span></button>
       <div class="nav-dropdown">
         <a onclick="switchTab('marca')">Marca</a>
         <a onclick="switchTab('tarefas')">Calendário</a>
@@ -2088,7 +2088,7 @@
       <button class="tab-btn" data-stage="aprovado" onclick="switchTab('interview')">Ser aprovado</button>
     </div>
     <div class="nav-stage" data-stage="acompanhar" onmouseenter="openStageHover(this)" onmouseleave="scheduleCloseStages()">
-      <button class="tab-btn" data-stage="acompanhar" onclick="toggleStage(this)">Acompanhar <span class="nav-caret">▾</span></button>
+      <button class="tab-btn" data-stage="acompanhar" onclick="switchTab('kanban')">Acompanhar <span class="nav-caret">▾</span></button>
       <div class="nav-dropdown">
         <a onclick="switchTab('kanban')">Kanban</a>
         <a onclick="switchTab('ranking')">Ranking</a>
