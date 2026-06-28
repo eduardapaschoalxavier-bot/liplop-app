@@ -94,7 +94,7 @@
       menu.id = 'lp-auth-menu';
       menu.className = 'lp-auth-menu';
       menu.innerHTML = '<div class="em" id="lp-auth-email"></div>'
-        + '<button id="lp-auth-billing">Gerenciar assinatura</button>'
+        + '<button id="lp-auth-billing">Gerenciar meios de pagamento</button>'
         + '<button id="lp-auth-signout">Sair</button>';
       document.body.appendChild(menu);
       menu.querySelector('#lp-auth-signout').onclick = function () { closeMenu(); signOut(); };
@@ -107,9 +107,9 @@
           var r = await fetch('/api/portal', { method: 'POST', headers: { Authorization: 'Bearer ' + token } });
           var d = await r.json();
           if (d.url) { window.location.href = d.url; }
-          else if (d.error === 'no_customer') { alert('Não encontramos uma assinatura ligada ao seu e-mail. Se você assinou com outro e-mail, entre com ele.'); }
-          else { alert('Não foi possível abrir a gestão de assinatura: ' + (d.error || 'erro')); }
-        } catch (e) { alert('Erro ao abrir a gestão de assinatura: ' + e.message); }
+          else if (d.error === 'no_customer') { alert('Não encontramos um pagamento ligado ao seu e-mail. Se você assinou com outro e-mail, entre com ele.'); }
+          else { alert('Não foi possível abrir os meios de pagamento: ' + (d.error || 'erro')); }
+        } catch (e) { alert('Erro ao abrir os meios de pagamento: ' + e.message); }
       };
       document.addEventListener('click', function (e) {
         if (!e.target.closest('#lp-auth-menu') && e.target.id !== 'lp-auth-btn') closeMenu();
