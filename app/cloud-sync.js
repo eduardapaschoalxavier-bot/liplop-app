@@ -97,18 +97,57 @@
     }
   }
 
-  // --- migração one-time no 1º login ---
-  async function maybeMigrate() {
+  // --- no login: 1ª vez migra o cache; depois passa a LER do banco ---
+  async function onLogin() {
     if (!user || !sb) return;
     try {
       var sel = await sb.from('profiles').select('migrated_at').eq('id', user.id).maybeSingle();
-      if (sel.data && sel.data.migrated_at) return;          // já migrado, não mexe
-      await pushProfile();                                    // garante a linha do perfil
-      await pushMarca();
-      await pushOpps();
-      await sb.from('profiles').update({ migrated_at: new Date().toISOString() }).eq('id', user.id);
-      console.info('[liplop-sync] cache migrado para a conta');
-    } catch (e) { console.warn('[liplop-sync] migracao', e && e.message || e); }
+      if (sel.data && sel.data.migrated_at) {
+        await hydrateFromCloud();                  // já migrou: a fonte da verdade é o banco
+      } else {
+        await pushProfile();                       // 1º login: empurra o cache pra conta
+        await pushMarca();
+        await pushOpps();
+        await sb.from('profiles').update({ migrated_at: new Date().toISOString() }).eq('id', user.id);
+        console.info('[liplop-sync] cache migrado para a conta');
+      }
+    } catch (e) { console.warn('[liplop-sync] onLogin', e && e.message || e); }
+  }
+
+  // --- Etapa 3: puxa do banco e abastece o cache (com fallback: se falhar, mantém o cache) ---
+  async function hydrateFromCloud() {
+    if (!user || !sb) return;
+    try {
+      var p = await sb.from('profiles').select('profile_text,objectives,roles,job_search').eq('id', user.id).maybeSingle();
+      if (p && p.data) {
+        if (p.data.profile_text != null) origSet('liplop-profile', p.data.profile_text);
+        if (p.data.objectives != null) origSet('liplop-profile-objectives-v1', p.data.objectives);
+        if (p.data.roles != null) origSet('liplop-profile-roles-v1', p.data.roles);
+        if (p.data.job_search != null) origSet('liplop-job-search-v1', JSON.stringify(p.data.job_search));
+      }
+      var o = await sb.from('opportunities').select('*').eq('user_id', user.id).order('position', { ascending: true });
+      if (o && !o.error && Array.isArray(o.data)) {       // espelha o banco (inclusive vazio)
+        var arr = o.data.map(function (r) {
+          return {
+            id: r.legacy_id, company: r.company, role: r.role, status: r.status, stage: r.stage,
+            fit: r.fit, link: r.link, jd_text: r.jd_text, contacts: r.contacts || [], next: r.next,
+            notes: r.notes, organic: r.organic || undefined, referred: r.referred || undefined, analysis: r.analysis
+          };
+        });
+        origSet('job-crm-opps-v2', JSON.stringify(arr));
+      }
+      var m = await sb.from('marca').select('*').eq('user_id', user.id).maybeSingle();
+      if (m && m.data) {
+        if (m.data.project != null) origSet('liplop-marca-project-v1', JSON.stringify(m.data.project));
+        if (m.data.tone != null) origSet('liplop-marca-tone-v1', m.data.tone);
+        if (m.data.calendar != null) origSet('liplop-marca-calendar-v1', JSON.stringify(m.data.calendar));
+        if (m.data.message != null) origSet('liplop-marca-message-v1', m.data.message);
+        if (m.data.cal_start != null) origSet('liplop-marca-cal-start-v1', m.data.cal_start);
+        if (m.data.estrategia != null) origSet('liplop-marca-estrategia-v1', m.data.estrategia);
+      }
+      if (window.liplopReloadFromCache) window.liplopReloadFromCache();
+      console.info('[liplop-sync] dados carregados do banco');
+    } catch (e) { console.warn('[liplop-sync] hydrate', e && e.message || e); }
   }
 
   // --- exclusão pontual de vaga (chamada pelo app ao excluir um card) ---
@@ -129,12 +168,12 @@
       sb = window.liplopSupabase;
       sb.auth.getSession().then(function (r) {
         user = (r.data.session && r.data.session.user) || null;
-        if (user) maybeMigrate();
+        if (user) onLogin();
       });
       sb.auth.onAuthStateChange(function (_e, session) {
         var was = user;
         user = (session && session.user) || null;
-        if (user && !was) maybeMigrate();                    // acabou de logar
+        if (user && !was) onLogin();                         // acabou de logar
       });
     } else if (tries > 50) { clearInterval(wait); }          // ~10s: desiste, app segue só cache
   }, 200);

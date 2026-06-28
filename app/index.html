@@ -2516,6 +2516,19 @@ function saveOpps() {
 
 const opps = loadOpps();
 
+// Gancho usado pelo cloud-sync (Etapa 3): após hidratar o cache com os dados
+// do banco, recarrega 'opps' do cache e re-renderiza a aba atual.
+window.liplopReloadFromCache = function () {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (raw != null) {                                   // sem a chave, não mexe (evita zerar à toa)
+      var fresh = JSON.parse(raw);
+      if (Array.isArray(fresh)) { opps.length = 0; for (var i = 0; i < fresh.length; i++) opps.push(fresh[i]); }
+    }
+  } catch (e) {}
+  try { if (typeof switchTab === 'function') switchTab(_currentTab || 'analyzer'); } catch (e) {}
+};
+
 const COLUMN_ORDER_KEY = 'liplop-column-order';
 const columns = [
   { id: "todo",       label: "Para Aplicar",           cls: "col-todo" },
