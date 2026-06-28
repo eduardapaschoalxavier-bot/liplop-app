@@ -120,6 +120,7 @@
         + '<div class="lp-auth-brand"><span class="lp-auth-logo">L</span>Liplop</div>'
         + '<h3>Entre pra acessar seu painel</h3>'
         + '<p>O Liplop é uma conta sua: seu perfil, currículos e vagas ficam salvos com segurança, em qualquer dispositivo.</p>'
+        + '<input class="lp-auth-input" id="lp-auth-name-input" type="text" placeholder="Seu nome" autocomplete="name" />'
         + '<input class="lp-auth-input" id="lp-auth-email-input" type="email" placeholder="seu@email.com" autocomplete="email" />'
         + '<button class="lp-auth-primary" id="lp-auth-magic">Enviar link de acesso</button>'
         + '<div class="lp-auth-or">ou</div>'
@@ -149,6 +150,11 @@
     }
   }
 
+  function displayName(u) {
+    const md = (u && u.user_metadata) || {};
+    return md.full_name || md.name || ((u && u.email || 'conta').split('@')[0]);
+  }
+
   function render() {
     const gate = document.getElementById('lp-auth-overlay');
     const btn = document.getElementById('lp-auth-btn');
@@ -156,10 +162,10 @@
       if (gate) gate.classList.remove('open');            // libera o app
       if (btn) {
         btn.style.display = '';
-        btn.textContent = '👤 ' + (user.email || 'conta').split('@')[0];
+        btn.textContent = '👤 ' + displayName(user).split(' ')[0];
       }
       const em = document.getElementById('lp-auth-email');
-      if (em) em.textContent = user.email || '';
+      if (em) em.innerHTML = '<strong style="color:var(--text,#1A0E15);font-weight:700;display:block;font-size:13px;margin-bottom:2px">' + displayName(user) + '</strong>' + (user.email || '');
     } else {
       if (gate) gate.classList.add('open');               // tranca o app
       if (btn) btn.style.display = 'none';                // nada de "Entrar" solto no topbar
@@ -188,12 +194,13 @@
   async function signInMagic() {
     const input = document.getElementById('lp-auth-email-input');
     const email = (input && input.value || '').trim();
+    const nameEl = document.getElementById('lp-auth-name-input');
+    const name = (nameEl && nameEl.value || '').trim();
     if (!email || email.indexOf('@') < 0) { msg('Digite um e-mail válido.'); return; }
     msg('Enviando...', true);
-    const { error } = await sb.auth.signInWithOtp({
-      email: email,
-      options: { emailRedirectTo: window.location.origin }
-    });
+    const options = { emailRedirectTo: window.location.origin };
+    if (name) options.data = { full_name: name };   // vira user_metadata no cadastro
+    const { error } = await sb.auth.signInWithOtp({ email: email, options: options });
     msg(error ? ('Erro: ' + error.message) : 'Link enviado! Confira seu e-mail (e o spam).', !error);
   }
 
