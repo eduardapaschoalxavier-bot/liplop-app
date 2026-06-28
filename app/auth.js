@@ -102,10 +102,24 @@
       menu.className = 'lp-auth-menu';
       menu.innerHTML = '<div class="em" id="lp-auth-email"></div>'
         + '<button id="lp-auth-sub">Minha assinatura</button>'
+        + '<button id="lp-auth-editname">Editar nome</button>'
         + '<button id="lp-auth-signout">Sair</button>';
       document.body.appendChild(menu);
       menu.querySelector('#lp-auth-signout').onclick = function () { closeMenu(); signOut(); };
       menu.querySelector('#lp-auth-sub').onclick = function () { closeMenu(); openSubModal(); };
+      menu.querySelector('#lp-auth-editname').onclick = async function () {
+        closeMenu();
+        if (!sb || !user) return;
+        var atual = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || '';
+        var n = prompt('Seu nome:', atual);
+        if (n == null) return;
+        n = n.trim();
+        if (!n) return;
+        try {
+          var r = await sb.auth.updateUser({ data: { full_name: n } });
+          if (r && r.data && r.data.user) { user = r.data.user; render(); }
+        } catch (e) { alert('Não foi possível salvar o nome: ' + e.message); }
+      };
       document.addEventListener('click', function (e) {
         if (!e.target.closest('#lp-auth-menu') && e.target.id !== 'lp-auth-btn') closeMenu();
       });
@@ -162,7 +176,7 @@
       if (gate) gate.classList.remove('open');            // libera o app
       if (btn) {
         btn.style.display = '';
-        btn.innerHTML = displayName(user).split(' ')[0] + ' <span style="opacity:.6;font-size:10px;vertical-align:middle">▾</span>';
+        btn.innerHTML = displayName(user).split(' ')[0] + ' <span style="opacity:.8;font-size:13px;vertical-align:middle;margin-left:2px">▾</span>';
       }
       const em = document.getElementById('lp-auth-email');
       if (em) em.innerHTML = '<strong style="color:var(--text,#1A0E15);font-weight:700;display:block;font-size:13px;margin-bottom:2px">' + displayName(user) + '</strong>' + (user.email || '');
