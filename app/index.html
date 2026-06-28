@@ -2068,7 +2068,7 @@
 
   <nav class="tab-nav">
     <div class="nav-stage" data-stage="config">
-      <button class="tab-btn" data-stage="config" onclick="switchTab('perfil')">Configurações</button>
+      <button class="tab-btn" data-stage="config" onclick="switchTab('perfil')">Construir perfil</button>
     </div>
     <div class="nav-stage" data-stage="aplicar" onmouseenter="openStageHover(this)" onmouseleave="scheduleCloseStages()">
       <button class="tab-btn" data-stage="aplicar" onclick="toggleStage(this)">Aplicar <span class="nav-caret">▾</span></button>
@@ -3630,7 +3630,7 @@ async function generateResumeFromAnalysis() {
 
   if (!profile) {
     st.style.display = 'block';
-    st.textContent = '⚠ Configure seu perfil primeiro em Configurações.';
+    st.textContent = '⚠ Configure seu perfil primeiro em Construir perfil.';
     return;
   }
   if (!jd) {
@@ -3876,7 +3876,7 @@ async function generateResume(retry = false) {
   const profile = localStorage.getItem(PROFILE_KEY);
   if (!profile) {
     document.getElementById('resume-gen-status').style.display = 'block';
-    document.getElementById('resume-gen-status').textContent = '⚠ Configure seu perfil primeiro em Configurações.';
+    document.getElementById('resume-gen-status').textContent = '⚠ Configure seu perfil primeiro em Construir perfil.';
     return false;
   }
 
