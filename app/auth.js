@@ -95,7 +95,7 @@
       btn.id = 'lp-auth-btn';
       btn.className = 'lp-auth-btn';
       btn.onclick = onBtnClick;
-      right.insertBefore(btn, right.firstChild);
+      right.appendChild(btn);   // conta ancorada na direita
       // menu da conta
       const menu = document.createElement('div');
       menu.id = 'lp-auth-menu';
@@ -162,7 +162,7 @@
       if (gate) gate.classList.remove('open');            // libera o app
       if (btn) {
         btn.style.display = '';
-        btn.textContent = '👤 ' + displayName(user).split(' ')[0];
+        btn.innerHTML = displayName(user).split(' ')[0] + ' <span style="opacity:.6;font-size:10px;vertical-align:middle">▾</span>';
       }
       const em = document.getElementById('lp-auth-email');
       if (em) em.innerHTML = '<strong style="color:var(--text,#1A0E15);font-weight:700;display:block;font-size:13px;margin-bottom:2px">' + displayName(user) + '</strong>' + (user.email || '');
