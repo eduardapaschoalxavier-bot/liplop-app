@@ -4667,9 +4667,21 @@ const GUIDE_STEPS = [
   { target: '#btn-analyze', event: 'liplop:analysis-complete',
     title: 'Passo 1 de 5 · Agora analise',
     body: 'Clique em <strong>Analisar</strong> e a IA mostra seu fit, seus pontos fortes e as lacunas.' },
+  { target: '.fit-score-row', explain: true,
+    title: 'Sua análise saiu! ✨',
+    body: 'Aqui em cima está o seu <strong>fit</strong> com a vaga e um resumo do match. Bora entender cada parte.' },
+  { target: '.fit-block.has', explain: true,
+    title: 'Seus pontos fortes',
+    body: 'O que você já tem e casa com a vaga. São seus trunfos: é isso que você destaca no currículo e na entrevista.' },
+  { target: '.fit-block.lacks', explain: true,
+    title: 'Seus gaps',
+    body: 'O que a vaga pede e ainda não aparece claro no seu perfil. Saber disso te prepara pra contornar ou desenvolver antes de aplicar.' },
+  { target: '.fit-block.tips', explain: true,
+    title: 'O mais importante: passar na triagem',
+    body: 'Aqui a IA te diz exatamente como construir o currículo pra passar pelo filtro dos recrutadores: as keywords da vaga, o que destacar e como traduzir a sua experiência.' },
   { target: '#btn-gen-resume-from-analysis', event: 'liplop:resume-generated',
     title: 'Passo 2 de 5 · Gere seu currículo',
-    body: 'Agora clique em <strong>gerar currículo</strong>. A IA adapta seu currículo pra essa vaga específica.' },
+    body: 'Agora clique em <strong>gerar currículo</strong>. A IA já aplica essas dicas e adapta seu currículo pra essa vaga.' },
   { target: '#btn-add-kanban', event: 'liplop:vaga-added-kanban',
     title: 'Passo 3 de 5 · Acompanhe a vaga',
     body: 'Clique em <strong>+ Adicionar ao Kanban</strong> pra acompanhar essa vaga no seu funil.' },
@@ -4757,6 +4769,12 @@ function buildGuideTip(step) {
       + '</div>';
   } else if (step.celebrate) {
     actions = '';   // micro-passo de comemoração, some sozinho
+  } else if (step.explain) {
+    // passo explicativo: avança no "Próximo" (não espera ação do app)
+    actions = '<div class="wt-tip-actions">'
+      + '<button class="wt-skip" onclick="endWalkthrough()">Sair do tour</button>'
+      + '<button class="wt-next" onclick="advanceGuide()">Próximo →</button>'
+      + '</div>';
   } else {
     actions = '<div class="wt-tip-actions">'
       + '<span style="font-size:11px;color:var(--dim)">Conclua o passo pra continuar</span>'
