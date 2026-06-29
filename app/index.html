@@ -4530,13 +4530,12 @@ const WELCOME_KEY = 'liplop_welcome_v1';
 // uma vez, em qualquer dispositivo, e quem volta não vê de novo.
 // Sem login (produção atual), o sufixo fica vazio = comportamento de hoje.
 let _wkUid = '';
-let _wkRanFor;            // conta já processada nesta página (undefined = nunca rodou)
+let _wkRan = false;      // o fluxo de boas-vindas já rodou nesta carga de página?
 function wkKey(base) { return _wkUid ? (base + '::' + _wkUid) : base; }
 function runNewUserFlow(uid) {
-  const id = uid || '';
-  if (_wkRanFor === id) return;   // já rodou pra essa conta nesta página
-  _wkRanFor = id;
-  _wkUid = id;
+  if (_wkRan) return;    // roda só uma vez por carga: evita reabrir o welcome por cima do tour
+  _wkRan = true;
+  _wkUid = uid || '';
   showWelcomeIfNeeded();
 }
 window.liplopRunNewUserFlow = runNewUserFlow;
@@ -4577,6 +4576,7 @@ function importData(input) {
   input.value = '';
 }
 function showWelcomeIfNeeded() {
+  if (document.getElementById('wt-root')) return;   // tour já rodando: não reabre o welcome por cima
   if (!localStorage.getItem(wkKey(WELCOME_KEY))) {
     document.getElementById('welcome-modal').style.display = 'flex';
   } else {
@@ -4923,8 +4923,8 @@ function skipOnboarding() {
 //   carregar), roda como anônimo — comportamento por navegador de antes.
 document.addEventListener('DOMContentLoaded', function () {
   setTimeout(function () {
-    if (_wkRanFor === undefined) runNewUserFlow(null);
-  }, 2500);
+    if (!_wkRan) runNewUserFlow(null);
+  }, 4000);
 });
 
 function openPricing() { /* pricing modal removed */ }
