@@ -4705,6 +4705,7 @@ const GUIDE_STEPS = [
     title: 'Passo 3 de 4 · Já está no kanban! 🎉',
     body: 'Adicionei a sua vaga ao kanban <strong>automaticamente</strong>. É aqui que você acompanha cada processo, do "Para Aplicar" até a oferta.' },
   { tab: 'kanban', target: '.column[data-col="recruiter"]', event: 'liplop:card-moved-interview',
+    onEnter: function(){ try { closeResumeModal(); } catch(e){} },   // garante que o modal não fique por cima do kanban
     title: 'Passo 3 de 4 · Marque a entrevista',
     body: 'Agora <strong>arraste a sua vaga</strong> (lá na coluna "Para Aplicar") até aqui, a coluna <strong>Entrevista Agendada</strong>.' },
   { tab: 'interview', target: '.js-gen-prep', event: 'liplop:interview-prep-ready',
