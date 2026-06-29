@@ -4716,8 +4716,8 @@ const GUIDE_STEPS = [
     body: 'Adicionei a sua vaga ao kanban <strong>automaticamente</strong>, já na coluna <strong>Aplicada</strong> (é o card em destaque ao lado). É aqui que você acompanha cada processo até a oferta.' },
   { tab: 'kanban', targetFn: function(){ return '.card[data-id="' + window._guideCardId + '"]'; }, dragHint: true, event: 'liplop:card-moved-interview',
     onEnter: function(){ try { closeResumeModal(); } catch(e){} },   // garante que o modal não fique por cima do kanban
-    title: 'Passo 3 de 4 · Marque a entrevista',
-    body: 'Agora <strong>arraste este card</strong> (em destaque) pra direita, até a coluna <strong>Entrevista Agendada</strong>. Segue a setinha 👉' },
+    title: 'Passo 3 de 4 · Quando vier a entrevista',
+    body: 'Assim que uma empresa te chamar pra entrevista, você arrasta o card pra cá e o Liplop já monta a sua preparação. Bora ver na prática: arrasta a sua vaga (em destaque) até a coluna <strong>Entrevista Agendada</strong> 👉' },
   { tab: 'interview', target: '.js-gen-prep', event: 'liplop:interview-prep-ready',
     title: 'Passo 4 de 4 · Prepare a entrevista',
     body: 'Clique em <strong>Gerar preparação</strong>. A IA monta o que a empresa valoriza, o que destacar e o que evitar.' },
