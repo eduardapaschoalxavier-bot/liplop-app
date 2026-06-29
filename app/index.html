@@ -2013,7 +2013,7 @@
         <h3 id="resume-modal-title" style="color:var(--text);margin:0;font-size:1.1rem"></h3>
       </div>
       <!-- Paleta de cores -->
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+      <div id="resume-color-group" style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
         <div style="font-size:10px;color:var(--dim);font-weight:600;letter-spacing:.04em">COR DO CURRÍCULO</div>
         <div style="display:flex;gap:6px">
           <button onclick="setResumeColor('#e91e8c')" title="#e91e8c" id="resume-color-btn-e91e8c" style="width:20px;height:20px;border-radius:50%;background:#e91e8c;border:2px solid transparent;cursor:pointer;transition:transform .15s;padding:0" onmouseover="this.style.transform='scale(1.25)'" onmouseout="this.style.transform='scale(1)'"></button>
@@ -2034,9 +2034,11 @@
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;flex-wrap:wrap">
         <span style="font-size:12px;color:var(--mid);line-height:1.4">✏️ Clique em qualquer texto pra editar. Selecione um trecho e use <strong style="color:var(--text)">B</strong> / <strong style="color:var(--text)">I</strong> / <strong style="color:var(--text)">U</strong> pra formatar.</span>
         <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+          <span id="resume-fmt-group" style="display:flex;align-items:center;gap:6px">
           <button onmousedown="event.preventDefault()" onclick="fmtResume('bold')" title="Negrito (selecione o texto antes)" style="width:30px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;font-weight:800;cursor:pointer">B</button>
           <button onmousedown="event.preventDefault()" onclick="fmtResume('italic')" title="Itálico" style="width:30px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;font-style:italic;cursor:pointer">I</button>
           <button onmousedown="event.preventDefault()" onclick="fmtResume('underline')" title="Sublinhado" style="width:30px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;text-decoration:underline;cursor:pointer">U</button>
+          </span>
           <button id="resume-edit-btn" onclick="focusResumeEditor()"
             title="Clique em qualquer texto do currículo para editar"
             style="flex-shrink:0;display:flex;align-items:center;gap:6px;padding:8px 16px;background:linear-gradient(135deg,#e91e8c,#f472b6);border:none;border-radius:999px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 10px rgba(233,30,140,0.35);transition:transform .15s"
@@ -4663,13 +4665,13 @@ const GUIDE_STEPS = [
     body: 'Em 5 passos rápidos eu te mostro o Liplop na prática. Você faz, eu te mostro onde clicar.',
     cta: 'Bora começar' },
   { tab: 'analyzer', target: '#fit-jd-manual', waitInput: '#fit-jd-manual',
-    title: 'Passo 1 de 5 · Cole uma vaga',
+    title: 'Passo 1 de 4 · Cole uma vaga',
     body: 'Pega uma vaga que você quer MUITO, copia a descrição completa (LinkedIn, Gupy, qualquer portal) e cola aqui neste campo.' },
   { target: '#fit-jd-manual', celebrate: true, autoNext: 4000,
     title: 'Boa! 🎉',
     body: 'Vaga colada! Agora bora ver o seu match com ela.' },
   { target: '#btn-analyze', event: 'liplop:analysis-complete',
-    title: 'Passo 1 de 5 · Agora analise',
+    title: 'Passo 1 de 4 · Agora analise',
     body: 'Clique em <strong>Analisar</strong> e a IA mostra seu fit, seus pontos fortes e as lacunas.' },
   { target: '.fit-score-row', explain: true,
     title: 'Sua análise saiu! ✨',
@@ -4687,25 +4689,31 @@ const GUIDE_STEPS = [
     title: 'O mais importante: passar na triagem',
     body: 'Aqui está o ouro: como montar um currículo que <strong>destaca os seus pontos fortes</strong> e fala a língua da vaga (as keywords, o que enfatizar, como traduzir a sua experiência). É exatamente isso que <strong>aumenta as suas chances de passar na triagem</strong>.' },
   { target: '#btn-gen-resume-from-analysis', event: 'liplop:resume-generated',
-    title: 'Passo 2 de 5 · Gere seu currículo',
+    title: 'Passo 2 de 4 · Gere seu currículo',
     body: 'Agora clique em <strong>gerar currículo</strong>. Leva alguns segundos: a IA lê todo o seu perfil, os pontos fortes, os gaps e as sugestões pra montar um currículo matador pra essa vaga.' },
-  { target: '#resume-edit-btn', explain: true,
-    title: 'Currículo pronto! Personalize',
-    body: 'Clique em qualquer texto pra editar, use <strong>B / I / U</strong> pra formatar e troque a <strong>cor do currículo</strong> ali no canto superior direito.' },
+  { target: '#resume-modal-content', explain: true,
+    title: 'Currículo pronto! Edite à vontade',
+    body: 'Esse currículo é todo editável: <strong>clique em qualquer texto</strong> dele e escreva por cima pra ajustar o que quiser.' },
+  { target: '#resume-fmt-group', explain: true,
+    title: 'Formate o texto',
+    body: 'Selecione um trecho do currículo e use <strong>B / I / U</strong> pra deixar em negrito, itálico ou sublinhado.' },
+  { target: '#resume-color-group', explain: true,
+    title: 'Escolha a cor do currículo',
+    body: 'E aqui em cima você troca a <strong>cor do currículo</strong>, pra dar a sua cara.' },
   { target: '#resume-modal-content', explain: true,
     title: 'Revise com atenção (importante!)',
-    body: 'A IA te dá uma base forte, mas <strong>revise tudo</strong>: confira se cada informação está correta e ajuste o que precisar. É o seu nome ali, então tem que estar impecável.' },
+    body: 'Antes de salvar, <strong>edite e revise tudo</strong>: ajuste uma frase, troque uma palavra, corrija qualquer detalhe. É o seu nome ali, deixe impecável.' },
   { target: '#btn-save-pdf', waitClick: '#btn-save-pdf',
-    title: 'Passo 2 de 5 · Salve seu currículo',
+    title: 'Passo 2 de 4 · Salve seu currículo',
     body: 'Quando estiver do seu jeito, clique em <strong>⬇ Salvar como PDF</strong> pra baixar.' },
-  { target: '#btn-add-kanban', event: 'liplop:vaga-added-kanban',
-    title: 'Passo 3 de 5 · Acompanhe a vaga',
-    body: 'Clique em <strong>+ Adicionar ao Kanban</strong> pra acompanhar essa vaga no seu funil.' },
+  { onEnter: function(){ guideAddVagaToKanban(); }, targetFn: function(){ return '.card[data-id="' + _guideAddedOppId + '"]'; }, explain: true,
+    title: 'Passo 3 de 4 · Já está no kanban! 🎉',
+    body: 'Adicionei a sua vaga ao kanban <strong>automaticamente</strong>. É aqui que você acompanha cada processo, do "Para Aplicar" até a oferta.' },
   { tab: 'kanban', target: '.column[data-col="recruiter"]', event: 'liplop:card-moved-interview',
-    title: 'Passo 4 de 5 · Marque a entrevista',
-    body: 'Arraste o card da sua vaga até a coluna <strong>Entrevista Agendada</strong> (esta aqui em destaque).' },
+    title: 'Passo 3 de 4 · Marque a entrevista',
+    body: 'Agora <strong>arraste a sua vaga</strong> (lá na coluna "Para Aplicar") até aqui, a coluna <strong>Entrevista Agendada</strong>.' },
   { tab: 'interview', target: '.js-gen-prep', event: 'liplop:interview-prep-ready',
-    title: 'Passo 5 de 5 · Prepare a entrevista',
+    title: 'Passo 4 de 4 · Prepare a entrevista',
     body: 'Clique em <strong>Gerar preparação</strong>. A IA monta o que a empresa valoriza, o que destacar e o que evitar.' },
   { final: true, tab: 'analyzer',
     title: 'Agora é com você! 🚀',
@@ -4714,6 +4722,20 @@ const GUIDE_STEPS = [
 ];
 let _gIndex = 0;
 let _gOff = null;   // remove o listener do passo atual
+let _guideAddedOppId = null;   // id da vaga adicionada automaticamente ao kanban no tour
+
+// No tour, adiciona a vaga ao kanban automaticamente quando a pessoa salva o PDF.
+function guideAddVagaToKanban() {
+  try {
+    const o = (typeof _resumeOpp !== 'undefined' && _resumeOpp) ? _resumeOpp : {};
+    const comp = (o.company || '').trim().toLowerCase();
+    const rl = (o.role || '').trim().toLowerCase();
+    let match = opps.find(x => (x.company || '').trim().toLowerCase() === comp && (x.role || '').trim().toLowerCase() === rl);
+    addCurrentVagaToKanban();                 // fecha o modal, adiciona (se nova) e vai pro kanban
+    if (!match) match = opps[opps.length - 1];
+    _guideAddedOppId = match ? match.id : null;
+  } catch (e) {}
+}
 
 function startWalkthrough(force) {
   if (!force) { try { if (localStorage.getItem(wkKey(WALKTHROUGH_KEY))) return; } catch(e){} }
@@ -4741,6 +4763,7 @@ function renderGuideStep() {
   if (step.tab) { try { switchTab(step.tab); } catch(e){} }
   // espera o DOM da aba pintar antes de destacar/posicionar
   setTimeout(function () {
+    if (step.onEnter) { try { step.onEnter(); } catch(e){} }
     buildGuideTip(step);
     positionGuide();
     // passo que espera a pessoa preencher um campo (ex.: colar a descrição da vaga)
@@ -4816,7 +4839,8 @@ function positionGuide() {
   const step = GUIDE_STEPS[_gIndex];
   const spot = root.querySelector('.wt-spot');
   const tip  = root.querySelector('.wt-tip');
-  const target = step.target ? document.querySelector(step.target) : null;
+  const sel = step.targetFn ? step.targetFn() : step.target;
+  const target = sel ? document.querySelector(sel) : null;
   let r = null;
   if (target && target.offsetParent !== null) {
     try { target.scrollIntoView({ block: 'center' }); } catch(e){}
