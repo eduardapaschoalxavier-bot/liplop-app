@@ -109,19 +109,7 @@
       menu.querySelector('#lp-auth-profile').onclick = function () { closeMenu(); if (window.switchTab) window.switchTab('perfil'); };
       menu.querySelector('#lp-auth-signout').onclick = function () { closeMenu(); signOut(); };
       menu.querySelector('#lp-auth-sub').onclick = function () { closeMenu(); openSubModal(); };
-      menu.querySelector('#lp-auth-editname').onclick = async function () {
-        closeMenu();
-        if (!sb || !user) return;
-        var atual = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || '';
-        var n = prompt('Seu nome:', atual);
-        if (n == null) return;
-        n = n.trim();
-        if (!n) return;
-        try {
-          var r = await sb.auth.updateUser({ data: { full_name: n } });
-          if (r && r.data && r.data.user) { user = r.data.user; render(); }
-        } catch (e) { alert('Não foi possível salvar o nome: ' + e.message); }
-      };
+      menu.querySelector('#lp-auth-editname').onclick = function () { closeMenu(); openNameModal(); };
       document.addEventListener('click', function (e) {
         if (!e.target.closest('#lp-auth-menu') && e.target.id !== 'lp-auth-btn') closeMenu();
       });
@@ -163,6 +151,26 @@
       document.body.appendChild(so);
       so.querySelector('#lp-sub-x').onclick = function () { so.classList.remove('open'); };
       so.addEventListener('click', function (e) { if (e.target === so) so.classList.remove('open'); });
+    }
+    // modal "Editar nome"
+    if (!document.getElementById('lp-name-overlay')) {
+      const no = document.createElement('div');
+      no.id = 'lp-name-overlay';
+      no.className = 'lp-sub-overlay';
+      no.innerHTML =
+        '<div class="lp-auth-card" style="position:relative">'
+        + '<button class="lp-auth-close" id="lp-name-x">×</button>'
+        + '<h3 style="text-align:center">Editar nome</h3>'
+        + '<p style="text-align:center">Como você quer ser chamada no Liplop.</p>'
+        + '<input class="lp-auth-input" id="lp-name-input" type="text" placeholder="Seu nome" autocomplete="name" />'
+        + '<button class="lp-auth-primary" id="lp-name-save">Salvar</button>'
+        + '<div class="lp-auth-msg" id="lp-name-msg"></div>'
+        + '</div>';
+      document.body.appendChild(no);
+      no.querySelector('#lp-name-x').onclick = function () { no.classList.remove('open'); };
+      no.addEventListener('click', function (e) { if (e.target === no) no.classList.remove('open'); });
+      no.querySelector('#lp-name-save').onclick = saveName;
+      no.querySelector('#lp-name-input').addEventListener('keydown', function (e) { if (e.key === 'Enter') saveName(); });
     }
   }
 
@@ -229,6 +237,35 @@
   }
 
   async function signOut() { await sb.auth.signOut(); }
+
+  function openNameModal() {
+    const no = document.getElementById('lp-name-overlay');
+    const inp = document.getElementById('lp-name-input');
+    const m = document.getElementById('lp-name-msg');
+    if (!no || !inp) return;
+    if (m) m.textContent = '';
+    inp.value = (user && user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || '';
+    no.classList.add('open');
+    setTimeout(function () { inp.focus(); }, 50);
+  }
+
+  async function saveName() {
+    const no = document.getElementById('lp-name-overlay');
+    const inp = document.getElementById('lp-name-input');
+    const m = document.getElementById('lp-name-msg');
+    if (!sb || !inp) return;
+    const n = (inp.value || '').trim();
+    if (!n) { if (m) { m.textContent = 'Digite um nome.'; m.style.color = 'var(--rose,#D43A6E)'; } return; }
+    if (m) { m.textContent = 'Salvando…'; m.style.color = 'var(--mid,#6E5762)'; }
+    try {
+      const r = await sb.auth.updateUser({ data: { full_name: n } });
+      if (r && r.error) throw r.error;
+      if (r && r.data && r.data.user) { user = r.data.user; render(); }
+      if (no) no.classList.remove('open');
+    } catch (e) {
+      if (m) { m.textContent = 'Não foi possível salvar: ' + (e.message || e); m.style.color = 'var(--rose,#D43A6E)'; }
+    }
+  }
 
   // ── Minha assinatura (tela no app) ─────────────────────────────────────────
   async function token() {
