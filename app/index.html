@@ -4767,6 +4767,12 @@ const GUIDE_STEPS = [
   { onEnter: function(){ guideAddVagaToKanban(); }, targetFn: function(){ return '.card[data-id="' + window._guideCardId + '"]'; }, tipSide: true, noBack: true, explain: true,
     title: 'Passo 3 de 4 · Já está no kanban! 🎉',
     body: 'Adicionei a sua vaga ao kanban <strong>automaticamente</strong>, já na coluna <strong>Aplicada</strong> (é o card em destaque ao lado). É aqui que você acompanha cada processo até a oferta.' },
+  { targetFn: function(){ return '.card[data-id="' + window._guideCardId + '"] .card-fit'; }, explain: true,
+    title: 'Esse número é ouro 💎',
+    body: 'Esse <strong>% de fit</strong> é o seu potencial real nessa vaga, calculado a partir do seu perfil. Quanto mais alto, mais perto você está, e o Liplop te mostra o que falta pra subir.' },
+  { targetFn: function(){ return '.card:not([data-id="' + window._guideCardId + '"]) .card-fit'; }, explain: true,
+    title: 'Sua visão de jogo 🎯',
+    body: 'E aqui está o poder de verdade: com várias vagas no kanban, você vê o fit de <strong>todas lado a lado</strong>. Enxerga de cima onde tem mais chance real e foca a sua energia onde mais vale a pena, em vez de aplicar no escuro pra dezenas de vagas.' },
   { tab: 'kanban', targetFn: function(){ return '.card[data-id="' + window._guideCardId + '"]'; }, dragHint: true, back: true, event: 'liplop:card-moved-interview',
     onEnter: function(){ try { closeResumeModal(); } catch(e){} },   // garante que o modal não fique por cima do kanban
     title: 'Passo 3 de 4 · Quando vier a entrevista',
@@ -4811,10 +4817,15 @@ function guideAddVagaToKanban() {
     }
     // fallback: nunca trava o tour, mesmo se a análise não trouxe empresa/cargo
     if (!company && !role) role = 'Vaga analisada';
+    const fitVal = (o.fit != null ? o.fit : ((typeof _lastAnalysis !== 'undefined' && _lastAnalysis && _lastAnalysis.score != null) ? parseInt(_lastAnalysis.score, 10) : null));
     let match = opps.find(x => (x.company || '').trim().toLowerCase() === company.toLowerCase() && (x.role || '').trim().toLowerCase() === role.toLowerCase());
-    if (!match) {
+    if (match) {
+      if (fitVal != null) match.fit = fitVal;   // atualiza o fit pro valor da análise atual (não deixa o antigo)
+      match.stage = 'applied'; match.status = 'Aplicada';
+      saveOpps();
+    } else {
       match = { id: nextId++, company: company, role: role, status: 'Aplicada', stage: 'applied',
-        fit: (o.fit != null ? o.fit : ((typeof _lastAnalysis !== 'undefined' && _lastAnalysis && _lastAnalysis.score != null) ? parseInt(_lastAnalysis.score, 10) : null)), link: null,
+        fit: fitVal, link: null,
         jd_text: (typeof _lastJD !== 'undefined' ? _lastJD : null), contacts: [], next: '—', notes: '—' };
       opps.push(match);
       saveOpps();
