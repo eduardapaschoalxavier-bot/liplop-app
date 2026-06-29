@@ -4819,10 +4819,16 @@ function buildGuideTip(step) {
   } else if (step.celebrate) {
     actions = '';   // micro-passo de comemoração, some sozinho
   } else if (step.explain) {
-    // passo explicativo: avança no "Próximo" (não espera ação do app)
+    // passo explicativo: avança no "Próximo"; "Voltar" só quando o passo anterior
+    // também é explicativo (não dá pra voltar por cima de uma ação já concluída).
+    const canBack = GUIDE_STEPS[_gIndex - 1] && GUIDE_STEPS[_gIndex - 1].explain;
+    const backBtn = canBack ? '<button class="wt-skip" onclick="goBackGuide()">← Voltar</button>' : '';
     actions = '<div class="wt-tip-actions">'
       + '<button class="wt-skip" onclick="endWalkthrough()">Sair do tour</button>'
+      + '<div style="display:flex;align-items:center;gap:10px">'
+      + backBtn
       + '<button class="wt-next" onclick="advanceGuide()">Próximo →</button>'
+      + '</div>'
       + '</div>';
   } else {
     actions = '<div class="wt-tip-actions">'
@@ -4874,6 +4880,13 @@ function advanceGuide() {
   if (_gOff) { _gOff(); _gOff = null; }
   _gIndex++;
   if (_gIndex >= GUIDE_STEPS.length) { endWalkthrough(true); return; }
+  renderGuideStep();
+}
+
+function goBackGuide() {
+  if (_gIndex <= 0) return;
+  if (_gOff) { _gOff(); _gOff = null; }
+  _gIndex--;
   renderGuideStep();
 }
 
