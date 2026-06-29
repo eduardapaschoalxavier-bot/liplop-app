@@ -4777,6 +4777,9 @@ const GUIDE_STEPS = [
     onEnter: function(){ try { closeResumeModal(); } catch(e){} },   // garante que o modal não fique por cima do kanban
     title: 'Passo 3 de 4 · Quando vier a entrevista',
     body: 'Assim que uma empresa te chamar pra entrevista, você arrasta o card pra cá e o Liplop já monta a sua preparação. Bora ver na prática: arrasta a sua vaga (em destaque) até a coluna <strong>Entrevista Agendada</strong> 👉' },
+  { explain: true,
+    title: 'Boa! 🎉',
+    body: 'Agora vamos te preparar pra um dos momentos mais importantes: a <strong>entrevista</strong>. O Liplop vai buscar informações da empresa, do cargo e do seu perfil, e te direcionar sobre <strong>o que falar e o que evitar</strong> na entrevista, aumentando a sua probabilidade de aprovação.' },
   { tab: 'interview', target: '.js-gen-prep', event: 'liplop:interview-prep-ready',
     waitEvent: 'liplop:interview-prep-start',
     waitBody: '🔎 <strong>Montando sua preparação…</strong> Leva mais uns <strong>40 segundos</strong>, mas vale MUITO a pena: é isso que vai te ajudar a mandar bem na entrevista.',
@@ -5247,7 +5250,7 @@ async function generateInterviewPrep(oppId) {
   if (!opp) return;
 
   const resultEl = document.getElementById(`icard-result-${oppId}`);
-  resultEl.innerHTML = `<div style="text-align:center;padding:20px;color:var(--mid);font-size:13px">⏳ Analisando vaga, empresa e seu perfil...</div>`;
+  resultEl.innerHTML = `<button disabled style="width:100%;padding:12px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:9px;color:#fff;font-size:13px;font-weight:700;cursor:wait;opacity:0.9;display:flex;align-items:center;justify-content:center;gap:8px">⏳ IA desenhando a sua preparação de entrevista…</button>`;
 
   const profile = localStorage.getItem(PROFILE_KEY) || '';
   const jd = opp.jd_text || '';
@@ -5291,27 +5294,35 @@ Gere exatamente 3 dicas de empresa, 3 dicas de cargo/senioridade, 3 evites. Seja
       </div>
 
       <!-- Empresa -->
-      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Sobre a ${opp.company}</div>
-      <div id="js-prep-empresa-${oppId}" style="border:1px solid rgba(var(--ink),0.07);border-radius:10px;padding:14px;margin-bottom:16px">
-        ${prep.empresa.map(d => `<div style="font-size:12px;color:var(--text);line-height:1.6;padding:5px 0 5px 16px;position:relative"><span style="position:absolute;left:0;color:#f472b6;font-size:10px;top:7px">›</span>${d}</div>`).join('')}
+      <div id="js-prep-empresa-${oppId}" style="margin-bottom:16px">
+        <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Sobre a ${opp.company}</div>
+        <div style="border:1px solid rgba(var(--ink),0.07);border-radius:10px;padding:14px">
+          ${prep.empresa.map(d => `<div style="font-size:12px;color:var(--text);line-height:1.6;padding:5px 0 5px 16px;position:relative"><span style="position:absolute;left:0;color:#f472b6;font-size:10px;top:7px">›</span>${d}</div>`).join('')}
+        </div>
       </div>
 
       <!-- Cargo e senioridade -->
-      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">O que avaliam nesse cargo</div>
-      <div id="js-prep-cargo-${oppId}" style="border:1px solid rgba(var(--ink),0.07);border-radius:10px;padding:14px;margin-bottom:16px">
-        ${prep.cargo_senioridade.map(d => `<div style="font-size:12px;color:var(--text);line-height:1.6;padding:5px 0 5px 16px;position:relative"><span style="position:absolute;left:0;color:#f472b6;font-size:10px;top:7px">›</span>${d}</div>`).join('')}
+      <div id="js-prep-cargo-${oppId}" style="margin-bottom:16px">
+        <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">O que avaliam nesse cargo</div>
+        <div style="border:1px solid rgba(var(--ink),0.07);border-radius:10px;padding:14px">
+          ${prep.cargo_senioridade.map(d => `<div style="font-size:12px;color:var(--text);line-height:1.6;padding:5px 0 5px 16px;position:relative"><span style="position:absolute;left:0;color:#f472b6;font-size:10px;top:7px">›</span>${d}</div>`).join('')}
+        </div>
       </div>
 
       <!-- Evite -->
-      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Evite</div>
-      <div id="js-prep-evite-${oppId}" style="border:1px solid rgba(var(--ink),0.07);border-radius:10px;padding:14px;margin-bottom:16px">
-        ${prep.evite.map(d => `<div style="font-size:12px;color:var(--text);line-height:1.6;padding:5px 0 5px 16px;position:relative"><span style="position:absolute;left:0;color:#f472b6;font-size:10px;top:7px">›</span>${d}</div>`).join('')}
+      <div id="js-prep-evite-${oppId}" style="margin-bottom:16px">
+        <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Evite</div>
+        <div style="border:1px solid rgba(var(--ink),0.07);border-radius:10px;padding:14px">
+          ${prep.evite.map(d => `<div style="font-size:12px;color:var(--text);line-height:1.6;padding:5px 0 5px 16px;position:relative"><span style="position:absolute;left:0;color:#f472b6;font-size:10px;top:7px">›</span>${d}</div>`).join('')}
+        </div>
       </div>
 
       <!-- Pergunta para fazer -->
-      <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Pergunta para fazer ao final</div>
-      <div id="js-prep-pergunta-${oppId}" style="border:1px solid rgba(244,114,182,0.2);border-radius:10px;padding:14px;background:rgba(244,114,182,0.04)">
-        <div style="font-size:13px;color:#f472b6;font-style:italic;line-height:1.6">"${prep.pergunta_para_fazer}"</div>
+      <div id="js-prep-pergunta-${oppId}">
+        <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Pergunta para fazer ao final</div>
+        <div style="border:1px solid rgba(244,114,182,0.2);border-radius:10px;padding:14px;background:rgba(244,114,182,0.04)">
+          <div style="font-size:13px;color:#f472b6;font-style:italic;line-height:1.6">"${prep.pergunta_para_fazer}"</div>
+        </div>
       </div>
 
       <button onclick="generateInterviewPrep(${oppId})" style="margin-top:16px;width:100%;padding:10px;background:transparent;border:1px solid rgba(var(--ink),0.1);border-radius:8px;color:var(--mid);font-size:12px;cursor:pointer">Regenerar preparação</button>`;
