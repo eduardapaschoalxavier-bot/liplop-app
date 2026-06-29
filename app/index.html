@@ -4963,7 +4963,10 @@ function skipOnboarding() {
 //   carregar), roda como anônimo — comportamento por navegador de antes.
 document.addEventListener('DOMContentLoaded', function () {
   setTimeout(function () {
-    if (!_wkRan) runNewUserFlow(null);
+    // com login (Supabase), o tour é disparado pela conta logada; o fallback
+    // anônimo só roda se NÃO houver auth (produção sem Supabase ou auth.js falhou).
+    // Assim o fallback não "rouba" o disparo usando flags antigas do navegador.
+    if (!_wkRan && !window.liplopHasAuth) runNewUserFlow(null);
   }, 4000);
 });
 
