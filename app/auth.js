@@ -68,7 +68,7 @@
       .lp-auth-msg{margin-top:14px;font-size:13px;line-height:1.5;min-height:18px}
       .lp-auth-close{position:absolute;background:none;border:none;color:var(--dim,#A2909B);font-size:22px;
         cursor:pointer;top:14px;right:18px;line-height:1}
-      .lp-auth-menu{position:absolute;background:var(--card,#fff);border:1px solid var(--border,#ECE2E8);
+      .lp-auth-menu{position:fixed;background:var(--card,#fff);border:1px solid var(--border,#ECE2E8);
         border-radius:12px;box-shadow:0 14px 40px rgba(0,0,0,0.18);padding:6px;min-width:200px;z-index:10061;display:none}
       .lp-auth-menu.open{display:block}
       .lp-auth-menu .em{padding:9px 12px;font-size:12px;color:var(--dim,#A2909B);border-bottom:1px solid var(--border,#ECE2E8);
