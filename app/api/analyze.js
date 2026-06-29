@@ -1,5 +1,8 @@
 // ── Free trial: trava por uso, contada no servidor ──────────────────────────
-const FREE_LIMIT = 1; // 1 grátis de cada ação
+// Free trial por tipo de ação:
+//  analysis: 2 (a análise feita no onboarding guiado + 1 que a pessoa faz sozinha)
+//  resume / interview: 1 (a do onboarding guiado)
+const FREE_LIMIT = { analysis: 2, resume: 1, interview: 1 };
 const KIND_COL = { analysis: 'analyses_used', resume: 'resumes_used', interview: 'interviews_used' };
 
 async function getUser(token) {
@@ -91,7 +94,7 @@ export default async function handler(req, res) {
     const col = KIND_COL[kind];
     const usage = await getUsage(user.id);
     const used = (usage && usage[col]) || 0;
-    if (used >= FREE_LIMIT) {
+    if (used >= (FREE_LIMIT[kind] || 1)) {
       const subbed = await hasActiveSub(user.email);
       if (!subbed) return res.status(402).json({ error: 'trial_over', kind: kind });
     } else {

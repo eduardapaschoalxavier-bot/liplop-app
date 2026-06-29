@@ -2779,6 +2779,7 @@ function moveTo(srcId, targetStage, anchorId, pos) {
   saveOpps();
   renderFunnel();
   renderBoard();
+  if (targetStage === 'recruiter') { try { window.dispatchEvent(new CustomEvent('liplop:card-moved-interview')); } catch(e){} }
 }
 
 // ── reordenação de colunas ───────────────────────────────────
@@ -4302,6 +4303,7 @@ function showResumeModal(opp, text) {
   const cur = window._resumeColor || '#e91e8c';
   const btn = document.getElementById('resume-color-btn-' + cur.replace('#',''));
   if (btn) btn.style.border = '2px solid white';
+  try { window.dispatchEvent(new CustomEvent('liplop:resume-generated')); } catch(e){}
 }
 
 function addCurrentVagaToKanban() {
@@ -4319,6 +4321,7 @@ function addCurrentVagaToKanban() {
   saveOpps();
   closeResumeModal();
   switchTab('kanban');
+  try { window.dispatchEvent(new CustomEvent('liplop:vaga-added-kanban')); } catch(e){}
 }
 
 function closeResumeModal() {
@@ -4648,22 +4651,35 @@ function finishOnboarding() {
 
 /* ── Walkthrough (tour guiado de primeira vez) ────────────────────── */
 const WALKTHROUGH_KEY = 'liplop-walkthrough-v1';
-const WT_STEPS = [
-  { sel: null, title: '🎉 Bem-vinda ao Liplop!',
-    body: 'Em 30 segundos eu te mostro como o Liplop te ajuda a PASSAR nas vagas, não só se candidatar. O menu lá em cima é a sua jornada, etapa por etapa.' },
-  { sel: '.tab-btn[data-stage="aplicar"]', title: '1. Aplicar (comece por aqui)',
-    body: 'Cole uma vaga na Análise: a IA mostra seu fit, seus pontos fortes, as lacunas e gera um currículo adaptado pra ela. Esse é o seu primeiro passo.' },
-  { sel: '.tab-btn[data-stage="servisto"]', title: '2. Ser visto',
-    body: 'Monte sua marca pessoal e um calendário de posts pra as melhores vagas começarem a vir até você.' },
-  { sel: '.tab-btn[data-stage="aprovado"]', title: '3. Ser aprovado',
-    body: 'Quando uma vaga vira entrevista, a IA monta sua preparação: o que a empresa valoriza, o que destacar na sua narrativa e o que evitar.' },
-  { sel: '.tab-btn[data-stage="acompanhar"]', title: '4. Acompanhar',
-    body: 'Seu kanban e o ranking de compatibilidade pra acompanhar cada vaga e focar onde vale mais a pena.' },
-  { sel: null, title: 'Seu primeiro passo 🚀',
-    body: 'Bora começar: aqui na Análise, cole uma vaga que te interessa e veja seu fit em segundos. É o melhor jeito de entender o Liplop na prática.',
-    cta: 'Começar pela Análise' }
+// Onboarding guiado: cada passo de ação ESPERA um evento real do app pra avançar
+// (não tem botão "Próximo"). A pessoa só sai do passo executando a ação.
+const GUIDE_STEPS = [
+  { intro: true, tab: 'analyzer',
+    title: '🎉 Bem-vinda ao Liplop!',
+    body: 'Vou te guiar pelo caminho completo, do jeito que você vai usar de verdade: analisar uma vaga, gerar o currículo, acompanhar no kanban e preparar a entrevista. Você faz, eu te mostro onde clicar.',
+    cta: 'Bora começar' },
+  { tab: 'analyzer', target: '#btn-analyze', event: 'liplop:analysis-complete',
+    title: 'Passo 1 de 5 · Analise uma vaga',
+    body: 'Cole no campo acima uma vaga que te interessa e clique em <strong>Analisar</strong>. A IA mostra seu fit, seus pontos fortes e as lacunas.' },
+  { target: '#btn-gen-resume-from-analysis', event: 'liplop:resume-generated',
+    title: 'Passo 2 de 5 · Gere seu currículo',
+    body: 'Agora clique em <strong>gerar currículo</strong>. A IA adapta seu currículo pra essa vaga específica.' },
+  { target: '#btn-add-kanban', event: 'liplop:vaga-added-kanban',
+    title: 'Passo 3 de 5 · Acompanhe a vaga',
+    body: 'Clique em <strong>+ Adicionar ao Kanban</strong> pra acompanhar essa vaga no seu funil.' },
+  { tab: 'kanban', target: '.column[data-col="recruiter"]', event: 'liplop:card-moved-interview',
+    title: 'Passo 4 de 5 · Marque a entrevista',
+    body: 'Arraste o card da sua vaga até a coluna <strong>Entrevista Agendada</strong> (esta aqui em destaque).' },
+  { tab: 'interview', target: '.js-gen-prep', event: 'liplop:interview-prep-ready',
+    title: 'Passo 5 de 5 · Prepare a entrevista',
+    body: 'Clique em <strong>Gerar preparação</strong>. A IA monta o que a empresa valoriza, o que destacar e o que evitar.' },
+  { final: true, tab: 'analyzer',
+    title: 'Agora é com você! 🚀',
+    body: 'Você fez o caminho completo do Liplop. Agora pode fazer sozinha: volte pra Análise e teste com outra vaga.',
+    cta: 'Fazer sozinha' }
 ];
-let _wtIndex = 0;
+let _gIndex = 0;
+let _gOff = null;   // remove o listener do passo atual
 
 function startWalkthrough(force) {
   if (!force) { try { if (localStorage.getItem(wkKey(WALKTHROUGH_KEY))) return; } catch(e){} }
@@ -4673,25 +4689,67 @@ function startWalkthrough(force) {
   const wel = document.getElementById('welcome-modal');
   if (!force && ((onb && onb.style.display === 'flex') || (wel && wel.style.display === 'flex'))) return;
   closeStages && closeStages();
-  switchTab('analyzer');
   const root = document.createElement('div');
   root.id = 'wt-root';
-  root.innerHTML = '<div class="wt-backdrop"></div><div class="wt-spot"></div><div class="wt-tip"></div>';
+  // backdrop NÃO bloqueia cliques: a pessoa precisa interagir com o app de verdade
+  root.innerHTML = '<div class="wt-backdrop" style="pointer-events:none"></div><div class="wt-spot"></div><div class="wt-tip"></div>';
   document.body.appendChild(root);
-  _wtIndex = 0;
-  renderWalkStep();
-  window.addEventListener('resize', renderWalkStep);
+  _gIndex = 0;
+  renderGuideStep();
+  window.addEventListener('resize', positionGuide);
 }
 
-function renderWalkStep() {
+function renderGuideStep() {
   const root = document.getElementById('wt-root');
   if (!root) return;
-  const step = WT_STEPS[_wtIndex];
+  if (_gOff) { _gOff(); _gOff = null; }            // tira o listener do passo anterior
+  const step = GUIDE_STEPS[_gIndex];
+  if (step.tab) { try { switchTab(step.tab); } catch(e){} }
+  // espera o DOM da aba pintar antes de destacar/posicionar
+  setTimeout(function () {
+    buildGuideTip(step);
+    positionGuide();
+    if (step.event) {
+      const handler = function () { advanceGuide(); };
+      window.addEventListener(step.event, handler, { once: true });
+      _gOff = function () { window.removeEventListener(step.event, handler); };
+    }
+  }, step.tab ? 240 : 30);
+}
+
+function buildGuideTip(step) {
+  const root = document.getElementById('wt-root');
+  if (!root) return;
+  const tip = root.querySelector('.wt-tip');
+  let actions;
+  if (step.intro) {
+    actions = '<div class="wt-tip-actions wt-actions-final">'
+      + '<button class="wt-next wt-next-full" onclick="advanceGuide()">' + (step.cta || 'Começar') + '</button>'
+      + '<button class="wt-skip" onclick="endWalkthrough()">Agora não</button>'
+      + '</div>';
+  } else if (step.final) {
+    actions = '<div class="wt-tip-actions wt-actions-final">'
+      + '<button class="wt-next wt-next-full" onclick="endWalkthrough(true)">' + (step.cta || 'Concluir') + '</button>'
+      + '</div>';
+  } else {
+    actions = '<div class="wt-tip-actions">'
+      + '<span style="font-size:11px;color:var(--dim)">Conclua o passo pra continuar</span>'
+      + '<button class="wt-skip" onclick="endWalkthrough()">Sair do tour</button>'
+      + '</div>';
+  }
+  tip.innerHTML = '<h4>' + step.title + '</h4><p>' + step.body + '</p>' + actions;
+}
+
+function positionGuide() {
+  const root = document.getElementById('wt-root');
+  if (!root) return;
+  const step = GUIDE_STEPS[_gIndex];
   const spot = root.querySelector('.wt-spot');
   const tip  = root.querySelector('.wt-tip');
-  const target = step.sel ? document.querySelector(step.sel) : null;
+  const target = step.target ? document.querySelector(step.target) : null;
   let r = null;
-  if (target) {
+  if (target && target.offsetParent !== null) {
+    try { target.scrollIntoView({ block: 'center' }); } catch(e){}
     r = target.getBoundingClientRect();
     const p = 6;
     spot.style.opacity = '1';
@@ -4703,23 +4761,6 @@ function renderWalkStep() {
     spot.style.left = '50%'; spot.style.top = '42%';
     spot.style.width = '0px'; spot.style.height = '0px';
   }
-  const last = _wtIndex === WT_STEPS.length - 1;
-  const dots = WT_STEPS.map((_, i) => '<span class="wt-dot ' + (i === _wtIndex ? 'active' : '') + '"></span>').join('');
-  const actions = last
-    ? '<div class="wt-tip-actions wt-actions-final">' +
-        '<div class="wt-dots">' + dots + '</div>' +
-        '<button class="wt-next wt-next-full" onclick="endWalkthrough(true)">' + (step.cta || 'Começar') + '</button>' +
-        '<button class="wt-skip" onclick="endWalkthrough()">Fechar</button>' +
-      '</div>'
-    : '<div class="wt-tip-actions">' +
-        '<button class="wt-skip" onclick="endWalkthrough()">Pular tour</button>' +
-        '<div style="display:flex;align-items:center;gap:12px">' +
-          '<div class="wt-dots">' + dots + '</div>' +
-          '<button class="wt-next" onclick="nextWalkStep()">Próximo</button>' +
-        '</div>' +
-      '</div>';
-  tip.innerHTML = '<h4>' + step.title + '</h4>' + '<p>' + step.body + '</p>' + actions;
-  // posiciona o tooltip
   const tw = tip.offsetWidth || 320;
   const th = tip.offsetHeight || 170;
   let tl, tt;
@@ -4735,14 +4776,20 @@ function renderWalkStep() {
   tip.style.top  = Math.max(12, Math.min(tt, window.innerHeight - th - 12)) + 'px';
 }
 
-function nextWalkStep() { _wtIndex++; renderWalkStep(); }
+function advanceGuide() {
+  if (_gOff) { _gOff(); _gOff = null; }
+  _gIndex++;
+  if (_gIndex >= GUIDE_STEPS.length) { endWalkthrough(true); return; }
+  renderGuideStep();
+}
 
 function endWalkthrough(goAnalyzer) {
   try { localStorage.setItem(wkKey(WALKTHROUGH_KEY), '1'); } catch(e){}
+  if (_gOff) { _gOff(); _gOff = null; }
   const root = document.getElementById('wt-root');
   if (root) root.remove();
-  window.removeEventListener('resize', renderWalkStep);
-  if (goAnalyzer) switchTab('analyzer');
+  window.removeEventListener('resize', positionGuide);
+  if (goAnalyzer) { try { switchTab('analyzer'); } catch(e){} }
 }
 
 function skipOnboarding() {
@@ -4945,7 +4992,7 @@ function renderInterviewTab() {
           ${opp.fit != null ? `<span style="font-size:0.8rem;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(244,114,182,0.12);color:#f472b6">${opp.fit}% fit</span>` : ''}
         </div>
         <div id="icard-result-${opp.id}">
-          <button onclick="generateInterviewPrep(${opp.id})"
+          <button class="js-gen-prep" onclick="generateInterviewPrep(${opp.id})"
             style="width:100%;padding:12px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:9px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
             ✨ Gerar preparação para esta entrevista
           </button>
@@ -5026,6 +5073,7 @@ Gere exatamente 3 dicas de empresa, 3 dicas de cargo/senioridade, 3 evites. Seja
       </div>
 
       <button onclick="generateInterviewPrep(${oppId})" style="margin-top:16px;width:100%;padding:10px;background:transparent;border:1px solid rgba(var(--ink),0.1);border-radius:8px;color:var(--mid);font-size:12px;cursor:pointer">Regenerar preparação</button>`;
+    try { window.dispatchEvent(new CustomEvent('liplop:interview-prep-ready')); } catch(e){}
 
   } catch(e) {
     if (e && e.paywall) { resultEl.innerHTML = ''; return; }
@@ -6548,6 +6596,7 @@ function renderAnalysisResult(r) {
 
   document.getElementById('fit-result').classList.add('visible');
   document.getElementById('fit-result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  try { window.dispatchEvent(new CustomEvent('liplop:analysis-complete')); } catch(e){}
 }
 
 function saveAnalysisToKanban() {
