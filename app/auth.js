@@ -111,7 +111,7 @@
       menu.querySelector('#lp-auth-sub').onclick = function () { closeMenu(); openSubModal(); };
       menu.querySelector('#lp-auth-editname').onclick = function () { closeMenu(); openNameModal(); };
       document.addEventListener('click', function (e) {
-        if (!e.target.closest('#lp-auth-menu') && e.target.id !== 'lp-auth-btn') closeMenu();
+        if (!e.target.closest('#lp-auth-menu') && !e.target.closest('#lp-auth-btn')) closeMenu();
       });
     }
     // modal de login
