@@ -1,7 +1,7 @@
 // ── Free trial: trava por uso, contada no servidor ──────────────────────────
-// Free trial por tipo de ação: 2 de cada = 1 rodada completa no onboarding
-// guiado + 1 rodada completa que a pessoa faz sozinha. Depois disso, paywall.
-const FREE_LIMIT = { analysis: 2, resume: 2, interview: 2 };
+// Free trial POOLED: 3 ações de IA no TOTAL (fit + currículo + preparação,
+// somadas). Cada uma conta uma. Ao chegar em 3, entra o paywall.
+const FREE_TOTAL = 3;
 const KIND_COL = { analysis: 'analyses_used', resume: 'resumes_used', interview: 'interviews_used' };
 
 async function getUser(token) {
@@ -92,12 +92,12 @@ export default async function handler(req, res) {
     if (!user) return res.status(401).json({ error: 'Não autenticado' });
     const col = KIND_COL[kind];
     const usage = await getUsage(user.id);
-    const used = (usage && usage[col]) || 0;
-    if (used >= (FREE_LIMIT[kind] || 1)) {
+    const total = ((usage && usage.analyses_used) || 0) + ((usage && usage.resumes_used) || 0) + ((usage && usage.interviews_used) || 0);
+    if (total >= FREE_TOTAL) {
       const subbed = await hasActiveSub(user.email);
       if (!subbed) return res.status(402).json({ error: 'trial_over', kind: kind });
     } else {
-      _incCol = col; _incUser = user.id; _incCur = used;
+      _incCol = col; _incUser = user.id; _incCur = (usage && usage[col]) || 0;
     }
     _evtKind = kind; _evtUser = user.id;   // registra o evento (qualquer uso permitido)
   }
