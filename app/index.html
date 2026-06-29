@@ -4673,8 +4673,10 @@ const GUIDE_STEPS = [
     title: 'Boa! 🎉',
     body: 'Vaga colada! Agora bora ver o seu match com ela.' },
   { target: '#btn-analyze', event: 'liplop:analysis-complete',
+    waitEvent: 'liplop:analysis-start',
+    waitBody: '🔎 <strong>Analisando…</strong> Costuma levar uns <strong>40 segundos</strong>, porque a IA lê todo o seu perfil e a vaga. Aguarda um pouquinho que vale a pena.',
     title: 'Passo 1 de 4 · Agora analise',
-    body: 'Clique em <strong>Analisar</strong> e a IA mostra seu fit, seus pontos fortes e as lacunas. Costuma levar uns <strong>40 segundos</strong>, então aguarda um pouquinho que vale a pena.' },
+    body: 'Clique em <strong>Analisar</strong> e a IA mostra seu fit, seus pontos fortes e as lacunas.' },
   { target: '.fit-score-row', explain: true,
     title: 'Sua análise saiu! ✨',
     body: 'Aqui em cima está o seu <strong>fit</strong> com a vaga e um resumo do match. Bora entender cada parte.' },
@@ -4818,7 +4820,19 @@ function renderGuideStep() {
     if (step.event) {
       const handler = function () { advanceGuide(); };
       window.addEventListener(step.event, handler, { once: true });
-      _gOff = function () { window.removeEventListener(step.event, handler); };
+      // troca o texto do balão quando uma ação intermediária começa (ex.: análise rodando)
+      let waitUpd = null;
+      if (step.waitEvent && step.waitBody) {
+        waitUpd = function () {
+          const p = document.querySelector('#wt-root .wt-tip p');
+          if (p) { p.innerHTML = step.waitBody; positionGuide(); }
+        };
+        window.addEventListener(step.waitEvent, waitUpd, { once: true });
+      }
+      _gOff = function () {
+        window.removeEventListener(step.event, handler);
+        if (waitUpd) window.removeEventListener(step.waitEvent, waitUpd);
+      };
     }
   }, step.tab ? 240 : 30);
 }
@@ -6671,6 +6685,8 @@ Responda SOMENTE com um JSON válido neste formato exato (sem markdown, sem text
 Nos textos (summary, has, lacks, tips), NÃO use travessão (—) nem (–); use vírgula, ponto ou dois-pontos. Português brasileiro correto com todos os acentos.`;
 
   try {
+    // avisa o tour que a análise começou (pra trocar o balão pro aviso de espera)
+    try { window.dispatchEvent(new CustomEvent('liplop:analysis-start')); } catch(e){}
     // Backend Vercel, com retry automático em falhas transitórias
     const raw = await callAI({ prompt, kind: 'analysis' });
     incFreeCount(); // só conta quando deu certo
