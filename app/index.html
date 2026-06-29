@@ -4910,7 +4910,6 @@ function buildGuideTip(step) {
   if (step.intro) {
     actions = '<div class="wt-tip-actions wt-actions-final">'
       + '<button class="wt-next wt-next-full" onclick="advanceGuide()">' + (step.cta || 'Começar') + '</button>'
-      + '<button class="wt-skip" onclick="endWalkthrough()">Agora não</button>'
       + '</div>';
   } else if (step.final) {
     actions = '<div class="wt-tip-actions wt-actions-final">'
