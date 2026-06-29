@@ -4520,6 +4520,23 @@ function downloadResumePDF() {
 // ── Modal Boas-vindas ─────────────────────────────────────────
 const WELCOME_KEY = 'liplop_welcome_v1';
 
+// ── Tour por conta ────────────────────────────────────────────
+// As flags do tour (boas-vindas/walkthrough/onboarding) passam a ser por
+// CONTA quando há login, não por navegador. Assim cada conta nova vê o tour
+// uma vez, em qualquer dispositivo, e quem volta não vê de novo.
+// Sem login (produção atual), o sufixo fica vazio = comportamento de hoje.
+let _wkUid = '';
+let _wkRanFor;            // conta já processada nesta página (undefined = nunca rodou)
+function wkKey(base) { return _wkUid ? (base + '::' + _wkUid) : base; }
+function runNewUserFlow(uid) {
+  const id = uid || '';
+  if (_wkRanFor === id) return;   // já rodou pra essa conta nesta página
+  _wkRanFor = id;
+  _wkUid = id;
+  showWelcomeIfNeeded();
+}
+window.liplopRunNewUserFlow = runNewUserFlow;
+
 function exportData() {
   const data = {
     version: 1,
@@ -4556,14 +4573,14 @@ function importData(input) {
   input.value = '';
 }
 function showWelcomeIfNeeded() {
-  if (!localStorage.getItem(WELCOME_KEY)) {
+  if (!localStorage.getItem(wkKey(WELCOME_KEY))) {
     document.getElementById('welcome-modal').style.display = 'flex';
   } else {
     maybeShowOnboarding();
   }
 }
 function closeWelcome() {
-  localStorage.setItem(WELCOME_KEY, '1');
+  localStorage.setItem(wkKey(WELCOME_KEY), '1');
   document.getElementById('welcome-modal').style.display = 'none';
   maybeShowOnboarding();
 }
@@ -4573,7 +4590,7 @@ const ONBOARDING_SKIP_KEY = 'liplop-onboarding-skipped-v1';
 
 function maybeShowOnboarding() {
   // já passou pelo onboarding (tem perfil ou pulou): mostra o tour uma vez
-  if (localStorage.getItem(PROFILE_KEY) || localStorage.getItem(ONBOARDING_SKIP_KEY)) {
+  if (localStorage.getItem(PROFILE_KEY) || localStorage.getItem(wkKey(ONBOARDING_SKIP_KEY))) {
     setTimeout(() => startWalkthrough(), 600);
     return;
   }
@@ -4649,7 +4666,7 @@ const WT_STEPS = [
 let _wtIndex = 0;
 
 function startWalkthrough(force) {
-  if (!force) { try { if (localStorage.getItem(WALKTHROUGH_KEY)) return; } catch(e){} }
+  if (!force) { try { if (localStorage.getItem(wkKey(WALKTHROUGH_KEY))) return; } catch(e){} }
   if (document.getElementById('wt-root')) return;
   // não abre por cima de outro modal
   const onb = document.getElementById('onboarding-modal');
@@ -4721,7 +4738,7 @@ function renderWalkStep() {
 function nextWalkStep() { _wtIndex++; renderWalkStep(); }
 
 function endWalkthrough(goAnalyzer) {
-  try { localStorage.setItem(WALKTHROUGH_KEY, '1'); } catch(e){}
+  try { localStorage.setItem(wkKey(WALKTHROUGH_KEY), '1'); } catch(e){}
   const root = document.getElementById('wt-root');
   if (root) root.remove();
   window.removeEventListener('resize', renderWalkStep);
@@ -4729,12 +4746,21 @@ function endWalkthrough(goAnalyzer) {
 }
 
 function skipOnboarding() {
-  localStorage.setItem(ONBOARDING_SKIP_KEY, '1');
+  localStorage.setItem(wkKey(ONBOARDING_SKIP_KEY), '1');
   document.getElementById('onboarding-modal').style.display = 'none';
   setTimeout(() => startWalkthrough(), 450);
 }
 
-document.addEventListener('DOMContentLoaded', showWelcomeIfNeeded);
+// Disparo do tour:
+// - Com login: o auth.js chama window.liplopRunNewUserFlow(uid) logo após a
+//   sessão ser confirmada (portão já liberado), por conta.
+// - Fallback: se o auth.js nunca disparar (ex.: sem Supabase, ou falha ao
+//   carregar), roda como anônimo — comportamento por navegador de antes.
+document.addEventListener('DOMContentLoaded', function () {
+  setTimeout(function () {
+    if (_wkRanFor === undefined) runNewUserFlow(null);
+  }, 2500);
+});
 
 function openPricing() { /* pricing modal removed */ }
 function closePricing() { /* pricing modal removed */ }

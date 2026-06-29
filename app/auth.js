@@ -15,10 +15,12 @@
 
   async function init() {
     let cfg;
-    try { cfg = await (await fetch('/api/config')).json(); } catch (e) { return; }
+    try { cfg = await (await fetch('/api/config')).json(); }
+    catch (e) { if (window.liplopRunNewUserFlow) window.liplopRunNewUserFlow(null); return; }
     const ready = cfg && cfg.supabaseUrl && cfg.supabaseAnonKey
       && window.supabase && window.supabase.createClient;
-    if (!ready) return; // sem config => app segue só com cache, sem UI de login
+    // sem config => app segue só com cache, sem portão; tour roda por navegador (anônimo)
+    if (!ready) { if (window.liplopRunNewUserFlow) window.liplopRunNewUserFlow(null); return; }
 
     sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
     window.liplopSupabase = sb;
@@ -191,6 +193,8 @@
       }
       const em = document.getElementById('lp-auth-email');
       if (em) em.innerHTML = '<strong style="color:var(--text,#1A0E15);font-weight:700;display:block;font-size:13px;margin-bottom:2px">' + displayName(user) + '</strong>' + (user.email || '');
+      // tour por conta: dispara depois que o portão liberou (uma vez por conta nesta página)
+      if (window.liplopRunNewUserFlow) window.liplopRunNewUserFlow(user.id);
     } else {
       if (gate) gate.classList.add('open');               // tranca o app
       if (btn) btn.style.display = 'none';                // nada de "Entrar" solto no topbar
