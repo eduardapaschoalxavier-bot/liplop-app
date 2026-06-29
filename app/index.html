@@ -2072,6 +2072,7 @@
       <div class="nav-dropdown">
         <a onclick="switchTab('analyzer')">Análise</a>
         <a onclick="switchTab('vagas')">Keywords</a>
+        <a onclick="switchTab('documentos')">Documentos</a>
       </div>
     </div>
     <div class="nav-stage" data-stage="aprovado">
@@ -2234,6 +2235,10 @@
 
 <div class="tab-view" id="tab-marca">
   <div id="marca-wrap" style="max-width:720px;margin:0 auto;padding:24px 16px 60px"></div>
+</div>
+
+<div class="tab-view" id="tab-documentos">
+  <div id="documentos-wrap" style="max-width:760px;margin:0 auto;padding:24px 16px 60px"></div>
 </div>
 
 
@@ -3328,7 +3333,7 @@ function switchTab(tab) {
   _currentTab = tab;
 
   // Esconde todas as abas explicitamente
-  ['analyzer','kanban','ranking','interview','marca','tarefas','perfil','vagas'].forEach(id => {
+  ['analyzer','kanban','ranking','interview','marca','tarefas','perfil','vagas','documentos'].forEach(id => {
     const el = document.getElementById('tab-' + id);
     if (el) { el.style.display = 'none'; el.classList.remove('active'); }
   });
@@ -3341,7 +3346,7 @@ function switchTab(tab) {
   }
 
   // Atualiza a etapa ativa do menu, destaca a página no dropdown e fecha os dropdowns
-  const stageOfTab = { perfil:'config', analyzer:'aplicar', vagas:'aplicar', marca:'servisto', tarefas:'servisto', interview:'aprovado', kanban:'acompanhar', ranking:'acompanhar' };
+  const stageOfTab = { perfil:'config', analyzer:'aplicar', vagas:'aplicar', documentos:'aplicar', marca:'servisto', tarefas:'servisto', interview:'aprovado', kanban:'acompanhar', ranking:'acompanhar' };
   const activeStage = stageOfTab[tab];
   document.querySelectorAll('.tab-btn[data-stage]').forEach(btn => btn.classList.toggle('active', btn.dataset.stage === activeStage));
   document.querySelectorAll('.nav-dropdown a').forEach(a => a.classList.toggle('active', (a.getAttribute('onclick') || '').includes("'" + tab + "'")));
@@ -3356,6 +3361,7 @@ function switchTab(tab) {
   if (tab === 'tarefas')   renderTarefasTab(); // aba Calendário
   if (tab === 'perfil')    renderPerfilTab();
   if (tab === 'vagas')     renderVagasTab();
+  if (tab === 'documentos') renderDocsTab();
 }
 
 // Abre/fecha o dropdown de uma etapa do menu (dropdown é position:fixed, posicionado aqui)
@@ -4168,9 +4174,70 @@ function setResumeColor(color) {
   if (btn) btn.style.border = '2px solid white';
 }
 
+// ── Documentos: currículos gerados salvos por vaga ───────────────────────────
+const DOCS_KEY = 'liplop-docs-v1';
+let _reopeningDoc = false;
+
+function loadDocs() { try { const v = JSON.parse(localStorage.getItem(DOCS_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
+function saveDocs(arr) { try { localStorage.setItem(DOCS_KEY, JSON.stringify(arr)); } catch (e) {} }
+function docEsc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m])); }
+function fmtDocDate(iso) { try { return new Date(iso).toLocaleDateString('pt-BR'); } catch (e) { return ''; } }
+
+// Salva (ou atualiza) o currículo gerado, ligado à vaga. Dedup por vaga.
+function saveDoc(opp, content) {
+  if (!content || !content.trim()) return;
+  const docs = loadDocs();
+  const company = (opp && opp.company || '').trim();
+  const role = (opp && opp.role || '').trim() || 'Currículo adaptado';
+  const key = (opp && opp.id != null) ? ('opp:' + opp.id) : ('cr:' + (company + '|' + role).toLowerCase());
+  const now = new Date().toISOString();
+  const ex = docs.find(d => d.key === key);
+  if (ex) { ex.content = content; ex.company = company; ex.role = role; ex.updatedAt = now; }
+  else { docs.unshift({ id: 'd' + Date.now() + Math.floor(Math.random() * 1000), key: key, company: company, role: role, content: content, createdAt: now, updatedAt: now }); }
+  saveDocs(docs);
+}
+
+function openDoc(id) {
+  const d = loadDocs().find(x => x.id === id);
+  if (!d) return;
+  _reopeningDoc = true;
+  showResumeModal({ company: d.company, role: d.role }, d.content);
+  _reopeningDoc = false;
+}
+
+function deleteDocConfirm(id) {
+  if (!confirm('Excluir este currículo dos seus documentos?')) return;
+  saveDocs(loadDocs().filter(d => d.id !== id));
+  renderDocsTab();
+}
+
+function renderDocsTab() {
+  const wrap = document.getElementById('documentos-wrap');
+  if (!wrap) return;
+  const head = '<h1 style="font-size:24px;font-weight:800;color:var(--text);margin:0 0 6px">Documentos</h1>'
+    + '<p style="font-size:14px;color:var(--mid);margin:0 0 24px;line-height:1.5">Os currículos que você gera ficam salvos aqui, por vaga. Sem precisar gerar de novo toda vez.</p>';
+  const docs = loadDocs().slice().sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
+  if (!docs.length) {
+    wrap.innerHTML = head + '<div style="border:1px dashed var(--border);border-radius:14px;padding:34px 20px;text-align:center;color:var(--dim);font-size:14px;line-height:1.6">Você ainda não gerou nenhum currículo.<br>Gere um na <strong style="color:var(--rose)">Análise</strong> de uma vaga e ele aparece aqui automaticamente.</div>';
+    return;
+  }
+  const cards = docs.map(d => {
+    const title = d.company ? (docEsc(d.role) + ' · ' + docEsc(d.company)) : docEsc(d.role);
+    return '<div style="display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:15px 18px;margin-bottom:12px">'
+      + '<div style="min-width:0"><div style="font-weight:700;color:var(--text);font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + title + '</div>'
+      + '<div style="font-size:12.5px;color:var(--dim);margin-top:3px">Atualizado em ' + fmtDocDate(d.updatedAt || d.createdAt) + '</div></div>'
+      + '<div style="display:flex;gap:8px;flex-shrink:0">'
+      + '<button onclick="openDoc(\'' + d.id + '\')" style="background:var(--rose);border:none;color:#fff;font-size:13px;font-weight:600;padding:8px 16px;border-radius:8px;cursor:pointer">Ver</button>'
+      + '<button onclick="deleteDocConfirm(\'' + d.id + '\')" title="Excluir" style="background:transparent;border:1px solid var(--border);color:var(--mid);font-size:13px;padding:8px 12px;border-radius:8px;cursor:pointer">Excluir</button>'
+      + '</div></div>';
+  }).join('');
+  wrap.innerHTML = head + cards;
+}
+
 function showResumeModal(opp, text) {
   const clean = stripMarkdown(text);
   _resumeText = clean;
+  if (!_reopeningDoc) { try { saveDoc(opp, clean); } catch (e) {} }
   document.getElementById('resume-modal-title').textContent = opp.company ? opp.role + ' — ' + opp.company : opp.role;
   document.getElementById('resume-modal-content').innerHTML = buildResumeHTML(clean);
   // Mostra barra de ações fixa
