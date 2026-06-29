@@ -1873,6 +1873,12 @@
     .wt-dots { display: flex; gap: 5px; }
     .wt-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); transition: background .2s, width .2s; }
     .wt-dot.active { background: var(--rose); width: 16px; border-radius: 3px; }
+    /* destaque do card adicionado no tour */
+    @keyframes cardGuidePulse { 0%,100%{ box-shadow:0 0 0 3px #e91e8c, 0 0 16px 2px rgba(233,30,140,0.35);} 50%{ box-shadow:0 0 0 4px #e91e8c, 0 0 32px 10px rgba(233,30,140,0.6);} }
+    .card.card-guide-new { animation: cardGuidePulse 1.25s ease-in-out infinite; border-color:#e91e8c !important; position:relative; z-index:2; }
+    /* seta animada de "arraste pra direita" */
+    .wt-arrow { position: fixed; z-index: 10053; pointer-events: none; font-size: 38px; line-height:1; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3)); animation: wtArrowSlide 0.9s ease-in-out infinite; }
+    @keyframes wtArrowSlide { 0%,100%{ transform: translateX(0);} 50%{ transform: translateX(14px);} }
     .wt-actions-final { flex-direction: column; align-items: stretch; gap: 12px; }
     .wt-actions-final .wt-dots { justify-content: center; }
     .wt-next-full { width: 100%; padding: 11px 17px; font-size: 14px; }
@@ -2684,6 +2690,7 @@ function buildCard(opp) {
   const card = document.createElement("div");
   card.className = "card";
   card.dataset.id = opp.id;
+  if (typeof window._guideCardId !== 'undefined' && window._guideCardId === opp.id && document.getElementById('wt-root')) card.classList.add('card-guide-new');
   card.setAttribute("draggable", "true");
 
   const linkBtn = opp.link
@@ -4701,13 +4708,16 @@ const GUIDE_STEPS = [
   { target: '#btn-save-pdf', waitClick: '#btn-save-pdf',
     title: 'Passo 2 de 4 · Salve seu currículo',
     body: 'Quando estiver do seu jeito, clique em <strong>⬇ Salvar como PDF</strong> pra baixar.' },
-  { onEnter: function(){ guideAddVagaToKanban(); }, targetFn: function(){ return '.card[data-id="' + _guideAddedOppId + '"]'; }, explain: true,
+  { explain: true,
+    title: 'Currículo salvo! ✅',
+    body: 'Pronto. Agora vou te levar pro <strong>kanban</strong>, onde você acompanha essa vaga. É só clicar em <strong>Próximo</strong>.' },
+  { onEnter: function(){ guideAddVagaToKanban(); }, targetFn: function(){ return '.card[data-id="' + window._guideCardId + '"]'; }, tipSide: true, noBack: true, explain: true,
     title: 'Passo 3 de 4 · Já está no kanban! 🎉',
-    body: 'Adicionei a sua vaga ao kanban <strong>automaticamente</strong>. É aqui que você acompanha cada processo, do "Para Aplicar" até a oferta.' },
-  { tab: 'kanban', target: '.column[data-col="recruiter"]', event: 'liplop:card-moved-interview',
+    body: 'Adicionei a sua vaga ao kanban <strong>automaticamente</strong>, já na coluna <strong>Aplicada</strong> (é o card em destaque ao lado). É aqui que você acompanha cada processo até a oferta.' },
+  { tab: 'kanban', targetFn: function(){ return '.card[data-id="' + window._guideCardId + '"]'; }, dragHint: true, event: 'liplop:card-moved-interview',
     onEnter: function(){ try { closeResumeModal(); } catch(e){} },   // garante que o modal não fique por cima do kanban
     title: 'Passo 3 de 4 · Marque a entrevista',
-    body: 'Agora <strong>arraste a sua vaga</strong> (lá na coluna "Para Aplicar") até aqui, a coluna <strong>Entrevista Agendada</strong>.' },
+    body: 'Agora <strong>arraste este card</strong> (em destaque) pra direita, até a coluna <strong>Entrevista Agendada</strong>. Segue a setinha 👉' },
   { tab: 'interview', target: '.js-gen-prep', event: 'liplop:interview-prep-ready',
     title: 'Passo 4 de 4 · Prepare a entrevista',
     body: 'Clique em <strong>Gerar preparação</strong>. A IA monta o que a empresa valoriza, o que destacar e o que evitar.' },
@@ -4718,7 +4728,7 @@ const GUIDE_STEPS = [
 ];
 let _gIndex = 0;
 let _gOff = null;   // remove o listener do passo atual
-let _guideAddedOppId = null;   // id da vaga adicionada automaticamente ao kanban no tour
+// a vaga adicionada no tour fica em window._guideCardId (global, p/ evitar TDZ no buildCard)
 
 // No tour, adiciona a vaga ao kanban automaticamente quando a pessoa salva o PDF.
 function guideAddVagaToKanban() {
@@ -4736,13 +4746,13 @@ function guideAddVagaToKanban() {
     if (!company && !role) role = 'Vaga analisada';
     let match = opps.find(x => (x.company || '').trim().toLowerCase() === company.toLowerCase() && (x.role || '').trim().toLowerCase() === role.toLowerCase());
     if (!match) {
-      match = { id: nextId++, company: company, role: role, status: 'Para Aplicar', stage: 'todo',
+      match = { id: nextId++, company: company, role: role, status: 'Aplicada', stage: 'applied',
         fit: (o.fit != null ? o.fit : null), link: null,
         jd_text: (typeof _lastJD !== 'undefined' ? _lastJD : null), contacts: [], next: '—', notes: '—' };
       opps.push(match);
       saveOpps();
     }
-    _guideAddedOppId = match.id;
+    window._guideCardId = match.id;
     try { closeResumeModal(); } catch (e) {}
     switchTab('kanban');
   } catch (e) {}
@@ -4832,7 +4842,7 @@ function buildGuideTip(step) {
   } else if (step.explain) {
     // passo explicativo: avança no "Próximo"; "Voltar" só quando o passo anterior
     // também é explicativo (não dá pra voltar por cima de uma ação já concluída).
-    const canBack = GUIDE_STEPS[_gIndex - 1] && GUIDE_STEPS[_gIndex - 1].explain;
+    const canBack = GUIDE_STEPS[_gIndex - 1] && GUIDE_STEPS[_gIndex - 1].explain && !step.noBack;
     const backBtn = canBack ? '<button class="wt-skip" onclick="goBackGuide()">← Voltar</button>' : '';
     actions = '<div class="wt-tip-actions">'
       + '<button class="wt-skip" onclick="endWalkthrough()">Sair do tour</button>'
@@ -4875,7 +4885,12 @@ function positionGuide() {
   const tw = tip.offsetWidth || 320;
   const th = tip.offsetHeight || 170;
   let tl, tt;
-  if (r) {
+  if (r && step.tipSide) {
+    // ao lado do alvo (direita; se não couber, esquerda), centralizado na vertical
+    tt = r.top + r.height / 2 - th / 2;
+    if (r.right + 14 + tw <= window.innerWidth - 12) tl = r.right + 14;
+    else tl = r.left - tw - 14;
+  } else if (r) {
     tl = r.left + r.width / 2 - tw / 2;
     tt = r.bottom + 12;
     if (tt + th > window.innerHeight - 12) tt = r.top - th - 12; // acima se não couber abaixo
@@ -4885,6 +4900,17 @@ function positionGuide() {
   }
   tip.style.left = Math.max(12, Math.min(tl, window.innerWidth - tw - 12)) + 'px';
   tip.style.top  = Math.max(12, Math.min(tt, window.innerHeight - th - 12)) + 'px';
+
+  // seta animada apontando pra direita (passo de arrastar o card)
+  let arrow = root.querySelector('.wt-arrow');
+  if (step.dragHint && r) {
+    if (!arrow) { arrow = document.createElement('div'); arrow.className = 'wt-arrow'; arrow.textContent = '👉'; root.appendChild(arrow); }
+    arrow.style.display = '';
+    arrow.style.left = (r.right + 4) + 'px';
+    arrow.style.top  = (r.top + r.height / 2 - 22) + 'px';
+  } else if (arrow) {
+    arrow.style.display = 'none';
+  }
 }
 
 function advanceGuide() {
