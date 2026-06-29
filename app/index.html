@@ -3764,14 +3764,7 @@ Responda APENAS com o texto do currículo. Zero explicações, zero comentários
   window._resumeFeedback = null;
 
   try {
-    const res = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, json_mode: false })
-    });
-    if (!res.ok) { const err = await res.json().catch(()=>({})); throw new Error(err.error || 'Erro no servidor'); }
-    const data = await res.json();
-    let text = data.result || '';
+    let text = await callAI({ prompt, json_mode: false, kind: 'resume' });
     try { const p = JSON.parse(text); text = p.curriculo || p.resume || p.text || text; } catch(e) {}
     text = text.replace(/—/g, '-').replace(/–/g, '-');
     _resumeText = text;
@@ -3780,6 +3773,7 @@ Responda APENAS com o texto do currículo. Zero explicações, zero comentários
     incFreeCount();
     showResumeModal(_resumeOpp, text);
   } catch(e) {
+    if (e && e.paywall) return;
     st.style.display = 'block';
     st.textContent = '✗ Erro: ' + e.message;
   } finally {
@@ -3856,15 +3850,27 @@ function toggleTheme() {
 
 // Helper de IA com retry automático em falhas transitórias (rede, 5xx, 429).
 // Evita que um soluço momentâneo da API mostre erro pra quem está no momento crítico.
+async function _aiToken() {
+  try {
+    if (!window.liplopSupabase) return null;
+    const s = await window.liplopSupabase.auth.getSession();
+    return (s.data.session && s.data.session.access_token) || null;
+  } catch (e) { return null; }
+}
+
 async function callAI(body, tries = 3) {
   let lastErr;
+  const token = await _aiToken();
   for (let i = 0; i < tries; i++) {
     try {
-      const res = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = 'Bearer ' + token;
+      const res = await fetch('/api/analyze', { method: 'POST', headers, body: JSON.stringify(body) });
+      if (res.status === 402) {                      // trial acabou → paywall
+        const err = await res.json().catch(() => ({}));
+        showPaywall(err.kind || (body && body.kind));
+        const pe = new Error('paywall'); pe.paywall = true; throw pe;
+      }
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         const e = new Error(err.error || ('Erro no servidor (' + res.status + ')'));
@@ -3875,6 +3881,7 @@ async function callAI(body, tries = 3) {
       if (data.result == null) throw new Error('Resposta vazia da IA');
       return data.result;
     } catch (e) {
+      if (e && e.paywall) throw e;                   // não faz retry no paywall
       lastErr = e;
       const st = e.status;
       const permanente = st && st >= 400 && st < 500 && st !== 429; // auth/cota/request inválido — não adianta repetir
@@ -3883,6 +3890,42 @@ async function callAI(body, tries = 3) {
     }
   }
   throw lastErr;
+}
+
+// ── Paywall (free trial acabou) ──────────────────────────────────────────────
+function showPaywall(kind) {
+  const labels = { analysis: 'análise de fit', resume: 'geração de currículo', interview: 'preparação para entrevista' };
+  const what = labels[kind] || 'esse recurso';
+  let ov = document.getElementById('lp-paywall');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'lp-paywall';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:10070;background:rgba(12,5,9,0.55);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px';
+    document.body.appendChild(ov);
+    ov.addEventListener('click', e => { if (e.target === ov) ov.style.display = 'none'; });
+  }
+  ov.innerHTML = '<div style="background:var(--card,#fff);border:1px solid var(--border,#ECE2E8);border-radius:18px;width:400px;max-width:100%;padding:30px 28px;text-align:center;position:relative;box-shadow:0 24px 60px rgba(0,0,0,0.3)">'
+    + '<button onclick="document.getElementById(\'lp-paywall\').style.display=\'none\'" style="position:absolute;top:14px;right:18px;background:none;border:none;color:var(--dim);font-size:22px;cursor:pointer;line-height:1">×</button>'
+    + '<div style="font-size:34px;margin-bottom:4px">✨</div>'
+    + '<h3 style="margin:0 0 8px;font-size:20px;font-weight:800;color:var(--text)">Seu teste grátis acabou</h3>'
+    + '<p style="margin:0 0 22px;font-size:14px;color:var(--mid);line-height:1.55">Você já usou seu teste grátis de ' + what + '. Pra continuar usando o Liplop sem limites, assine um plano.</p>'
+    + '<button onclick="subscribe(\'mensal\')" style="width:100%;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;background:linear-gradient(135deg,#f472b6,#ec4899);margin-bottom:10px">Assinar mensal · R$67/mês</button>'
+    + '<button onclick="subscribe(\'semestral\')" style="width:100%;border:1px solid var(--border);border-radius:10px;padding:12px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;background:var(--card)">Assinar semestral · R$250 (6 meses)</button>'
+    + '<div id="lp-paywall-msg" style="margin-top:14px;font-size:13px;min-height:16px"></div>'
+    + '</div>';
+  ov.style.display = 'flex';
+}
+
+async function subscribe(plan) {
+  const msg = document.getElementById('lp-paywall-msg');
+  if (msg) { msg.style.color = 'var(--mid)'; msg.textContent = 'Abrindo o checkout…'; }
+  try {
+    const token = await _aiToken();
+    const r = await fetch('/api/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify({ plan }) });
+    const d = await r.json();
+    if (d.url) { window.location.href = d.url; }
+    else if (msg) { msg.style.color = 'var(--rose,#D43A6E)'; msg.textContent = 'Erro: ' + (d.error || 'tente de novo'); }
+  } catch (e) { if (msg) { msg.style.color = 'var(--rose,#D43A6E)'; msg.textContent = 'Erro: ' + e.message; } }
 }
 
 async function generateResume(retry = false) {
@@ -4023,7 +4066,7 @@ Responda APENAS com o texto do currículo. Zero explicações, zero comentários
   window._resumeFeedback = null;
 
   try {
-    const result = await callAI({ prompt, json_mode: false });
+    const result = await callAI({ prompt, json_mode: false, kind: 'resume' });
     // Remove JSON wrapper se vier
     let text = result || '';
     try { const parsed = JSON.parse(text); text = parsed.curriculo || parsed.resume || parsed.text || text; } catch(e) {}
@@ -4037,6 +4080,7 @@ Responda APENAS com o texto do currículo. Zero explicações, zero comentários
     showResumeModal(opp, text);
     return true;
   } catch(e) {
+    if (e && e.paywall) return false;
     st.style.display = 'block';
     st.textContent = '✗ Erro: ' + e.message;
     return false;
@@ -4897,13 +4941,8 @@ Gere uma preparação completa de entrevista. Responda SOMENTE em JSON válido, 
 Gere exatamente 3 dicas de empresa, 3 dicas de cargo/senioridade, 3 evites. Seja direto, prático e específico. Sem genéricos. NÃO use travessão (—) nem (–); use vírgula, ponto ou dois-pontos. Português brasileiro correto com todos os acentos.`;
 
   try {
-    const res = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, json_mode: true })
-    });
-    const data = await res.json();
-    const clean = data.result.replace(/^```json?\n?/,'').replace(/\n?```$/,'').trim();
+    const result = await callAI({ prompt, json_mode: true, kind: 'interview' });
+    const clean = result.replace(/^```json?\n?/,'').replace(/\n?```$/,'').trim();
     const prep = JSON.parse(clean);
 
     resultEl.innerHTML = `
@@ -4938,6 +4977,7 @@ Gere exatamente 3 dicas de empresa, 3 dicas de cargo/senioridade, 3 evites. Seja
       <button onclick="generateInterviewPrep(${oppId})" style="margin-top:16px;width:100%;padding:10px;background:transparent;border:1px solid rgba(var(--ink),0.1);border-radius:8px;color:var(--mid);font-size:12px;cursor:pointer">Regenerar preparação</button>`;
 
   } catch(e) {
+    if (e && e.paywall) { resultEl.innerHTML = ''; return; }
     resultEl.innerHTML = `
       <div style="color:#fc8181;font-size:12px;margin-bottom:10px">Erro ao gerar preparação: ${e.message}</div>
       <button onclick="generateInterviewPrep(${oppId})" style="padding:8px 16px;background:transparent;border:1px solid #f472b6;border-radius:7px;color:#f472b6;font-size:12px;cursor:pointer">Tentar novamente</button>`;
@@ -6389,7 +6429,7 @@ Nos textos (summary, has, lacks, tips), NÃO use travessão (—) nem (–); use
 
   try {
     // Backend Vercel, com retry automático em falhas transitórias
-    const raw = await callAI({ prompt });
+    const raw = await callAI({ prompt, kind: 'analysis' });
     incFreeCount(); // só conta quando deu certo
 
     const json = JSON.parse(raw.replace(/^```json?\n?/, '').replace(/\n?```$/, ''));
@@ -6397,6 +6437,7 @@ Nos textos (summary, has, lacks, tips), NÃO use travessão (—) nem (–); use
     _resumeGenerated = false; // reset ao fazer nova análise
     renderAnalysisResult(json);
   } catch(e) {
+    if (e && e.paywall) { btn.disabled = false; btn.innerHTML = '✨ Analisar compatibilidade com IA'; return; }
     const m = (e.message || '').toLowerCase();
     let msg = 'A IA demorou ou veio incompleta. Tenta de novo — costuma funcionar na segunda. 🙏';
     if (m.includes('quota') || m.includes('billing') || m.includes('credit')) {

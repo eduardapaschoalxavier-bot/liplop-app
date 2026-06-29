@@ -160,3 +160,18 @@ create policy "owner_all" on public.marca
 drop policy if exists "owner_read" on public.subscriptions;
 create policy "owner_read" on public.subscriptions
   for select using (user_id = auth.uid());
+
+-- ── USO / FREE TRIAL ─────────────────────────────────────────────────────────
+-- Contador de uso das ações gratuitas-limitadas. Só o SERVIDOR (service_role)
+-- escreve; o usuário só LÊ o próprio. Assim o trial não é burlável pelo cliente.
+create table if not exists public.usage (
+  user_id         uuid primary key references auth.users(id) on delete cascade,
+  analyses_used   integer not null default 0,
+  resumes_used    integer not null default 0,
+  interviews_used integer not null default 0,
+  updated_at      timestamptz not null default now()
+);
+alter table public.usage enable row level security;
+drop policy if exists "usage_owner_read" on public.usage;
+create policy "usage_owner_read" on public.usage
+  for select using (user_id = auth.uid());
