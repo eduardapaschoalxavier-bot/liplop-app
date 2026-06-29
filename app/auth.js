@@ -125,7 +125,7 @@
         '<div class="lp-auth-card">'
         + '<div class="lp-auth-brand"><span class="lp-auth-logo">L</span>Liplop</div>'
         + '<h3>Entre pra acessar seu painel</h3>'
-        + '<p>O Liplop é uma conta sua: seu perfil, currículos e vagas ficam salvos com segurança, em qualquer dispositivo.</p>'
+        + '<p>Descubra seu fit com cada vaga, gere currículos que passam na triagem e prepare suas entrevistas pra passar nas melhores vagas.</p>'
         + '<input class="lp-auth-input" id="lp-auth-name-input" type="text" placeholder="Seu nome" autocomplete="name" />'
         + '<input class="lp-auth-input" id="lp-auth-email-input" type="email" placeholder="seu@email.com" autocomplete="email" />'
         + '<button class="lp-auth-primary" id="lp-auth-magic">Enviar link de acesso</button>'
