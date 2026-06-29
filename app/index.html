@@ -1874,10 +1874,10 @@
     .wt-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); transition: background .2s, width .2s; }
     .wt-dot.active { background: var(--rose); width: 16px; border-radius: 3px; }
     /* destaque do card adicionado no tour */
-    @keyframes cardGuidePulse { 0%,100%{ box-shadow:0 0 0 3px #e91e8c, 0 0 16px 2px rgba(233,30,140,0.35);} 50%{ box-shadow:0 0 0 4px #e91e8c, 0 0 32px 10px rgba(233,30,140,0.6);} }
-    .card.card-guide-new { animation: cardGuidePulse 1.25s ease-in-out infinite; border-color:#e91e8c !important; position:relative; z-index:2; }
-    /* seta animada de "arraste pra direita" */
-    .wt-arrow { position: fixed; z-index: 10053; pointer-events: none; font-size: 38px; line-height:1; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3)); animation: wtArrowSlide 0.9s ease-in-out infinite; }
+    @keyframes cardGuidePulse { 0%,100%{ box-shadow:0 0 0 3px var(--rose), 0 0 14px 2px rgba(212,58,110,0.30);} 50%{ box-shadow:0 0 0 4px var(--rose), 0 0 28px 8px rgba(212,58,110,0.50);} }
+    .card.card-guide-new { animation: cardGuidePulse 1.25s ease-in-out infinite; border-color:var(--rose) !important; position:relative; z-index:2; }
+    /* seta animada de "arraste pra direita" (rosa da identidade) */
+    .wt-arrow { position: fixed; z-index: 10053; pointer-events: none; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.22)); animation: wtArrowSlide 0.9s ease-in-out infinite; }
     @keyframes wtArrowSlide { 0%,100%{ transform: translateX(0);} 50%{ transform: translateX(14px);} }
     .wt-actions-final { flex-direction: column; align-items: stretch; gap: 12px; }
     .wt-actions-final .wt-dots { justify-content: center; }
@@ -1951,8 +1951,13 @@
     <!-- WhatsApp CTA -->
     <!-- Botão começar -->
     <button onclick="closeWelcome()"
-      style="width:100%;padding:13px;background:#E04478;border:none;border-radius:10px;color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;letter-spacing:0.2px;margin-bottom:12px">
+      style="width:100%;padding:13px;background:#E04478;border:none;border-radius:10px;color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;letter-spacing:0.2px;margin-bottom:8px">
       Entendi, vamos começar →
+    </button>
+
+    <button onclick="skipWelcomeTour()"
+      style="display:block;width:100%;padding:6px;background:transparent;border:none;color:rgba(155,115,137,0.75);font-size:0.78rem;cursor:pointer;margin-bottom:8px">
+      Pular o tour
     </button>
 
     <a href="https://wa.me/5532988391282?text=Oi%20Duda%2C%20acabei%20de%20acessar%20o%20Liplop!" target="_blank"
@@ -4617,6 +4622,18 @@ function closeWelcome() {
   maybeShowOnboarding();
 }
 
+// Pular o tour direto do popup de boas-vindas: marca tudo como visto e fecha.
+function skipWelcomeTour() {
+  try {
+    localStorage.setItem(wkKey(WELCOME_KEY), '1');
+    localStorage.setItem(wkKey(WALKTHROUGH_KEY), '1');
+    localStorage.setItem(wkKey(ONBOARDING_SKIP_KEY), '1');
+  } catch (e) {}
+  var w = document.getElementById('welcome-modal'); if (w) w.style.display = 'none';
+  var o = document.getElementById('onboarding-modal'); if (o) o.style.display = 'none';
+  if (document.getElementById('wt-root')) { try { endWalkthrough(); } catch (e) {} }
+}
+
 // ── Onboarding de perfil (caminho rápido até o "wow" da Análise) ──
 const ONBOARDING_SKIP_KEY = 'liplop-onboarding-skipped-v1';
 
@@ -4737,13 +4754,27 @@ const GUIDE_STEPS = [
   { onEnter: function(){ guideAddVagaToKanban(); }, targetFn: function(){ return '.card[data-id="' + window._guideCardId + '"]'; }, tipSide: true, noBack: true, explain: true,
     title: 'Passo 3 de 4 · Já está no kanban! 🎉',
     body: 'Adicionei a sua vaga ao kanban <strong>automaticamente</strong>, já na coluna <strong>Aplicada</strong> (é o card em destaque ao lado). É aqui que você acompanha cada processo até a oferta.' },
-  { tab: 'kanban', targetFn: function(){ return '.card[data-id="' + window._guideCardId + '"]'; }, dragHint: true, event: 'liplop:card-moved-interview',
+  { tab: 'kanban', targetFn: function(){ return '.card[data-id="' + window._guideCardId + '"]'; }, dragHint: true, back: true, event: 'liplop:card-moved-interview',
     onEnter: function(){ try { closeResumeModal(); } catch(e){} },   // garante que o modal não fique por cima do kanban
     title: 'Passo 3 de 4 · Quando vier a entrevista',
     body: 'Assim que uma empresa te chamar pra entrevista, você arrasta o card pra cá e o Liplop já monta a sua preparação. Bora ver na prática: arrasta a sua vaga (em destaque) até a coluna <strong>Entrevista Agendada</strong> 👉' },
   { tab: 'interview', target: '.js-gen-prep', event: 'liplop:interview-prep-ready',
+    waitEvent: 'liplop:interview-prep-start',
+    waitBody: '🔎 <strong>Montando sua preparação…</strong> Leva mais uns <strong>40 segundos</strong>, mas vale MUITO a pena: é isso que vai te ajudar a mandar bem na entrevista.',
     title: 'Passo 4 de 4 · Prepare a entrevista',
     body: 'Clique em <strong>Gerar preparação</strong>. A IA monta o que a empresa valoriza, o que destacar e o que evitar.' },
+  { targetFn: function(){ return '#js-prep-empresa-' + window._guideCardId; }, explain: true,
+    title: 'Sobre a empresa',
+    body: 'O que essa empresa valoriza e como ela pensa. Use isso pra falar a língua dela na entrevista e mostrar que fez o dever de casa.' },
+  { targetFn: function(){ return '#js-prep-cargo-' + window._guideCardId; }, explain: true,
+    title: 'O que avaliam no cargo',
+    body: 'O que costuma ser cobrado nessa posição. Prepare exemplos seus que provem cada um desses pontos.' },
+  { targetFn: function(){ return '#js-prep-evite-' + window._guideCardId; }, explain: true,
+    title: 'O que evitar',
+    body: 'Os deslizes que derrubam candidatos nessa vaga. Saber disso antes já te coloca na frente.' },
+  { targetFn: function(){ return '#js-prep-pergunta-' + window._guideCardId; }, explain: true,
+    title: 'A pergunta certa pra fazer',
+    body: 'Uma pergunta pronta pra você fazer no fim da entrevista: mostra interesse de verdade e te deixa memorável.' },
   { final: true, tab: 'analyzer',
     title: 'Agora é com você! 🚀',
     body: 'Você fez o caminho completo do Liplop. Agora é só seguir por conta própria: volte pra Análise e teste com outra vaga.',
@@ -4770,7 +4801,7 @@ function guideAddVagaToKanban() {
     let match = opps.find(x => (x.company || '').trim().toLowerCase() === company.toLowerCase() && (x.role || '').trim().toLowerCase() === role.toLowerCase());
     if (!match) {
       match = { id: nextId++, company: company, role: role, status: 'Aplicada', stage: 'applied',
-        fit: (o.fit != null ? o.fit : null), link: null,
+        fit: (o.fit != null ? o.fit : ((typeof _lastAnalysis !== 'undefined' && _lastAnalysis && _lastAnalysis.score != null) ? parseInt(_lastAnalysis.score, 10) : null)), link: null,
         jd_text: (typeof _lastJD !== 'undefined' ? _lastJD : null), contacts: [], next: '—', notes: '—' };
       opps.push(match);
       saveOpps();
@@ -4887,8 +4918,11 @@ function buildGuideTip(step) {
       + '</div>'
       + '</div>';
   } else {
+    const back = step.back
+      ? '<button class="wt-skip" onclick="goBackGuide()">← Voltar</button>'
+      : '<span style="font-size:11px;color:var(--dim)">Conclua o passo pra continuar</span>';
     actions = '<div class="wt-tip-actions">'
-      + '<span style="font-size:11px;color:var(--dim)">Conclua o passo pra continuar</span>'
+      + back
       + '<button class="wt-skip" onclick="endWalkthrough()">Sair do tour</button>'
       + '</div>';
   }
@@ -4939,10 +4973,12 @@ function positionGuide() {
   // seta animada apontando pra direita (passo de arrastar o card)
   let arrow = root.querySelector('.wt-arrow');
   if (step.dragHint && r) {
-    if (!arrow) { arrow = document.createElement('div'); arrow.className = 'wt-arrow'; arrow.textContent = '👉'; root.appendChild(arrow); }
+    if (!arrow) { arrow = document.createElement('div'); arrow.className = 'wt-arrow';
+      arrow.innerHTML = '<svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h13"/><path d="M12 5l7 7-7 7"/></svg>';
+      root.appendChild(arrow); }
     arrow.style.display = '';
     arrow.style.left = (r.right + 4) + 'px';
-    arrow.style.top  = (r.top + r.height / 2 - 22) + 'px';
+    arrow.style.top  = (r.top + r.height / 2 - 23) + 'px';
   } else if (arrow) {
     arrow.style.display = 'none';
   }
@@ -5221,6 +5257,7 @@ Gere uma preparação completa de entrevista. Responda SOMENTE em JSON válido, 
 Gere exatamente 3 dicas de empresa, 3 dicas de cargo/senioridade, 3 evites. Seja direto, prático e específico. Sem genéricos. NÃO use travessão (—) nem (–); use vírgula, ponto ou dois-pontos. Português brasileiro correto com todos os acentos.`;
 
   try {
+    try { window.dispatchEvent(new CustomEvent('liplop:interview-prep-start')); } catch(e){}
     const result = await callAI({ prompt, json_mode: true, kind: 'interview' });
     const clean = result.replace(/^```json?\n?/,'').replace(/\n?```$/,'').trim();
     const prep = JSON.parse(clean);
@@ -5232,25 +5269,25 @@ Gere exatamente 3 dicas de empresa, 3 dicas de cargo/senioridade, 3 evites. Seja
 
       <!-- Empresa -->
       <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Sobre a ${opp.company}</div>
-      <div style="border:1px solid rgba(var(--ink),0.07);border-radius:10px;padding:14px;margin-bottom:16px">
+      <div id="js-prep-empresa-${oppId}" style="border:1px solid rgba(var(--ink),0.07);border-radius:10px;padding:14px;margin-bottom:16px">
         ${prep.empresa.map(d => `<div style="font-size:12px;color:var(--text);line-height:1.6;padding:5px 0 5px 16px;position:relative"><span style="position:absolute;left:0;color:#f472b6;font-size:10px;top:7px">›</span>${d}</div>`).join('')}
       </div>
 
       <!-- Cargo e senioridade -->
       <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">O que avaliam nesse cargo</div>
-      <div style="border:1px solid rgba(var(--ink),0.07);border-radius:10px;padding:14px;margin-bottom:16px">
+      <div id="js-prep-cargo-${oppId}" style="border:1px solid rgba(var(--ink),0.07);border-radius:10px;padding:14px;margin-bottom:16px">
         ${prep.cargo_senioridade.map(d => `<div style="font-size:12px;color:var(--text);line-height:1.6;padding:5px 0 5px 16px;position:relative"><span style="position:absolute;left:0;color:#f472b6;font-size:10px;top:7px">›</span>${d}</div>`).join('')}
       </div>
 
       <!-- Evite -->
       <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Evite</div>
-      <div style="border:1px solid rgba(var(--ink),0.07);border-radius:10px;padding:14px;margin-bottom:16px">
+      <div id="js-prep-evite-${oppId}" style="border:1px solid rgba(var(--ink),0.07);border-radius:10px;padding:14px;margin-bottom:16px">
         ${prep.evite.map(d => `<div style="font-size:12px;color:var(--text);line-height:1.6;padding:5px 0 5px 16px;position:relative"><span style="position:absolute;left:0;color:#f472b6;font-size:10px;top:7px">›</span>${d}</div>`).join('')}
       </div>
 
       <!-- Pergunta para fazer -->
       <div style="font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Pergunta para fazer ao final</div>
-      <div style="border:1px solid rgba(244,114,182,0.2);border-radius:10px;padding:14px;background:rgba(244,114,182,0.04)">
+      <div id="js-prep-pergunta-${oppId}" style="border:1px solid rgba(244,114,182,0.2);border-radius:10px;padding:14px;background:rgba(244,114,182,0.04)">
         <div style="font-size:13px;color:#f472b6;font-style:italic;line-height:1.6">"${prep.pergunta_para_fazer}"</div>
       </div>
 
