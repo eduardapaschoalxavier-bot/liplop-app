@@ -2050,7 +2050,7 @@
     <!-- Barra de ações fixa sempre visível -->
     <div id="resume-action-bar" style="display:none;flex-shrink:0;gap:10px;margin-top:12px">
       <button id="btn-add-kanban" onclick="addCurrentVagaToKanban()" style="flex:1;padding:13px;background:transparent;border:1.5px solid #f472b6;border-radius:12px;color:#e91e8c;font-size:15px;font-weight:700;cursor:pointer">+ Adicionar ao Kanban</button>
-      <button onclick="downloadResumePDF()" style="flex:1;padding:13px;background:linear-gradient(135deg,#e91e8c,#f472b6);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(233,30,140,0.3)">⬇ Salvar como PDF</button>
+      <button id="btn-save-pdf" onclick="downloadResumePDF()" style="flex:1;padding:13px;background:linear-gradient(135deg,#e91e8c,#f472b6);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(233,30,140,0.3)">⬇ Salvar como PDF</button>
     </div>
     <div id="resume-viewer-status" style="display:none;flex-shrink:0;margin-top:8px;font-size:0.8rem;color:#f9a8d4;text-align:center;line-height:1.4"></div>
   </div>
@@ -4685,6 +4685,15 @@ const GUIDE_STEPS = [
   { target: '#btn-gen-resume-from-analysis', event: 'liplop:resume-generated',
     title: 'Passo 2 de 5 · Gere seu currículo',
     body: 'Agora clique em <strong>gerar currículo</strong>. A IA já aplica essas dicas e adapta seu currículo pra essa vaga.' },
+  { target: '#resume-edit-btn', explain: true,
+    title: 'Currículo pronto! Personalize',
+    body: 'Clique em qualquer texto pra editar, use <strong>B / I / U</strong> pra formatar e troque a <strong>cor do currículo</strong> ali no canto superior direito.' },
+  { target: '#resume-modal-content', explain: true,
+    title: 'Revise com atenção (importante!)',
+    body: 'A IA te dá uma base forte, mas <strong>revise tudo</strong>: confira se cada informação está correta e ajuste o que precisar. É o seu nome ali, então tem que estar impecável.' },
+  { target: '#btn-save-pdf', waitClick: '#btn-save-pdf',
+    title: 'Passo 2 de 5 · Salve seu currículo',
+    body: 'Quando estiver do seu jeito, clique em <strong>⬇ Salvar como PDF</strong> pra baixar.' },
   { target: '#btn-add-kanban', event: 'liplop:vaga-added-kanban',
     title: 'Passo 3 de 5 · Acompanhe a vaga',
     body: 'Clique em <strong>+ Adicionar ao Kanban</strong> pra acompanhar essa vaga no seu funil.' },
@@ -4745,6 +4754,16 @@ function renderGuideStep() {
     if (step.autoNext) {
       const t = setTimeout(advanceGuide, step.autoNext);
       _gOff = function () { clearTimeout(t); };
+      return;
+    }
+    // passo que espera a pessoa clicar num botão específico (ex.: Salvar como PDF)
+    if (step.waitClick) {
+      const el = document.querySelector(step.waitClick);
+      if (el) {
+        const onClick = function () { advanceGuide(); };
+        el.addEventListener('click', onClick, { once: true });
+        _gOff = function () { el.removeEventListener('click', onClick); };
+      }
       return;
     }
     // passo que espera uma ação real do app (dispara um evento)
