@@ -4661,9 +4661,12 @@ const GUIDE_STEPS = [
   { tab: 'analyzer', target: '#fit-jd-manual', waitInput: '#fit-jd-manual',
     title: 'Passo 1 de 5 · Cole uma vaga',
     body: 'Pega uma vaga que você quer MUITO, copia a descrição completa (LinkedIn, Gupy, qualquer portal) e cola aqui neste campo.' },
+  { target: '#fit-jd-manual', celebrate: true, autoNext: 1500,
+    title: 'Boa! 🎉',
+    body: 'Vaga colada! Agora bora ver o seu match com ela.' },
   { target: '#btn-analyze', event: 'liplop:analysis-complete',
     title: 'Passo 1 de 5 · Agora analise',
-    body: 'Boa! Agora clique em <strong>Analisar</strong>. A IA mostra seu fit, seus pontos fortes e as lacunas.' },
+    body: 'Clique em <strong>Analisar</strong> e a IA mostra seu fit, seus pontos fortes e as lacunas.' },
   { target: '#btn-gen-resume-from-analysis', event: 'liplop:resume-generated',
     title: 'Passo 2 de 5 · Gere seu currículo',
     body: 'Agora clique em <strong>gerar currículo</strong>. A IA adapta seu currículo pra essa vaga específica.' },
@@ -4723,6 +4726,12 @@ function renderGuideStep() {
       }
       return;
     }
+    // micro-passo que avança sozinho (ex.: comemoração "Boa!")
+    if (step.autoNext) {
+      const t = setTimeout(advanceGuide, step.autoNext);
+      _gOff = function () { clearTimeout(t); };
+      return;
+    }
     // passo que espera uma ação real do app (dispara um evento)
     if (step.event) {
       const handler = function () { advanceGuide(); };
@@ -4746,6 +4755,8 @@ function buildGuideTip(step) {
     actions = '<div class="wt-tip-actions wt-actions-final">'
       + '<button class="wt-next wt-next-full" onclick="endWalkthrough(true)">' + (step.cta || 'Concluir') + '</button>'
       + '</div>';
+  } else if (step.celebrate) {
+    actions = '';   // micro-passo de comemoração, some sozinho
   } else {
     actions = '<div class="wt-tip-actions">'
       + '<span style="font-size:11px;color:var(--dim)">Conclua o passo pra continuar</span>'
