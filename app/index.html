@@ -2067,9 +2067,6 @@
   </a>
 
   <nav class="tab-nav">
-    <div class="nav-stage" data-stage="config">
-      <button class="tab-btn" data-stage="config" onclick="switchTab('perfil')">Construir perfil</button>
-    </div>
     <div class="nav-stage" data-stage="aplicar" onmouseenter="openStageHover(this)" onmouseleave="scheduleCloseStages()">
       <button class="tab-btn" data-stage="aplicar" onclick="switchTab('analyzer')">Aplicar <span class="nav-caret">▾</span></button>
       <div class="nav-dropdown">
@@ -2098,9 +2095,8 @@
 
   <div class="topbar-right" style="display:flex;align-items:center;gap:8px">
     <span class="topbar-badge" id="topbar-count">— vagas</span>
-    <a href="https://wa.me/5532988391282" target="_blank" rel="noopener" title="Fale conosco no WhatsApp" style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.16);border:1px solid rgba(255,255,255,0.4);color:#fff;font-size:13px;font-weight:600;padding:7px 14px;border-radius:999px;text-decoration:none;flex-shrink:0">
-      <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor"><path d="M8 0a8 8 0 0 0-6.9 12l-1 3.6 3.7-1A8 8 0 1 0 8 0zm0 14.6c-1.2 0-2.4-.3-3.4-.9l-.2-.1-2.2.6.6-2.1-.2-.3A6.6 6.6 0 1 1 8 14.6zm3.6-4.9c-.2-.1-1.2-.6-1.3-.6-.2-.1-.3-.1-.4.1l-.6.7c-.1.1-.2.1-.4 0a5.4 5.4 0 0 1-1.6-1c-.3-.3-.6-.6-.8-1-.1-.2 0-.3.1-.4l.3-.3.2-.3v-.3l-.6-1.4c-.1-.3-.3-.3-.4-.3h-.4c-.1 0-.3 0-.5.2a1.8 1.8 0 0 0-.6 1.4c0 .8.6 1.6.7 1.7.1.1 1.2 1.9 3 2.6 1.6.6 1.6.4 1.9.4.3 0 1.1-.5 1.3-.9.1-.4.1-.8.1-.9-.1-.1-.2-.1-.4-.2z"/></svg>
-      <span class="fale-conosco-txt">Fale conosco</span>
+    <a href="https://wa.me/5532988391282" target="_blank" rel="noopener" title="Fale conosco no WhatsApp" aria-label="Fale conosco no WhatsApp" style="display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.16);border:1px solid rgba(255,255,255,0.4);color:#fff;width:34px;height:34px;border-radius:50%;text-decoration:none;flex-shrink:0">
+      <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M8 0a8 8 0 0 0-6.9 12l-1 3.6 3.7-1A8 8 0 1 0 8 0zm0 14.6c-1.2 0-2.4-.3-3.4-.9l-.2-.1-2.2.6.6-2.1-.2-.3A6.6 6.6 0 1 1 8 14.6zm3.6-4.9c-.2-.1-1.2-.6-1.3-.6-.2-.1-.3-.1-.4.1l-.6.7c-.1.1-.2.1-.4 0a5.4 5.4 0 0 1-1.6-1c-.3-.3-.6-.6-.8-1-.1-.2 0-.3.1-.4l.3-.3.2-.3v-.3l-.6-1.4c-.1-.3-.3-.3-.4-.3h-.4c-.1 0-.3 0-.5.2a1.8 1.8 0 0 0-.6 1.4c0 .8.6 1.6.7 1.7.1.1 1.2 1.9 3 2.6 1.6.6 1.6.4 1.9.4.3 0 1.1-.5 1.3-.9.1-.4.1-.8.1-.9-.1-.1-.2-.1-.4-.2z"/></svg>
     </a>
     <button id="theme-toggle" onclick="toggleTheme()" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.4);color:#fff;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0">🌙</button>
   </div>

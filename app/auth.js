@@ -101,10 +101,12 @@
       menu.id = 'lp-auth-menu';
       menu.className = 'lp-auth-menu';
       menu.innerHTML = '<div class="em" id="lp-auth-email"></div>'
+        + '<button id="lp-auth-profile">Meu perfil</button>'
         + '<button id="lp-auth-sub">Minha assinatura</button>'
         + '<button id="lp-auth-editname">Editar nome</button>'
         + '<button id="lp-auth-signout">Sair</button>';
       document.body.appendChild(menu);
+      menu.querySelector('#lp-auth-profile').onclick = function () { closeMenu(); if (window.switchTab) window.switchTab('perfil'); };
       menu.querySelector('#lp-auth-signout').onclick = function () { closeMenu(); signOut(); };
       menu.querySelector('#lp-auth-sub').onclick = function () { closeMenu(); openSubModal(); };
       menu.querySelector('#lp-auth-editname').onclick = async function () {
