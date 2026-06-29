@@ -64,6 +64,10 @@ create table if not exists public.resumes (
   updated_at      timestamptz not null default now()
 );
 create index if not exists resumes_user_idx on public.resumes(user_id);
+-- chave estavel do documento (vaga) para o upsert da escrita dupla (Documentos)
+alter table public.resumes add column if not exists legacy_key text;
+alter table public.resumes drop constraint if exists resumes_user_key_uniq;
+alter table public.resumes add  constraint resumes_user_key_uniq unique (user_id, legacy_key);
 
 -- ── MARCA / CALENDÁRIO / TOM ─────────────────────────────────────────────────
 create table if not exists public.marca (

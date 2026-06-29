@@ -4207,7 +4207,10 @@ function openDoc(id) {
 
 function deleteDocConfirm(id) {
   if (!confirm('Excluir este currículo dos seus documentos?')) return;
-  saveDocs(loadDocs().filter(d => d.id !== id));
+  const docs = loadDocs();
+  const d = docs.find(x => x.id === id);
+  saveDocs(docs.filter(x => x.id !== id));
+  if (d && window.liplopCloud && window.liplopCloud.deleteDoc) window.liplopCloud.deleteDoc(d.key);
   renderDocsTab();
 }
 

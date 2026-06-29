@@ -24,7 +24,8 @@
     'liplop-marca-calendar-v1': 'marca',
     'liplop-marca-message-v1': 'marca',
     'liplop-marca-cal-start-v1': 'marca',
-    'liplop-marca-estrategia-v1': 'marca'
+    'liplop-marca-estrategia-v1': 'marca',
+    'liplop-docs-v1': 'docs'
   };
 
   var sb = null, user = null, timer = null, dirty = {};
@@ -84,6 +85,22 @@
     if (!rows.length) return Promise.resolve();
     return sb.from('opportunities').upsert(rows, { onConflict: 'user_id,legacy_id' });
   }
+  function docRows() {
+    var docs = lsJSON('liplop-docs-v1', '[]');
+    if (!Array.isArray(docs)) return [];
+    return docs.filter(function (d) { return d && d.key; }).map(function (d) {
+      return {
+        user_id: user.id, legacy_key: d.key,
+        title: (d.company ? (d.role + ' · ' + d.company) : d.role) || 'Currículo',
+        content: d.content || ''
+      };
+    });
+  }
+  function pushDocs() {
+    var rows = docRows();
+    if (!rows.length) return Promise.resolve();
+    return sb.from('resumes').upsert(rows, { onConflict: 'user_id,legacy_key' });
+  }
 
   async function flush() {
     if (!user || !sb) return;
@@ -93,6 +110,7 @@
         if (doms[i] === 'profile') await pushProfile();
         else if (doms[i] === 'opps') await pushOpps();
         else if (doms[i] === 'marca') await pushMarca();
+        else if (doms[i] === 'docs') await pushDocs();
       } catch (e) { console.warn('[liplop-sync]', doms[i], e && e.message || e); }
     }
   }
@@ -108,6 +126,7 @@
         await pushProfile();                       // 1º login: empurra o cache pra conta
         await pushMarca();
         await pushOpps();
+        await pushDocs();
         await sb.from('profiles').update({ migrated_at: new Date().toISOString() }).eq('id', user.id);
         console.info('[liplop-sync] cache migrado para a conta');
       }
@@ -145,6 +164,13 @@
         if (m.data.cal_start != null) origSet('liplop-marca-cal-start-v1', m.data.cal_start);
         if (m.data.estrategia != null) origSet('liplop-marca-estrategia-v1', m.data.estrategia);
       }
+      var rs = await sb.from('resumes').select('*').eq('user_id', user.id);
+      if (rs && !rs.error && Array.isArray(rs.data)) {       // documentos (curriculos)
+        var docs = rs.data.filter(function (r) { return r.legacy_key; }).map(function (r) {
+          return { id: 'd_' + r.id, key: r.legacy_key, role: r.title || 'Currículo', company: '', content: r.content || '', createdAt: r.created_at, updatedAt: r.updated_at };
+        });
+        origSet('liplop-docs-v1', JSON.stringify(docs));
+      }
       if (window.liplopReloadFromCache) window.liplopReloadFromCache();
       console.info('[liplop-sync] dados carregados do banco');
     } catch (e) { console.warn('[liplop-sync] hydrate', e && e.message || e); }
@@ -157,7 +183,13 @@
       await sb.from('opportunities').delete().eq('user_id', user.id).eq('legacy_id', legacyId);
     } catch (e) { console.warn('[liplop-sync] delete opp', e && e.message || e); }
   }
-  window.liplopCloud = { deleteOpp: deleteOpp };
+  async function deleteDocByKey(key) {
+    if (!user || !sb || !key) return;
+    try {
+      await sb.from('resumes').delete().eq('user_id', user.id).eq('legacy_key', key);
+    } catch (e) { console.warn('[liplop-sync] delete doc', e && e.message || e); }
+  }
+  window.liplopCloud = { deleteOpp: deleteOpp, deleteDoc: deleteDocByKey };
 
   // --- espera o cliente Supabase (auth.js) e assina mudanças de sessão ---
   var tries = 0;
