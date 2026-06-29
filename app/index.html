@@ -4723,12 +4723,27 @@ let _guideAddedOppId = null;   // id da vaga adicionada automaticamente ao kanba
 function guideAddVagaToKanban() {
   try {
     const o = (typeof _resumeOpp !== 'undefined' && _resumeOpp) ? _resumeOpp : {};
-    const comp = (o.company || '').trim().toLowerCase();
-    const rl = (o.role || '').trim().toLowerCase();
-    let match = opps.find(x => (x.company || '').trim().toLowerCase() === comp && (x.role || '').trim().toLowerCase() === rl);
-    addCurrentVagaToKanban();                 // fecha o modal, adiciona (se nova) e vai pro kanban
-    if (!match) match = opps[opps.length - 1];
-    _guideAddedOppId = match ? match.id : null;
+    let company = (o.company || '').trim();
+    let role = (o.role || '').trim();
+    if (role === 'Currículo Adaptado') role = '';
+    // completa com a análise se faltar algo
+    if (typeof _lastAnalysis !== 'undefined' && _lastAnalysis) {
+      if (!company) company = (_lastAnalysis.company || '').trim();
+      if (!role) role = (_lastAnalysis.role || '').trim();
+    }
+    // fallback: nunca trava o tour, mesmo se a análise não trouxe empresa/cargo
+    if (!company && !role) role = 'Vaga analisada';
+    let match = opps.find(x => (x.company || '').trim().toLowerCase() === company.toLowerCase() && (x.role || '').trim().toLowerCase() === role.toLowerCase());
+    if (!match) {
+      match = { id: nextId++, company: company, role: role, status: 'Para Aplicar', stage: 'todo',
+        fit: (o.fit != null ? o.fit : null), link: null,
+        jd_text: (typeof _lastJD !== 'undefined' ? _lastJD : null), contacts: [], next: '—', notes: '—' };
+      opps.push(match);
+      saveOpps();
+    }
+    _guideAddedOppId = match.id;
+    try { closeResumeModal(); } catch (e) {}
+    switchTab('kanban');
   } catch (e) {}
 }
 
