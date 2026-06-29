@@ -175,3 +175,19 @@ alter table public.usage enable row level security;
 drop policy if exists "usage_owner_read" on public.usage;
 create policy "usage_owner_read" on public.usage
   for select using (user_id = auth.uid());
+
+-- ── EVENTOS DE USO (métricas / funil) ────────────────────────────────────────
+-- Cada ação (analysis | resume | interview) vira uma linha com data/hora.
+-- Só o servidor escreve; o dono lê os próprios. Base pra medir uso/ativação.
+create table if not exists public.usage_events (
+  id         bigint generated always as identity primary key,
+  user_id    uuid references auth.users(id) on delete cascade,
+  action     text,
+  created_at timestamptz not null default now()
+);
+create index if not exists usage_events_user_idx on public.usage_events(user_id);
+create index if not exists usage_events_action_idx on public.usage_events(action, created_at);
+alter table public.usage_events enable row level security;
+drop policy if exists "events_owner_read" on public.usage_events;
+create policy "events_owner_read" on public.usage_events
+  for select using (user_id = auth.uid());

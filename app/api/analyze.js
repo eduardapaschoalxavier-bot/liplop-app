@@ -32,6 +32,16 @@ async function bumpUsage(userId, col, current) {
     });
   } catch (e) {}
 }
+async function logEvent(userId, action) {
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY || !userId) return;
+  try {
+    await fetch(process.env.SUPABASE_URL + '/rest/v1/usage_events', {
+      method: 'POST',
+      headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY, Authorization: 'Bearer ' + process.env.SUPABASE_SERVICE_ROLE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId, action: action })
+    });
+  } catch (e) {}
+}
 async function hasActiveSub(email) {
   if (!process.env.STRIPE_SECRET_KEY || !email) return false;
   try {
@@ -73,7 +83,7 @@ export default async function handler(req, res) {
   }
 
   // ── Trava do free trial (só quando vem 'kind' de uma ação gratuita-limitada) ──
-  let _incCol = null, _incUser = null, _incCur = 0;
+  let _incCol = null, _incUser = null, _incCur = 0, _evtKind = null, _evtUser = null;
   if (kind && KIND_COL[kind]) {
     const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
     const user = await getUser(token);
@@ -87,6 +97,7 @@ export default async function handler(req, res) {
     } else {
       _incCol = col; _incUser = user.id; _incCur = used;
     }
+    _evtKind = kind; _evtUser = user.id;   // registra o evento (qualquer uso permitido)
   }
 
   try {
@@ -181,6 +192,7 @@ export default async function handler(req, res) {
 
     const text = data.content[0].text.trim();
     if (_incCol) await bumpUsage(_incUser, _incCol, _incCur);  // consumiu 1 uso grátis
+    if (_evtKind) await logEvent(_evtUser, _evtKind);          // registra o evento de uso
     return res.status(200).json({ result: text });
 
   } catch (e) {
