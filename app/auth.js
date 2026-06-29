@@ -260,6 +260,8 @@
     try {
       const r = await sb.auth.updateUser({ data: { full_name: n } });
       if (r && r.error) throw r.error;
+      const uid = (r && r.data && r.data.user && r.data.user.id) || (user && user.id);
+      if (uid) { try { await sb.from('profiles').update({ full_name: n }).eq('id', uid); } catch (e) {} }
       if (r && r.data && r.data.user) { user = r.data.user; render(); }
       if (no) no.classList.remove('open');
     } catch (e) {
