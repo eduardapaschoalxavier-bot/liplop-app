@@ -2053,6 +2053,7 @@
     </div>
     <!-- Barra de ações fixa sempre visível -->
     <div id="resume-action-bar" style="display:none;flex-shrink:0;gap:10px;margin-top:12px">
+      <button id="btn-add-kanban" onclick="addCurrentVagaToKanban()" style="flex:1;padding:13px;background:transparent;border:1.5px solid #f472b6;border-radius:12px;color:#e91e8c;font-size:15px;font-weight:700;cursor:pointer">+ Adicionar ao Kanban</button>
       <button onclick="downloadResumePDF()" style="flex:1;padding:13px;background:linear-gradient(135deg,#e91e8c,#f472b6);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(233,30,140,0.3)">⬇ Salvar como PDF</button>
     </div>
     <div id="resume-viewer-status" style="display:none;flex-shrink:0;margin-top:8px;font-size:0.8rem;color:#f9a8d4;text-align:center;line-height:1.4"></div>
@@ -3768,7 +3769,9 @@ Responda APENAS com o texto do currículo. Zero explicações, zero comentários
     try { const p = JSON.parse(text); text = p.curriculo || p.resume || p.text || text; } catch(e) {}
     text = text.replace(/—/g, '-').replace(/–/g, '-');
     _resumeText = text;
-    _resumeOpp  = { company: '', role: 'Currículo Adaptado' };
+    _resumeOpp  = (window._lastAnalysis && (_lastAnalysis.company || _lastAnalysis.role))
+      ? { company: _lastAnalysis.company || '', role: _lastAnalysis.role || 'Currículo Adaptado', fit: _lastAnalysis.score }
+      : { company: '', role: 'Currículo Adaptado' };
     _resumeGenerated = true;
     incFreeCount();
     showResumeModal(_resumeOpp, text);
@@ -4289,11 +4292,37 @@ function showResumeModal(opp, text) {
   document.getElementById('resume-modal-content').innerHTML = buildResumeHTML(clean);
   // Mostra barra de ações fixa
   document.getElementById('resume-action-bar').style.display = 'flex';
+  // Botão "Adicionar ao Kanban": só aparece se a vaga ainda não está lá
+  const addBtn = document.getElementById('btn-add-kanban');
+  if (addBtn) {
+    const comp = (opp.company || '').trim().toLowerCase();
+    const rl = (opp.role || '').trim().toLowerCase();
+    const already = !comp && !rl ? true : opps.some(o => (o.company || '').trim().toLowerCase() === comp && (o.role || '').trim().toLowerCase() === rl);
+    const semVaga = (!opp.company && (!opp.role || opp.role === 'Currículo Adaptado'));
+    addBtn.style.display = (already || semVaga) ? 'none' : 'block';
+  }
   document.getElementById('resume-modal').style.display = 'flex';
   // Marca cor atual
   const cur = window._resumeColor || '#e91e8c';
   const btn = document.getElementById('resume-color-btn-' + cur.replace('#',''));
   if (btn) btn.style.border = '2px solid white';
+}
+
+function addCurrentVagaToKanban() {
+  const o = _resumeOpp || {};
+  const company = (o.company || '').trim();
+  const role = (o.role || '').trim();
+  if (!company && (!role || role === 'Currículo Adaptado')) { alert('Não identifiquei a vaga pra adicionar.'); return; }
+  const exists = opps.find(x => (x.company || '').trim().toLowerCase() === company.toLowerCase() && (x.role || '').trim().toLowerCase() === role.toLowerCase());
+  if (exists) { closeResumeModal(); switchTab('kanban'); return; }
+  opps.push({
+    id: nextId++, company: company, role: role, status: 'Para Aplicar', stage: 'todo',
+    fit: (o.fit != null ? o.fit : null), link: null, jd_text: _lastJD || null,
+    contacts: [], next: '—', notes: '—'
+  });
+  saveOpps();
+  closeResumeModal();
+  switchTab('kanban');
 }
 
 function closeResumeModal() {
