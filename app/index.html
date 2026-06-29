@@ -4546,6 +4546,25 @@ function runNewUserFlow(uid) {
   // atalho de teste: ?tour=1 na URL força o tour na hora (independe de conta nova)
   try { if (location.search.indexOf('tour=1') >= 0) { startWalkthrough(true); return; } } catch (e) {}
   showWelcomeIfNeeded();
+  ensureTourEventually();   // rede de segurança: o tour roda mesmo se a cadeia welcome->onboarding "vazar"
+}
+
+// Garante que quem ainda não viu o tour acabe vendo: se os modais de welcome/
+// onboarding fecharem sem o tour ter começado (por timing ou clique no X), dispara
+// o tour assim que a tela estiver livre. Para sozinho quando o tour roda ou já foi visto.
+function ensureTourEventually() {
+  let tries = 0;
+  const iv = setInterval(function () {
+    tries++;
+    if (document.getElementById('wt-root')) { clearInterval(iv); return; }   // tour já rodando
+    let seen = false; try { seen = !!localStorage.getItem(wkKey(WALKTHROUGH_KEY)); } catch (e) {}
+    if (seen) { clearInterval(iv); return; }                                  // já viu o tour
+    const wel = document.getElementById('welcome-modal');
+    const onb = document.getElementById('onboarding-modal');
+    const blocked = (wel && wel.style.display === 'flex') || (onb && onb.style.display === 'flex');
+    if (!blocked) { clearInterval(iv); startWalkthrough(true); return; }       // tela livre: dispara
+    if (tries >= 30) clearInterval(iv);                                        // ~60s de janela
+  }, 2000);
 }
 window.liplopRunNewUserFlow = runNewUserFlow;
 
