@@ -1,8 +1,7 @@
 // ── Free trial: trava por uso, contada no servidor ──────────────────────────
-// Free trial por tipo de ação:
-//  analysis: 2 (a análise feita no onboarding guiado + 1 que a pessoa faz sozinha)
-//  resume / interview: 1 (a do onboarding guiado)
-const FREE_LIMIT = { analysis: 2, resume: 1, interview: 1 };
+// Free trial por tipo de ação: 2 de cada = 1 rodada completa no onboarding
+// guiado + 1 rodada completa que a pessoa faz sozinha. Depois disso, paywall.
+const FREE_LIMIT = { analysis: 2, resume: 2, interview: 2 };
 const KIND_COL = { analysis: 'analyses_used', resume: 'resumes_used', interview: 'interviews_used' };
 
 async function getUser(token) {
