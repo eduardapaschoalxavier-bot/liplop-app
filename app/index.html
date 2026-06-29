@@ -6772,8 +6772,10 @@ Nos textos (summary, has, lacks, tips), NÃO use travessão (—) nem (–); use
     if (e && e.paywall) { btn.disabled = false; btn.innerHTML = '✨ Analisar compatibilidade com IA'; return; }
     const m = (e.message || '').toLowerCase();
     let msg = 'A IA demorou ou veio incompleta. Tenta de novo, costuma funcionar na segunda. 🙏';
-    if (m.includes('quota') || m.includes('billing') || m.includes('credit')) {
-      msg = 'A IA está temporariamente indisponível. Já estamos verificando — tenta de novo em alguns minutos.';
+    if (e.status === 401 || m.includes('autenticado')) {
+      msg = 'Sua sessão expirou. Saia (no menu da sua conta, lá em cima) e entre de novo pra continuar. 🔑';
+    } else if (m.includes('quota') || m.includes('billing') || m.includes('credit')) {
+      msg = 'A IA está temporariamente indisponível. Já estamos verificando, tenta de novo em alguns minutos.';
     }
     showAnalyzeError(msg);
   } finally {
