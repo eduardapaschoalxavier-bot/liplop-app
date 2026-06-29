@@ -3894,6 +3894,9 @@ async function callAI(body, tries = 3) {
 
 // ── Paywall (free trial acabou) ──────────────────────────────────────────────
 function showPaywall(kind) {
+  // Se o paywall surgiu durante o onboarding, encerra o tour: ele não tem como
+  // avançar por uma ação bloqueada, então prenderia a pessoa num passo morto.
+  try { if (document.getElementById('wt-root') && typeof endWalkthrough === 'function') endWalkthrough(false); } catch(e){}
   const labels = { analysis: 'análise de fit', resume: 'geração de currículo', interview: 'preparação para entrevista' };
   const what = labels[kind] || 'esse recurso';
   let ov = document.getElementById('lp-paywall');
@@ -3912,6 +3915,7 @@ function showPaywall(kind) {
     + '<button onclick="subscribe(\'mensal\')" style="width:100%;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;background:linear-gradient(135deg,#f472b6,#ec4899);margin-bottom:10px">Assinar mensal · R$67/mês</button>'
     + '<button onclick="subscribe(\'semestral\')" style="width:100%;border:1px solid var(--border);border-radius:10px;padding:12px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;background:var(--card)">Assinar semestral · R$250 (6 meses)</button>'
     + '<div id="lp-paywall-msg" style="margin-top:14px;font-size:13px;min-height:16px"></div>'
+    + '<button onclick="document.getElementById(\'lp-paywall\').style.display=\'none\'" style="background:none;border:none;color:var(--dim);font-size:13px;cursor:pointer;margin-top:4px">Agora não</button>'
     + '</div>';
   ov.style.display = 'flex';
 }
