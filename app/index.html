@@ -4839,10 +4839,24 @@ const GUIDE_STEPS = [
   { target: '#marca-step1a', waitInput: '#marca-message-input',
     title: '1º · Defina a sua imagem',
     body: 'Numa frase, qual imagem você quer projetar? É isso que vai guiar toda a sua narrativa. Ex.: "alguém que transforma operações caóticas em processos escaláveis".' },
-  { tab: 'marca', target: '#marca-step1b', explain: true,
+  { tab: 'marca', target: '#marca-step1b', event: 'liplop:marca-path-chosen',
     onEnter: function(){ try { if (!document.getElementById('marca-step1b')) { var c = document.querySelector('.js-marca-continue'); if (c) c.click(); } } catch(e){} },
     title: '2º · Escolha o seu projeto',
-    body: 'Pra te tornar visível no mercado, o Liplop precisa de uma âncora: um projeto que prove o seu valor. Escolha aqui: <strong>"Já tenho algo"</strong> e ele estrutura como case, ou <strong>"Preciso construir"</strong> e ele te dá ideias de projeto.' },
+    body: 'Pra te tornar visível no mercado, o Liplop precisa de uma âncora: um projeto que prove o seu valor. <strong>Já tem algo</strong> pra mostrar ou <strong>quer criar do zero</strong>? Clique numa das opções.' },
+  { skipIf: function(){ return window._guideMarcaPath !== 'existing'; },
+    tab: 'marca', target: '#marca-existing-input', waitInput: '#marca-existing-input',
+    title: 'Conte o seu projeto',
+    body: 'Detalhe um projeto do qual você se orgulha muito. Não precisa ser perfeito: a IA transforma num case que reforça a imagem que você escolheu. Depois é só clicar em <strong>Estruturar meu case</strong>.' },
+  { skipIf: function(){ return window._guideMarcaPath !== 'new'; },
+    tab: 'marca', target: '#marca-path-content',
+    event: 'liplop:marca-ideas-ready', waitEvent: 'liplop:marca-ideas-start',
+    waitBody: '🔎 <strong>Gerando seus projetos…</strong> Leva uns <strong>40 segundos</strong>, mas vale MUITO a pena: são projetos sob medida pra você.',
+    title: 'Sem ideia? O Liplop te dá 3',
+    body: 'Clique em <strong>Sugerir projetos para mim</strong> e a IA cria 3 projetos sob medida pra você.' },
+  { skipIf: function(){ return window._guideMarcaPath !== 'new'; },
+    tab: 'marca', target: '#marca-ideas-result', event: 'liplop:marca-project-chosen',
+    title: 'Projetos sob medida pra você 🎯',
+    body: 'Cada projeto mostra <strong>o que é</strong>, <strong>por que prova</strong> o seu valor (alinhado com a imagem que você quer passar e com a senioridade das vagas que você persegue) e <strong>como fazer</strong>, rápido. Escolha o que mais combina e clique em <strong>Escolher este projeto</strong>.' },
   { final: true, tab: 'analyzer',
     title: 'Agora é com você! 🚀',
     body: 'Você fez o caminho completo do Liplop. Agora é só seguir por conta própria: volte pra Análise e teste com outra vaga.',
@@ -5093,6 +5107,8 @@ function positionGuide() {
 function advanceGuide() {
   if (_gOff) { _gOff(); _gOff = null; }
   _gIndex++;
+  // Pula passos que nao sao do caminho escolhido (ramificacao da marca).
+  while (_gIndex < GUIDE_STEPS.length && GUIDE_STEPS[_gIndex].skipIf && GUIDE_STEPS[_gIndex].skipIf()) { _gIndex++; }
   if (_gIndex >= GUIDE_STEPS.length) { endWalkthrough(true); return; }
   renderGuideStep();
 }
@@ -5101,6 +5117,7 @@ function goBackGuide() {
   if (_gIndex <= 0) return;
   if (_gOff) { _gOff(); _gOff = null; }
   _gIndex--;
+  while (_gIndex > 0 && GUIDE_STEPS[_gIndex].skipIf && GUIDE_STEPS[_gIndex].skipIf()) { _gIndex--; }
   renderGuideStep();
 }
 
@@ -6025,6 +6042,8 @@ function resetMarcaMessage() {
 }
 
 function showMarcaPath(path) {
+  window._guideMarcaPath = path;
+  try { window.dispatchEvent(new CustomEvent('liplop:marca-path-chosen')); } catch(e){}
   document.getElementById('btn-path-existing').style.borderColor = path === 'existing' ? '#f472b6' : 'rgba(var(--ink),0.1)';
   document.getElementById('btn-path-new').style.borderColor      = path === 'new'      ? '#f472b6' : 'rgba(var(--ink),0.1)';
   const el = document.getElementById('marca-path-content');
@@ -6110,6 +6129,7 @@ async function generateMarcaProjectIdeas() {
   const result = document.getElementById('marca-ideas-result');
   btn.disabled = true; btn.textContent = '⏳ Gerando ideias...';
   result.innerHTML = '';
+  try { window.dispatchEvent(new CustomEvent('liplop:marca-ideas-start')); } catch(e){}
 
   const profile = localStorage.getItem(PROFILE_KEY) || '';
   const vagas = opps.slice(0,5).map(o => o.role + ' em ' + o.company).join(', ');
@@ -6148,6 +6168,7 @@ Responda SOMENTE em JSON:
           Escolher este projeto
         </button>
       </div>`).join('');
+    try { window.dispatchEvent(new CustomEvent('liplop:marca-ideas-ready')); } catch(e){}
   } catch(e) {
     result.innerHTML = `<div style="color:#fc8181;font-size:12px">Erro: ${e.message}</div>`;
   } finally {
@@ -6156,6 +6177,7 @@ Responda SOMENTE em JSON:
 }
 
 function approveMarcaProject(text) {
+  try { window.dispatchEvent(new CustomEvent('liplop:marca-project-chosen')); } catch(e){}
   saveMarcaProject({ text, approved: true, createdAt: new Date().toISOString() });
   renderMarcaTab();
 }
