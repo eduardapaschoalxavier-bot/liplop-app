@@ -4812,7 +4812,9 @@ const GUIDE_STEPS = [
     waitBody: '🔎 <strong>Montando sua preparação…</strong> Leva mais uns <strong>40 segundos</strong>, mas vale MUITO a pena: é isso que vai te ajudar a mandar bem na entrevista.',
     title: 'Passo 4 de 4 · Se prepare para a entrevista',
     body: 'Clique em <strong>Gerar preparação</strong>. A IA monta o que a empresa provavelmente valoriza, o que destacar e o que evitar.' },
-  { target: '#interview-wrap', explain: true,
+  { explain: true,
+    spotFromFn: function(){ return '#icard-' + window._guidePrepCardId; },
+    spotToFn: function(){ return '#js-prep-abertura-' + window._guidePrepCardId; },
     title: 'Sua preparação está pronta! 🎯',
     body: 'Esta é a sua preparação sob medida pra essa vaga: o objetivo da entrevista, o que a empresa valoriza, o que destacar do seu perfil e o que evitar falar. É o que tira você do improviso e te dá vantagem real. Bora ver cada parte.' },
   { targetFn: function(){ return '#js-prep-abertura-' + window._guidePrepCardId; }, explain: true,
@@ -4837,12 +4839,10 @@ const GUIDE_STEPS = [
   { target: '#marca-step1a', waitInput: '#marca-message-input',
     title: '1º · Defina a sua imagem',
     body: 'Numa frase, qual imagem você quer projetar? É isso que vai guiar toda a sua narrativa. Ex.: "alguém que transforma operações caóticas em processos escaláveis".' },
-  { target: '.js-marca-continue', event: 'liplop:marca-message-saved',
-    title: '2º · Agora, construir essa imagem',
-    body: 'Definir a imagem que você quer passar é só o começo. Agora o Liplop monta um <strong>plano editorial</strong> pra te tornar visível no mercado, sem postar no escuro. Pra isso ele precisa de uma <strong>âncora</strong>: um projeto que prove o seu valor. Clique em <strong>Continuar</strong> pra escolher o seu.' },
   { tab: 'marca', target: '#marca-step1b', explain: true,
-    title: '3º · Já tem um projeto ou cria do zero?',
-    body: 'Se você já tem um trabalho ou resultado, escolha <strong>"Já tenho algo"</strong> e o Liplop transforma em case. Se ainda não tem, <strong>"Preciso construir"</strong> e ele te dá ideias de projeto. É essa âncora que faz o mercado te levar a sério.' },
+    onEnter: function(){ try { if (!document.getElementById('marca-step1b')) { var c = document.querySelector('.js-marca-continue'); if (c) c.click(); } } catch(e){} },
+    title: '2º · Escolha o seu projeto',
+    body: 'Pra te tornar visível no mercado, o Liplop precisa de uma âncora: um projeto que prove o seu valor. Escolha aqui: <strong>"Já tenho algo"</strong> e ele estrutura como case, ou <strong>"Preciso construir"</strong> e ele te dá ideias de projeto.' },
   { final: true, tab: 'analyzer',
     title: 'Agora é com você! 🚀',
     body: 'Você fez o caminho completo do Liplop. Agora é só seguir por conta própria: volte pra Análise e teste com outra vaga.',
@@ -5011,11 +5011,14 @@ function positionGuide() {
   const tip  = root.querySelector('.wt-tip');
   const sel = step.targetFn ? step.targetFn() : step.target;
   const target = sel ? document.querySelector(sel) : null;
-  if (step.spotFrom && step.spotTo) {
+  if ((step.spotFrom || step.spotFromFn) && (step.spotTo || step.spotToFn)) {
     // Recorte de um intervalo: do topo de spotFrom ate a base de spotTo
-    // (ex.: do score ate os gaps), deixando o resto escurecido.
-    const a = document.querySelector(step.spotFrom);
-    const b = document.querySelector(step.spotTo);
+    // (ex.: do score ate os gaps), deixando o resto escurecido. Aceita seletor
+    // fixo (spotFrom/spotTo) ou funcao (spotFromFn/spotToFn) para ids dinamicos.
+    const selA = step.spotFromFn ? step.spotFromFn() : step.spotFrom;
+    const selB = step.spotToFn ? step.spotToFn() : step.spotTo;
+    const a = selA ? document.querySelector(selA) : null;
+    const b = selB ? document.querySelector(selB) : null;
     if (a && b) {
       try { a.scrollIntoView({ block: 'start' }); } catch(e){}
       const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
