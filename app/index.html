@@ -4782,7 +4782,7 @@ const GUIDE_STEPS = [
       document.querySelectorAll('#board .card-fit').forEach(function(b){ b.classList.add('fit-highlight'); });
     } catch(e){} },
     title: 'Sua visão de jogo 🎯',
-    body: 'Veja o <strong>% de fit de cada vaga</strong>, todas de uma vez. Isso te dá clareza do potencial real de aprovação em cada uma, pra manter a expectativa no chão e focar energia onde a chance é de verdade.' },
+    body: 'Aqui é o seu <strong>zoom out</strong>: o % de fit de todas as suas vagas de uma vez. Dá clareza do potencial real de aprovação em cada uma, pra manter a expectativa no chão e focar energia onde a chance é de verdade.' },
   { target: '#board', explain: true,
     title: 'Seu quadro completo 📋',
     body: 'E aqui o panorama: cada vaga avança de <strong>Para Aplicar</strong> até a <strong>Oferta</strong>. Você acompanha todos os processos num lugar só, sem planilha e sem perder o controle.' },
@@ -4801,16 +4801,16 @@ const GUIDE_STEPS = [
     waitBody: '🔎 <strong>Montando sua preparação…</strong> Leva mais uns <strong>40 segundos</strong>, mas vale MUITO a pena: é isso que vai te ajudar a mandar bem na entrevista.',
     title: 'Passo 4 de 4 · Se prepare para a entrevista',
     body: 'Clique em <strong>Gerar preparação</strong>. A IA monta o que a empresa provavelmente valoriza, o que destacar e o que evitar.' },
-  { targetFn: function(){ return '#js-prep-abertura-' + window._guideCardId; }, explain: true,
+  { targetFn: function(){ return '#js-prep-abertura-' + window._guidePrepCardId; }, explain: true,
     title: 'O objetivo da entrevista',
     body: 'Aqui em cima a IA resume o que <strong>provavelmente</strong> vai ser avaliado nessa entrevista. É a sua bússola pra não chegar no escuro.' },
-  { targetFn: function(){ return '#js-prep-empresa-' + window._guideCardId; }, explain: true,
+  { targetFn: function(){ return '#js-prep-empresa-' + window._guidePrepCardId; }, explain: true,
     title: 'Sobre a empresa',
     body: 'O que essa empresa provavelmente valoriza e como ela pensa. Use isso pra falar a língua dela e mostrar que fez o dever de casa.' },
-  { targetFn: function(){ return '#js-prep-cargo-' + window._guideCardId; }, explain: true,
+  { targetFn: function(){ return '#js-prep-cargo-' + window._guidePrepCardId; }, explain: true,
     title: 'O que provavelmente avaliam',
     body: 'O que costuma ser cobrado nessa posição. Prepare exemplos seus que provem cada ponto.' },
-  { targetFn: function(){ return '#js-prep-evite-' + window._guideCardId; }, explain: true,
+  { targetFn: function(){ return '#js-prep-evite-' + window._guidePrepCardId; }, explain: true,
     title: 'O que evitar',
     body: 'O que costuma derrubar candidatos nessa vaga. Saber disso antes já te coloca na frente.' },
   { explain: true,
@@ -5346,6 +5346,7 @@ Gere exatamente 3 dicas de empresa, 3 dicas de cargo/senioridade, 3 evites. Seja
       </div>
 
       <button onclick="generateInterviewPrep(${oppId})" style="margin-top:16px;width:100%;padding:10px;background:transparent;border:1px solid rgba(var(--ink),0.1);border-radius:8px;color:var(--mid);font-size:12px;cursor:pointer">Regenerar preparação</button>`;
+    window._guidePrepCardId = oppId;   // pro tour mirar a prep que acabou de ser gerada
     try { window.dispatchEvent(new CustomEvent('liplop:interview-prep-ready')); } catch(e){}
 
   } catch(e) {
