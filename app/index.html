@@ -1864,7 +1864,7 @@
     .wt-close { position: absolute; top: 7px; right: 9px; background: none; border: none; color: var(--dim); font-size: 19px; line-height: 1; cursor: pointer; padding: 2px 5px; }
     .wt-close:hover { color: var(--mid); }
     /* destaque apenas dos % de fit (acima do escurecido) */
-    .card-fit.fit-highlight { position: relative; z-index: 10051; box-shadow: 0 0 0 2px rgba(255,255,255,0.92), 0 0 0 4px var(--rose), 0 0 12px 3px rgba(212,58,110,0.32); }
+    .card-fit.fit-highlight { position: relative; z-index: 10051; box-shadow: 0 0 0 1px rgba(255,255,255,0.5), 0 3px 16px 2px rgba(224,68,120,0.5); transform: scale(1.08); transition: transform .25s ease, box-shadow .25s ease; }
     .wt-tip p { font-size: 12px; color: var(--mid); line-height: 1.5; margin: 0 0 12px; }
     .wt-tip-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
     .wt-skip { background: none; border: none; color: var(--dim); font-size: 12px; cursor: pointer; padding: 4px 0; white-space: nowrap; }
@@ -4790,7 +4790,7 @@ const GUIDE_STEPS = [
   { targetFn: function(){ return '.card[data-id="' + window._guideCardId + '"] .card-fit'; }, explain: true,
     title: 'Esse número é ouro 💎',
     body: 'Esse <strong>% de fit</strong> é o seu potencial real nessa vaga, calculado a partir do seu perfil. Quanto mais alto, mais perto você está, e o Liplop já te mostrou o que falta pra subir.' },
-  { explain: true, tipRight: true,
+  { explain: true, tipBottom: true,
     onEnter: function(){ try {
       document.querySelectorAll('.card.card-guide-new').forEach(function(c){ c.classList.remove('card-guide-new'); });
       document.querySelectorAll('#board .card-fit').forEach(function(b){ b.classList.add('fit-highlight'); });
@@ -5048,6 +5048,7 @@ function positionGuide() {
     tt = window.innerHeight * 0.42 + 16;
   }
   if (step.tipRight) { tl = window.innerWidth - tw - 44; tt = window.innerHeight / 2 - th / 2; }
+  if (step.tipBottom) { tl = window.innerWidth / 2 - tw / 2; tt = window.innerHeight - th - 56; }
   tip.style.left = Math.max(12, Math.min(tl, window.innerWidth - tw - 12)) + 'px';
   tip.style.top  = Math.max(12, Math.min(tt, window.innerHeight - th - 12)) + 'px';
 
