@@ -4742,7 +4742,7 @@ const GUIDE_STEPS = [
     waitBody: '🔎 <strong>Analisando…</strong> Costuma levar uns <strong>40 segundos</strong>, porque a IA lê todo o seu perfil e a vaga. Aguarda um pouquinho que vale a pena.',
     title: 'Passo 1 de 4 · Agora analise',
     body: 'Clique em <strong>Analisar</strong> e a IA mostra seu fit, seus pontos fortes e as lacunas.' },
-  { peek: true, explain: true,
+  { spotFrom: '.fit-score-row', spotTo: '.fit-block.lacks', explain: true,
     title: 'Essa é a leitura que o recrutador faz de você 🔍',
     body: 'Essa análise é basicamente o que o recrutador enxerga de você no <strong>ATS</strong> dele: onde você encaixa na vaga e onde não. A diferença é que agora <strong>você também tem essa leitura</strong>, pra destacar o que é forte e trabalhar o que é fraco antes de aplicar. Bora ver cada parte.' },
   { target: '.fit-score-row', explain: true,
@@ -5011,17 +5011,29 @@ function positionGuide() {
   const tip  = root.querySelector('.wt-tip');
   const sel = step.targetFn ? step.targetFn() : step.target;
   const target = sel ? document.querySelector(sel) : null;
-  if (step.peek) {
-    // Veu leve: mostra o conteudo inteiro por baixo (sem recorte duro), balao no rodape.
-    const fr = document.getElementById('fit-result'); if (fr) { try { fr.scrollIntoView({ block: 'start' }); } catch(e){} }
-    spot.style.opacity = '1';
-    spot.style.boxShadow = '0 0 0 9999px rgba(12,5,9,0.28)';
-    spot.style.left = '-9999px'; spot.style.top = '-9999px'; spot.style.width = '0px'; spot.style.height = '0px';
-    const ptw = tip.offsetWidth || 320, pth = tip.offsetHeight || 170;
-    tip.style.left = Math.max(12, window.innerWidth / 2 - ptw / 2) + 'px';
-    tip.style.top  = (window.innerHeight - pth - 28) + 'px';
-    const par = root.querySelector('.wt-arrow'); if (par) par.style.display = 'none';
-    return;
+  if (step.spotFrom && step.spotTo) {
+    // Recorte de um intervalo: do topo de spotFrom ate a base de spotTo
+    // (ex.: do score ate os gaps), deixando o resto escurecido.
+    const a = document.querySelector(step.spotFrom);
+    const b = document.querySelector(step.spotTo);
+    if (a && b) {
+      try { a.scrollIntoView({ block: 'start' }); } catch(e){}
+      const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+      const top = Math.min(ra.top, rb.top), bottom = Math.max(ra.bottom, rb.bottom);
+      const left = Math.min(ra.left, rb.left), right = Math.max(ra.right, rb.right);
+      const pad = 8;
+      spot.style.opacity = '1';
+      spot.style.boxShadow = '';   // anel + escurecido padrao do CSS
+      spot.style.left = (left - pad) + 'px';
+      spot.style.top = (top - pad) + 'px';
+      spot.style.width = (right - left + pad * 2) + 'px';
+      spot.style.height = (bottom - top + pad * 2) + 'px';
+      const rtw = tip.offsetWidth || 320, rth = tip.offsetHeight || 170;
+      tip.style.left = Math.max(12, window.innerWidth / 2 - rtw / 2) + 'px';
+      tip.style.top  = (window.innerHeight - rth - 22) + 'px';
+      const rar = root.querySelector('.wt-arrow'); if (rar) rar.style.display = 'none';
+      return;
+    }
   }
   let r = null;
   if (target && target.offsetParent !== null) {
