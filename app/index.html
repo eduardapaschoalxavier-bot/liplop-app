@@ -3876,6 +3876,8 @@ async function callAI(body, tries = 3) {
   let lastErr;
   let token = await _aiToken();
   let refreshed = false;
+  // ações feitas DURANTE o tour guiado não contam no trial (os 3 grátis são pro uso sozinho)
+  if (document.getElementById('wt-root')) body = Object.assign({}, body, { guided: true });
   for (let i = 0; i < tries; i++) {
     try {
       const headers = { 'Content-Type': 'application/json' };

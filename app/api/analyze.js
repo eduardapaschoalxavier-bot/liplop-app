@@ -1,6 +1,7 @@
 // ── Free trial: trava por uso, contada no servidor ──────────────────────────
-// Free trial POOLED: 3 ações de IA no TOTAL (fit + currículo + preparação,
-// somadas). Cada uma conta uma. Ao chegar em 3, entra o paywall.
+// Free trial POOLED: 3 ações de IA que a pessoa faz SOZINHA (fit + currículo
+// + preparação, somadas). Ações do tour guiado (guided) NÃO contam. Ao chegar
+// em 3, entra o paywall.
 const FREE_TOTAL = 3;
 const KIND_COL = { analysis: 'analyses_used', resume: 'resumes_used', interview: 'interviews_used' };
 
@@ -74,7 +75,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  const { prompt, json_mode = true, mode = 'standard', model = 'claude-sonnet-4-5', kind } = req.body;
+  const { prompt, json_mode = true, mode = 'standard', model = 'claude-sonnet-4-5', kind, guided } = req.body;
 
   if (!prompt) {
     return res.status(400).json({ error: 'Prompt ausente' });
@@ -86,7 +87,7 @@ export default async function handler(req, res) {
 
   // ── Trava do free trial (só quando vem 'kind' de uma ação gratuita-limitada) ──
   let _incCol = null, _incUser = null, _incCur = 0, _evtKind = null, _evtUser = null;
-  if (kind && KIND_COL[kind]) {
+  if (kind && KIND_COL[kind] && !guided) {   // 'guided' = ação do tour: não conta nem trava
     const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
     const user = await getUser(token);
     if (!user) return res.status(401).json({ error: 'Não autenticado' });
