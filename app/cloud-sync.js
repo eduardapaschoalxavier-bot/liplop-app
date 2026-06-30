@@ -18,6 +18,7 @@
     'liplop-profile-objectives-v1': 'profile',
     'liplop-profile-roles-v1': 'profile',
     'liplop-job-search-v1': 'profile',
+    'liplop-onboarded-at': 'profile',
     'job-crm-opps-v2': 'opps',
     'liplop-marca-project-v1': 'marca',
     'liplop-marca-tone-v1': 'marca',
@@ -43,13 +44,17 @@
   function lsJSON(k, def) { try { return JSON.parse(localStorage.getItem(k) || def); } catch (e) { try { return JSON.parse(def); } catch (_) { return null; } } }
 
   function profileRow() {
-    return {
+    var row = {
       id: user.id,
       profile_text: lsGet('liplop-profile'),
       objectives: lsGet('liplop-profile-objectives-v1'),
       roles: lsGet('liplop-profile-roles-v1'),
       job_search: lsJSON('liplop-job-search-v1', '{}')
     };
+    // só manda onboarded_at quando existe, pra nunca apagar a data já gravada no banco
+    var ob = lsGet('liplop-onboarded-at');
+    if (ob) row.onboarded_at = ob;
+    return row;
   }
   function oppRows() {
     var opps = lsJSON('job-crm-opps-v2', '[]');

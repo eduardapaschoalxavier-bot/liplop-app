@@ -22,9 +22,12 @@ create table if not exists public.profiles (
   roles         text,
   job_search    jsonb default '{}'::jsonb,
   migrated_at   timestamptz,
+  onboarded_at  timestamptz,   -- quando a pessoa terminou o tour de onboarding (= "ativado")
   created_at    timestamptz not null default now(),
   updated_at    timestamptz not null default now()
 );
+-- para bancos já existentes (o create table acima não altera tabela existente):
+alter table public.profiles add column if not exists onboarded_at timestamptz;
 
 -- ── VAGAS / KANBAN (job-crm-opps-v2) ─────────────────────────────────────────
 create table if not exists public.opportunities (

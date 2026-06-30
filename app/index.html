@@ -4892,6 +4892,7 @@ function renderGuideStep() {
   if (_gOff) { _gOff(); _gOff = null; }            // tira o listener do passo anterior
   try { document.querySelectorAll('.fit-highlight').forEach(function(e){ e.classList.remove('fit-highlight'); }); } catch(e){}
   const step = GUIDE_STEPS[_gIndex];
+  if (step.final) markOnboarded();   // chegou no último passo = "ativado"
   if (step.tab) { try { switchTab(step.tab); } catch(e){} }
   // espera o DOM da aba pintar antes de destacar/posicionar
   setTimeout(function () {
@@ -5050,6 +5051,16 @@ function goBackGuide() {
   if (_gOff) { _gOff(); _gOff = null; }
   _gIndex--;
   renderGuideStep();
+}
+
+// carimba "ativado" (terminou o tour ate o fim). Grava no localStorage; o
+// cloud-sync sobe pro Supabase (profiles.onboarded_at) quando logado. So a 1a vez.
+function markOnboarded() {
+  try {
+    if (!localStorage.getItem('liplop-onboarded-at')) {
+      localStorage.setItem('liplop-onboarded-at', new Date().toISOString());
+    }
+  } catch(e){}
 }
 
 function endWalkthrough(goAnalyzer) {
