@@ -4772,7 +4772,7 @@ const GUIDE_STEPS = [
   { targetFn: function(){ return '.card[data-id="' + window._guideCardId + '"] .card-fit'; }, explain: true,
     title: 'Esse número é ouro 💎',
     body: 'Esse <strong>% de fit</strong> é o seu potencial real nessa vaga, calculado a partir do seu perfil. Quanto mais alto, mais perto você está, e o Liplop te mostra o que falta pra subir.' },
-  { targetFn: function(){ return '.card:not([data-id="' + window._guideCardId + '"]) .card-fit'; }, explain: true,
+  { target: '#board', explain: true,
     title: 'Sua visão de jogo 🎯',
     body: 'E aqui está o poder de verdade: com várias vagas no kanban, você vê o fit de <strong>todas lado a lado</strong>. Enxerga de cima onde tem mais chance real e foca a sua energia onde mais vale a pena, em vez de aplicar no escuro pra dezenas de vagas.' },
   { tab: 'kanban', targetFn: function(){ return '.card[data-id="' + window._guideCardId + '"]'; }, dragHint: true, back: true, event: 'liplop:card-moved-interview',
