@@ -5169,10 +5169,22 @@ function skipOnboarding() {
 // - Fallback: se o auth.js nunca disparar (ex.: sem Supabase, ou falha ao
 //   carregar), roda como anônimo — comportamento por navegador de antes.
 document.addEventListener('DOMContentLoaded', function () {
+  // Atalhos de teste pela URL (?tour=1 / ?tour=marca / ?tour=interview): disparam
+  // sempre que a tela estiver pronta, independente de login.
+  try {
+    if (/[?&]tour=(1|marca|interview)/.test(location.search)) {
+      setTimeout(function () {
+        if (document.getElementById('wt-root')) return; // ja rodando (ex.: disparado pela conta)
+        var find = function (f) { return GUIDE_STEPS.findIndex(function (s) { return s.title && s.title.indexOf(f) >= 0; }); };
+        if (location.search.indexOf('tour=marca') >= 0)          startWalkthrough(true, find('Defina a sua imagem'));
+        else if (location.search.indexOf('tour=interview') >= 0) startWalkthrough(true, find('Hora da entrevista'));
+        else                                                     startWalkthrough(true);
+      }, 1500);
+    }
+  } catch (e) {}
   setTimeout(function () {
     // com login (Supabase), o tour é disparado pela conta logada; o fallback
     // anônimo só roda se NÃO houver auth (produção sem Supabase ou auth.js falhou).
-    // Assim o fallback não "rouba" o disparo usando flags antigas do navegador.
     if (!_wkRan && !window.liplopHasAuth) runNewUserFlow(null);
   }, 4000);
 });
