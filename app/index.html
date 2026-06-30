@@ -4797,8 +4797,15 @@ const GUIDE_STEPS = [
     title: 'O que evitar',
     body: 'Os deslizes que derrubam candidatos nessa vaga. Saber disso antes já te coloca na frente.' },
   { tab: 'marca', explain: true,
-    title: 'Não dependa só de aplicar 🎯',
-    body: 'Aplicar pra vaga é metade do jogo. A outra metade é <strong>ser visto</strong>: presença no LinkedIn faz o recrutador vir até você. Aqui, na aba <strong>Atrair</strong>, o Liplop te ajuda a se posicionar de forma estratégica e consistente, <strong>sem aquelas postagens desesperadas</strong>, pra atrair as oportunidades certas até você.' },
+    onEnter: function(){ try { if (typeof getMarcaMessage === 'function' && getMarcaMessage()) resetMarcaMessage(); } catch(e){} },
+    title: 'Próxima fase: seja procurado, não só procure 🎯',
+    body: 'Aplicar é só metade do jogo. A outra metade é <strong>ser visto</strong>: presença no LinkedIn faz a vaga vir até você. Aqui na aba <strong>Atrair</strong>, o Liplop te ajuda a se posicionar com estratégia, <strong>sem postagens desesperadas</strong>. Bora montar a sua?' },
+  { target: '#marca-message-input', waitInput: '#marca-message-input',
+    title: 'Defina como quer ser visto',
+    body: 'Numa frase, qual imagem você quer projetar? É isso que guia toda a sua narrativa no LinkedIn. Ex.: "alguém que transforma operações caóticas em processos escaláveis".' },
+  { target: '.js-marca-continue', event: 'liplop:marca-message-saved',
+    title: 'É só seguir o passo a passo',
+    body: 'Clique em <strong>Continuar</strong>. A partir daqui o Liplop monta o seu <strong>projeto/case</strong>, define o seu <strong>tom de voz</strong> e te entrega um <strong>calendário de 30 dias</strong> de presença, no ritmo certo, sem você ter que inventar do nada.' },
   { final: true, tab: 'analyzer',
     title: 'Agora é com você! 🚀',
     body: 'Você fez o caminho completo do Liplop. Agora é só seguir por conta própria: volte pra Análise e teste com outra vaga.',
@@ -4873,12 +4880,11 @@ function renderGuideStep() {
     // passo que espera a pessoa preencher um campo (ex.: colar a descrição da vaga)
     if (step.waitInput) {
       const el = document.querySelector(step.waitInput);
-      if (el) {
-        if ((el.value || '').trim()) { advanceGuide(); return; }
-        const onIn = function () { if ((el.value || '').trim()) advanceGuide(); };
-        el.addEventListener('input', onIn);
-        _gOff = function () { el.removeEventListener('input', onIn); };
-      }
+      if (!el) { advanceGuide(); return; }   // campo não existe (ex.: já preenchido): pula
+      if ((el.value || '').trim()) { advanceGuide(); return; }
+      const onIn = function () { if ((el.value || '').trim()) advanceGuide(); };
+      el.addEventListener('input', onIn);
+      _gOff = function () { el.removeEventListener('input', onIn); };
       return;
     }
     // micro-passo que avança sozinho (ex.: comemoração "Boa!")
@@ -5883,7 +5889,7 @@ function renderMarcaStep1(project) {
             style="width:100%;min-height:72px;background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.1);border-radius:8px;padding:10px 12px;color:var(--text);font-size:13px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
             onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(var(--ink),0.1)'"
           ></textarea>
-          <button onclick="confirmMarcaMessage()" style="margin-top:10px;width:100%;padding:10px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Continuar →</button>
+          <button class="js-marca-continue" onclick="confirmMarcaMessage()" style="margin-top:10px;width:100%;padding:10px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Continuar →</button>
         `
       }
     </div>`;
@@ -5930,6 +5936,7 @@ function confirmMarcaMessage() {
   if (!val) return;
   saveMarcaMessage(val);
   document.getElementById('marca-step1').innerHTML = renderMarcaStep1(getMarcaProject());
+  try { window.dispatchEvent(new CustomEvent('liplop:marca-message-saved')); } catch(e){}
 }
 
 function resetMarcaMessage() {
