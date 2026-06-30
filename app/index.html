@@ -4740,6 +4740,8 @@ const GUIDE_STEPS = [
   { target: '#btn-analyze', event: 'liplop:analysis-complete',
     waitEvent: 'liplop:analysis-start',
     waitBody: '🔎 <strong>Analisando…</strong> Costuma levar uns <strong>40 segundos</strong>, porque a IA lê todo o seu perfil e a vaga. Aguarda um pouquinho que vale a pena.',
+    errorEvent: 'liplop:analysis-error',
+    errorBody: '⚠️ <strong>A IA tropeçou.</strong> Costuma ser passageiro. Clica em <strong>Tentar novamente</strong> ali embaixo, que na segunda quase sempre funciona. 🙏',
     title: 'Passo 1 de 4 · Agora analise',
     body: 'Clique em <strong>Analisar</strong> e a IA mostra seu fit, seus pontos fortes e as lacunas.' },
   { target: '.fit-score-row', explain: true,
@@ -4968,11 +4970,21 @@ function renderGuideStep() {
           const p = document.querySelector('#wt-root .wt-tip p');
           if (p) { p.innerHTML = step.waitBody; positionGuide(); }
         };
-        window.addEventListener(step.waitEvent, waitUpd, { once: true });
+        window.addEventListener(step.waitEvent, waitUpd);
+      }
+      // Se a acao falhar (ex.: IA deu erro), troca o texto pra orientar o retry.
+      let errUpd = null;
+      if (step.errorEvent && step.errorBody) {
+        errUpd = function () {
+          const p = document.querySelector('#wt-root .wt-tip p');
+          if (p) { p.innerHTML = step.errorBody; positionGuide(); }
+        };
+        window.addEventListener(step.errorEvent, errUpd);
       }
       _gOff = function () {
         window.removeEventListener(step.event, handler);
         if (waitUpd) window.removeEventListener(step.waitEvent, waitUpd);
+        if (errUpd) window.removeEventListener(step.errorEvent, errUpd);
       };
     }
   }, step.tab ? 240 : 30);
@@ -6816,6 +6828,7 @@ function showAnalyzeError(msg) {
   errEl.style.display = 'block';
   errEl.innerHTML = '<strong>⚠️ Erro na análise</strong><br>' + msg;
   errEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  try { window.dispatchEvent(new CustomEvent('liplop:analysis-error')); } catch(e){}
 }
 
 function getFreeCount() { return 0; }
