@@ -1584,7 +1584,7 @@
       opacity: 1;
     }
     .card-action-btn.primary {
-      background: linear-gradient(135deg, #f472b6, #ec4899);
+      background: var(--topbar-bg);
       border: none;
       color: #fff;
     }
@@ -2051,7 +2051,7 @@
           </span>
           <button id="resume-edit-btn" onclick="focusResumeEditor()"
             title="Clique em qualquer texto do currículo para editar"
-            style="flex-shrink:0;display:flex;align-items:center;gap:6px;padding:8px 16px;background:linear-gradient(135deg,#e91e8c,#f472b6);border:none;border-radius:999px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 10px rgba(233,30,140,0.35);transition:transform .15s"
+            style="flex-shrink:0;display:flex;align-items:center;gap:6px;padding:8px 16px;background:var(--topbar-bg);border:none;border-radius:999px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 10px rgba(233,30,140,0.35);transition:transform .15s"
             onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
             ✏️ Editar
           </button>
@@ -2062,7 +2062,7 @@
     <!-- Barra de ações fixa sempre visível -->
     <div id="resume-action-bar" style="display:none;flex-shrink:0;gap:10px;margin-top:12px">
       <button id="btn-add-kanban" onclick="addCurrentVagaToKanban()" style="flex:1;padding:13px;background:transparent;border:1.5px solid #f472b6;border-radius:12px;color:#e91e8c;font-size:15px;font-weight:700;cursor:pointer">+ Adicionar ao Kanban</button>
-      <button id="btn-save-pdf" onclick="downloadResumePDF()" style="flex:1;padding:13px;background:linear-gradient(135deg,#e91e8c,#f472b6);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(233,30,140,0.3)">⬇ Salvar como PDF</button>
+      <button id="btn-save-pdf" onclick="downloadResumePDF()" style="flex:1;padding:13px;background:var(--topbar-bg);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(233,30,140,0.3)">⬇ Salvar como PDF</button>
     </div>
     <div id="resume-viewer-status" style="display:none;flex-shrink:0;margin-top:8px;font-size:0.8rem;color:#f9a8d4;text-align:center;line-height:1.4"></div>
   </div>
@@ -2317,7 +2317,7 @@
       </div>
     </div>
     <div class="form-actions" style="flex-direction:column;gap:10px">
-      <button onclick="saveAndGenerateResume()" style="width:100%;padding:14px;background:linear-gradient(135deg,#e91e8c,#f472b6);border:none;border-radius:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 18px rgba(233,30,140,0.35)">
+      <button onclick="saveAndGenerateResume()" style="width:100%;padding:14px;background:var(--topbar-bg);border:none;border-radius:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 18px rgba(233,30,140,0.35)">
         ✨ Salvar e gerar currículo adaptado
       </button>
       <button class="btn-cancel" onclick="saveCard()" style="background:transparent;border:1px solid rgba(var(--ink),0.12);color:rgba(var(--ink),0.5);width:100%">Salvar sem gerar currículo</button>
@@ -2357,7 +2357,7 @@
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
         <button id="btn-gen-resume" onclick="generateResume()"
-          style="padding:16px 10px;background:linear-gradient(135deg,#e91e8c,#f472b6);border:none;border-radius:14px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;line-height:1.3;text-align:center;box-shadow:0 4px 14px rgba(233,30,140,0.3)"
+          style="padding:16px 10px;background:var(--topbar-bg);border:none;border-radius:14px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;line-height:1.3;text-align:center;box-shadow:0 4px 14px rgba(233,30,140,0.3)"
           onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
           ✨ Gerar currículo<br><span style="font-weight:400;font-size:11px;opacity:.85">adaptado para esta vaga</span>
         </button>
@@ -3940,7 +3940,7 @@ function showPaywall(kind) {
     + '<div style="font-size:34px;margin-bottom:4px">✨</div>'
     + '<h3 style="margin:0 0 8px;font-size:20px;font-weight:800;color:var(--text)">Seu teste grátis acabou</h3>'
     + '<p style="margin:0 0 22px;font-size:14px;color:var(--mid);line-height:1.55">Você já usou seu teste grátis de ' + what + '. Pra continuar usando o Liplop sem limites, assine um plano.</p>'
-    + '<button onclick="subscribe(\'mensal\')" style="width:100%;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;background:linear-gradient(135deg,#f472b6,#ec4899);margin-bottom:10px">Assinar mensal · R$67/mês</button>'
+    + '<button onclick="subscribe(\'mensal\')" style="width:100%;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;background:var(--topbar-bg);margin-bottom:10px">Assinar mensal · R$67/mês</button>'
     + '<button onclick="subscribe(\'semestral\')" style="width:100%;border:1px solid var(--border);border-radius:10px;padding:12px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;background:var(--card)">Assinar semestral · R$250 (6 meses)</button>'
     + '<div id="lp-paywall-msg" style="margin-top:14px;font-size:13px;min-height:16px"></div>'
     + '<button onclick="document.getElementById(\'lp-paywall\').style.display=\'none\'" style="background:none;border:none;color:var(--dim);font-size:13px;cursor:pointer;margin-top:4px">Agora não</button>'
@@ -5344,7 +5344,7 @@ function renderInterviewTab() {
         </div>
         <div id="icard-result-${opp.id}">
           <button class="js-gen-prep" onclick="generateInterviewPrep(${opp.id})"
-            style="width:100%;padding:12px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:9px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
+            style="width:100%;padding:12px;background:var(--topbar-bg);border:none;border-radius:9px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
             ✨ Gerar preparação para esta entrevista
           </button>
         </div>
@@ -5357,7 +5357,7 @@ async function generateInterviewPrep(oppId) {
   if (!opp) return;
 
   const resultEl = document.getElementById(`icard-result-${oppId}`);
-  resultEl.innerHTML = `<button disabled style="width:100%;padding:12px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:9px;color:#fff;font-size:13px;font-weight:700;cursor:wait;opacity:0.9;display:flex;align-items:center;justify-content:center;gap:8px">⏳ IA desenhando a sua preparação de entrevista…</button>`;
+  resultEl.innerHTML = `<button disabled style="width:100%;padding:12px;background:var(--topbar-bg);border:none;border-radius:9px;color:#fff;font-size:13px;font-weight:700;cursor:wait;opacity:0.9;display:flex;align-items:center;justify-content:center;gap:8px">⏳ IA desenhando a sua preparação de entrevista…</button>`;
 
   const profile = localStorage.getItem(PROFILE_KEY) || '';
   const jd = opp.jd_text || '';
@@ -5514,7 +5514,7 @@ function renderPerfilTab() {
           style="width:100%;min-height:60px;background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.1);border-radius:8px;padding:12px;color:var(--text);font-size:12px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
           onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(var(--ink),0.1)'">${roles}</textarea>
       </div>
-      <button onclick="savePerfilData()" style="width:100%;padding:13px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer">
+      <button onclick="savePerfilData()" style="width:100%;padding:13px;background:var(--topbar-bg);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer">
         Salvar perfil
       </button>
       <div id="perfil-save-status" style="display:none;text-align:center;font-size:12px;color:#68d391;margin-top:10px">✓ Perfil salvo!</div>
@@ -5587,7 +5587,7 @@ function renderVagasTab() {
         <div style="font-size:32px;margin-bottom:16px">👤</div>
         <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px">Configure seu perfil primeiro</div>
         <div style="font-size:13px;color:var(--mid);margin-bottom:20px">Precisamos do seu perfil para sugerir as melhores buscas.</div>
-        <button onclick="switchTab('perfil')" style="padding:10px 24px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Ir para Perfil →</button>
+        <button onclick="switchTab('perfil')" style="padding:10px 24px;background:var(--topbar-bg);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Ir para Perfil →</button>
       </div>`;
     return;
   }
@@ -5599,7 +5599,7 @@ function renderVagasTab() {
       <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">✦ Keywords</div>
       <h2 style="font-size:1.6rem;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.2">Palavras-chave<br>para buscar vagas</h2>
       <p style="font-size:13px;color:var(--mid);line-height:1.6;margin-bottom:16px">A IA analisa seu perfil e sugere os melhores termos de busca. Clique em LinkedIn, Google Jobs ou Gupy para ver vagas reais abertas agora.</p>
-      <button onclick="searchJobs()" id="btn-search-jobs" style="padding:12px 24px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
+      <button onclick="searchJobs()" id="btn-search-jobs" style="padding:12px 24px;background:var(--topbar-bg);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
         ✨ ${keywords.length ? 'Gerar novas sugestões' : 'Sugerir palavras-chave'}
       </button>
       ${savedAt ? `<span style="font-size:11px;color:var(--dim);margin-left:12px">Atualizado em ${savedAt}</span>` : ''}
@@ -5748,7 +5748,7 @@ function renderCalendarBody(calendar, tone, project) {
       <div style="font-size:32px;margin-bottom:16px">🎯</div>
       <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px">Configure sua marca pessoal primeiro</div>
       <div style="font-size:13px;color:var(--mid);margin-bottom:20px">Defina seu projeto e tom de voz para gerar o calendário.</div>
-      <button onclick="switchTab('marca')" style="padding:10px 24px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Ir para Marca →</button>
+      <button onclick="switchTab('marca')" style="padding:10px 24px;background:var(--topbar-bg);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Ir para Marca →</button>
     </div>`;
   }
   if (!tone?.approved) {
@@ -5756,7 +5756,7 @@ function renderCalendarBody(calendar, tone, project) {
       <div style="font-size:32px;margin-bottom:16px">🎙️</div>
       <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px">Defina seu tom de voz</div>
       <div style="font-size:13px;color:var(--mid);margin-bottom:20px">Quase lá! Falta só definir como você escreve.</div>
-      <button onclick="switchTab('marca')" style="padding:10px 24px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Continuar na Marca →</button>
+      <button onclick="switchTab('marca')" style="padding:10px 24px;background:var(--topbar-bg);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Continuar na Marca →</button>
     </div>`;
   }
   if (!calendar.length) {
@@ -5764,7 +5764,7 @@ function renderCalendarBody(calendar, tone, project) {
       <div style="font-size:32px;margin-bottom:16px">📅</div>
       <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px">Calendário ainda não gerado</div>
       <div style="font-size:13px;color:var(--mid);margin-bottom:20px">Gere seus 30 dias de conteúdo com um clique.</div>
-      <button onclick="switchTab('marca')" style="padding:10px 24px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Gerar calendário →</button>
+      <button onclick="switchTab('marca')" style="padding:10px 24px;background:var(--topbar-bg);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Gerar calendário →</button>
     </div>`;
   }
   // Reutiliza o renderMarcaStep3 mas só a grade do calendário
@@ -5962,7 +5962,7 @@ function renderMarcaTab() {
         <div style="font-size:13px;font-weight:700;color:#68d391;margin-bottom:2px">✓ Marca configurada</div>
         <div style="font-size:12px;color:var(--mid)">Acesse a aba Calendário para ver e gerenciar seus posts.</div>
       </div>
-      <button onclick="switchTab('tarefas')" style="flex-shrink:0;padding:8px 16px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer">Ver calendário →</button>
+      <button onclick="switchTab('tarefas')" style="flex-shrink:0;padding:8px 16px;background:var(--topbar-bg);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer">Ver calendário →</button>
     </div>` : ''}
   `;
 }
@@ -5986,7 +5986,7 @@ function renderMarcaStep1(project) {
             style="width:100%;min-height:72px;background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.1);border-radius:8px;padding:10px 12px;color:var(--text);font-size:13px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
             onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(var(--ink),0.1)'"
           ></textarea>
-          <button class="js-marca-continue" onclick="confirmMarcaMessage()" style="margin-top:10px;width:100%;padding:10px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Continuar →</button>
+          <button class="js-marca-continue" onclick="confirmMarcaMessage()" style="margin-top:10px;width:100%;padding:10px;background:var(--topbar-bg);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Continuar →</button>
         `
       }
     </div>`;
@@ -6053,13 +6053,13 @@ function showMarcaPath(path) {
       <textarea id="marca-existing-input" placeholder="Ex: Montei do zero o time de inside sales da empresa, saímos de 0 para R$2M em ARR em 18 meses..."
         style="width:100%;min-height:100px;background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.1);border-radius:8px;padding:12px;color:var(--text);font-size:13px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
         onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(var(--ink),0.1)'"></textarea>
-      <button onclick="generateMarcaCase()" style="margin-top:10px;width:100%;padding:11px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
+      <button onclick="generateMarcaCase()" style="margin-top:10px;width:100%;padding:11px;background:var(--topbar-bg);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
         ✨ Estruturar meu case
       </button>
       <div id="marca-case-status" style="display:none;font-size:12px;color:var(--mid);text-align:center;margin-top:8px"></div>`;
   } else {
     el.innerHTML = `
-      <button onclick="generateMarcaProjectIdeas()" style="width:100%;padding:11px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
+      <button onclick="generateMarcaProjectIdeas()" style="width:100%;padding:11px;background:var(--topbar-bg);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
         ✨ Sugerir projetos para mim
       </button>
       <div id="marca-ideas-result" style="margin-top:12px"></div>`;
@@ -6115,7 +6115,7 @@ Português brasileiro com todos os acentos. Sem adjetivos vazios. Sem texto fora
         <div>${renderProjectCase(text)}</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <button onclick="approveMarcaProject(${JSON.stringify(text).replace(/"/g,'&quot;')})" style="padding:10px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Aprovar e salvar</button>
+        <button onclick="approveMarcaProject(${JSON.stringify(text).replace(/"/g,'&quot;')})" style="padding:10px;background:var(--topbar-bg);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Aprovar e salvar</button>
         <button onclick="showMarcaPath('existing')" style="padding:10px;background:transparent;border:1px solid rgba(var(--ink),0.15);border-radius:8px;color:var(--mid);font-size:13px;cursor:pointer">Não gostei, gerar outro</button>
       </div>`;
   } catch(e) {
@@ -6164,7 +6164,7 @@ Responda SOMENTE em JSON:
         <div style="font-size:11px;color:#f472b6;margin-bottom:8px">› ${p.por_que_prova}</div>
         <div style="margin-bottom:12px">${p.como_fazer.map(s => `<div style="font-size:11px;color:var(--mid);padding:3px 0 3px 12px;position:relative"><span style="position:absolute;left:0;color:#f472b6">·</span>${s}</div>`).join('')}</div>
         <button onclick="approveMarcaProject('${(p.nome + '\n\n' + p.o_que_e + '\n\nPor que prova: ' + p.por_que_prova + '\n\nComo fazer:\n' + p.como_fazer.map((s,i)=>(i+1)+'. '+s).join('\n')).replace(/'/g,"\\'")}')
-          " style="width:100%;padding:8px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:7px;color:#fff;font-size:12px;font-weight:700;cursor:pointer">
+          " style="width:100%;padding:8px;background:var(--topbar-bg);border:none;border-radius:7px;color:#fff;font-size:12px;font-weight:700;cursor:pointer">
           Escolher este projeto
         </button>
       </div>`).join('');
@@ -6223,7 +6223,7 @@ function renderMarcaStep2(tone, enabled) {
             style="width:100%;min-height:${q.hint ? '80px' : '64px'};background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.1);border-radius:8px;padding:10px 12px;color:var(--text);font-size:12px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"
             onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(var(--ink),0.1)'"></textarea>
         </div>`).join('')}
-      <button onclick="generateToneProfile()" style="width:100%;padding:11px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
+      <button onclick="generateToneProfile()" style="width:100%;padding:11px;background:var(--topbar-bg);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
         ✨ Definir meu tom de voz
       </button>
       <div id="marca-tone-status" style="display:none;font-size:12px;color:var(--mid);text-align:center;margin-top:8px"></div>
@@ -6264,7 +6264,7 @@ Escreva UM parágrafo curto, no máximo 4 frases, descrevendo o tom de voz dela.
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <button onclick="approveMarcaTone(${JSON.stringify(summary).replace(/"/g,'&quot;')})" style="padding:10px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Confirmar e continuar</button>
+          <button onclick="approveMarcaTone(${JSON.stringify(summary).replace(/"/g,'&quot;')})" style="padding:10px;background:var(--topbar-bg);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Confirmar e continuar</button>
           <button onclick="renderMarcaTab()" style="padding:10px;background:transparent;border:1px solid rgba(var(--ink),0.15);border-radius:8px;color:var(--mid);font-size:13px;cursor:pointer">Refazer</button>
         </div>
       </div>`;
@@ -6294,7 +6294,7 @@ function renderMarcaStep3(calendar, enabled) {
       <div style="font-size:40px;margin-bottom:16px">📅</div>
       <div style="font-size:17px;font-weight:800;color:var(--text);margin-bottom:8px">Calendário ainda não gerado</div>
       <p style="font-size:13px;color:var(--mid);line-height:1.6;max-width:360px;margin:0 auto 24px">30 dias, 1 post por dia. A IA monta a grade com temas e ângulos baseados no seu projeto e tom de voz.</p>
-      <button onclick="generateMarcaCalendar()" style="padding:13px 28px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(244,114,182,0.3)">
+      <button onclick="generateMarcaCalendar()" style="padding:13px 28px;background:var(--topbar-bg);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(244,114,182,0.3)">
         ✨ Gerar meu calendário de 30 dias
       </button>
       <div id="marca-cal-status" style="display:none;font-size:12px;color:var(--mid);text-align:center;margin-top:12px"></div>
@@ -6399,7 +6399,7 @@ function renderMarcaStep3(calendar, enabled) {
         <div style="font-size:14px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${calendar[nextIdx].theme}</div>
         <div style="font-size:11px;color:var(--mid);margin-top:2px">${statusLabel[calendar[nextIdx].status]} · ideia ${nextIdx + 1} de ${calendar.length}</div>
       </div>
-      <span style="flex-shrink:0;padding:8px 16px;background:linear-gradient(135deg,#f472b6,#ec4899);border-radius:999px;color:#fff;font-size:12px;font-weight:700;white-space:nowrap">Abrir →</span>
+      <span style="flex-shrink:0;padding:8px 16px;background:var(--topbar-bg);border-radius:999px;color:#fff;font-size:12px;font-weight:700;white-space:nowrap">Abrir →</span>
     </div>` : `
     <div style="margin-bottom:18px;padding:16px;background:rgba(72,187,120,0.1);border:1px solid rgba(72,187,120,0.3);border-radius:14px;text-align:center;font-size:13px;color:#2f9e5f;font-weight:700">🎉 Você publicou todos os posts do calendário!</div>`}
 
@@ -6590,7 +6590,7 @@ function openMarcaDay(index) {
       onfocus="this.style.borderColor='rgba(244,114,182,0.5)'" onblur="this.style.borderColor='rgba(var(--ink),0.1)'">${day.draft || ''}</textarea>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
-      <button onclick="saveDayDraft(${index})" style="padding:10px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer">Salvar</button>
+      <button onclick="saveDayDraft(${index})" style="padding:10px;background:var(--topbar-bg);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer">Salvar</button>
       <button onclick="getDayFeedback(${index})" style="padding:10px;background:transparent;border:1px solid rgba(244,114,182,0.4);border-radius:8px;color:#f472b6;font-size:12px;font-weight:600;cursor:pointer">✨ Feedback da IA</button>
     </div>
 
@@ -6612,7 +6612,7 @@ function openMarcaDay(index) {
       <div id="marca-feedback-block" style="margin-top:16px;padding:14px;background:rgba(244,114,182,0.06);border:1px solid rgba(244,114,182,0.2);border-radius:10px">
         <div style="font-size:11px;font-weight:700;color:#f472b6;margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em">Feedback</div>
         <div style="font-size:12px;color:var(--text);line-height:1.7">${formatFeedbackHTML(day.feedback)}</div>
-        <button onclick="improveDayPost(${index})" style="margin-top:14px;width:100%;padding:11px;background:linear-gradient(135deg,#f472b6,#ec4899);border:none;border-radius:8px;color:#fff;font-size:12.5px;font-weight:700;cursor:pointer">✨ Aplicar melhorias com a IA</button>
+        <button onclick="improveDayPost(${index})" style="margin-top:14px;width:100%;padding:11px;background:var(--topbar-bg);border:none;border-radius:8px;color:#fff;font-size:12.5px;font-weight:700;cursor:pointer">✨ Aplicar melhorias com a IA</button>
       </div>` : ''}`;
 
   modal.style.display = 'flex';
@@ -6686,7 +6686,7 @@ function saveDayDraft(index) {
   if (btn) {
     btn.textContent = '✓ Salvo!';
     btn.style.background = 'linear-gradient(135deg,#48bb78,#38a169)';
-    setTimeout(() => { if (btn.isConnected) { btn.textContent = 'Salvar'; btn.style.background = 'linear-gradient(135deg,#f472b6,#ec4899)'; } }, 1600);
+    setTimeout(() => { if (btn.isConnected) { btn.textContent = 'Salvar'; btn.style.background = 'var(--topbar-bg)'; } }, 1600);
   }
 }
 
