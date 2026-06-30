@@ -4567,8 +4567,14 @@ function runNewUserFlow(uid) {
   if (_wkRan) return;    // roda só uma vez por carga: evita reabrir o welcome por cima do tour
   _wkRan = true;
   _wkUid = uid || '';
-  // atalho de teste: ?tour=1 na URL força o tour na hora (independe de conta nova)
-  try { if (location.search.indexOf('tour=1') >= 0) { startWalkthrough(true); return; } } catch (e) {}
+  // atalhos de teste na URL: ?tour=1 (do inicio), ?tour=marca, ?tour=interview
+  try {
+    var _ts = location.search;
+    var _findStep = function (frag) { return GUIDE_STEPS.findIndex(function (s) { return s.title && s.title.indexOf(frag) >= 0; }); };
+    if (_ts.indexOf('tour=marca') >= 0)     { startWalkthrough(true, _findStep('Defina a sua imagem')); return; }
+    if (_ts.indexOf('tour=interview') >= 0) { startWalkthrough(true, _findStep('Hora da entrevista')); return; }
+    if (_ts.indexOf('tour=1') >= 0)         { startWalkthrough(true); return; }
+  } catch (e) {}
   showWelcomeIfNeeded();
   ensureTourEventually();   // rede de segurança: o tour roda mesmo se a cadeia welcome->onboarding "vazar"
 }
@@ -4900,7 +4906,7 @@ function guideAddVagaToKanban() {
   } catch (e) {}
 }
 
-function startWalkthrough(force) {
+function startWalkthrough(force, startIndex) {
   if (!force) { try { if (localStorage.getItem(wkKey(WALKTHROUGH_KEY))) return; } catch(e){} }
   if (document.getElementById('wt-root')) return;
   // não abre por cima de outro modal
@@ -4913,7 +4919,7 @@ function startWalkthrough(force) {
   // backdrop NÃO bloqueia cliques: a pessoa precisa interagir com o app de verdade
   root.innerHTML = '<div class="wt-backdrop" style="pointer-events:none"></div><div class="wt-spot"></div><div class="wt-tip"></div>';
   document.body.appendChild(root);
-  _gIndex = 0;
+  _gIndex = (typeof startIndex === 'number' && startIndex >= 0) ? startIndex : 0;
   renderGuideStep();
   window.addEventListener('resize', positionGuide);
 }
