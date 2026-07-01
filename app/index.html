@@ -4809,7 +4809,7 @@ const GUIDE_STEPS = [
   { explain: true,
     title: 'Boa! Hora de se preparar 🎉',
     body: 'A <strong>entrevista</strong> é o que separa quem passa de quem fica pelo caminho. O Liplop cruza a <strong>empresa, o cargo e o seu perfil</strong> pra te preparar com estratégia: o que destacar pra <strong>se diferenciar</strong> e o que evitar. É o que aumenta de verdade a sua <strong>chance de aprovação</strong>.' },
-  { tab: 'interview', target: '#interview-wrap', explain: true,
+  { tab: 'interview', explain: true,
     title: 'Sua central de preparação',
     body: 'Esta é a aba de preparação. Aqui ficam <strong>todas as vagas que chegaram em Entrevista Agendada</strong>, e pra cada uma você gera uma preparação sob medida. Bora ver a sua.' },
   { tab: 'interview', target: '.js-gen-prep', event: 'liplop:interview-prep-ready',
@@ -5484,6 +5484,15 @@ function renderInterviewTab() {
     `).join('')}`;
 }
 
+// true so quando o tour esta ativo E parado no passo que espera a preparacao.
+// Evita que o "Regenerar preparacao" (fora desse passo) reacenda o balao/escurecido.
+function _guideWaitingPrep() {
+  try {
+    return !!document.getElementById('wt-root')
+      && GUIDE_STEPS[_gIndex] && GUIDE_STEPS[_gIndex].event === 'liplop:interview-prep-ready';
+  } catch (e) { return false; }
+}
+
 async function generateInterviewPrep(oppId) {
   const opp = opps.find(o => o.id === oppId);
   if (!opp) return;
@@ -5522,7 +5531,7 @@ Gere uma preparação completa de entrevista. Responda SOMENTE em JSON válido, 
 Gere exatamente 3 dicas de empresa, 3 dicas de cargo/senioridade, 3 evites. Seja direto, prático e específico. Sem genéricos. NÃO use travessão (—) nem (–); use vírgula, ponto ou dois-pontos. Português brasileiro correto com todos os acentos.`;
 
   try {
-    try { window.dispatchEvent(new CustomEvent('liplop:interview-prep-start')); } catch(e){}
+    if (_guideWaitingPrep()) { try { window.dispatchEvent(new CustomEvent('liplop:interview-prep-start')); } catch(e){} }
     const result = await callAI({ prompt, json_mode: true, kind: 'interview' });
     const clean = result.replace(/^```json?\n?/,'').replace(/\n?```$/,'').trim();
     const prep = JSON.parse(clean);
@@ -5558,7 +5567,7 @@ Gere exatamente 3 dicas de empresa, 3 dicas de cargo/senioridade, 3 evites. Seja
 
       <button onclick="generateInterviewPrep(${oppId})" style="margin-top:16px;width:100%;padding:10px;background:transparent;border:1px solid rgba(var(--ink),0.1);border-radius:8px;color:var(--mid);font-size:12px;cursor:pointer">Regenerar preparação</button>`;
     window._guidePrepCardId = oppId;   // pro tour mirar a prep que acabou de ser gerada
-    try { window.dispatchEvent(new CustomEvent('liplop:interview-prep-ready')); } catch(e){}
+    if (_guideWaitingPrep()) { try { window.dispatchEvent(new CustomEvent('liplop:interview-prep-ready')); } catch(e){} }
 
   } catch(e) {
     if (e && e.paywall) { resultEl.innerHTML = ''; return; }
