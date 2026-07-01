@@ -6475,8 +6475,11 @@ function renderMarcaStep3(calendar, enabled) {
     <!-- Estratégia -->
     ${estrategia ? `
     <div id="marca-estrategia-box" style="background:linear-gradient(135deg,rgba(244,114,182,0.08),rgba(168,85,247,0.06));border:1px solid rgba(244,114,182,0.2);border-radius:16px;padding:20px 24px;margin-bottom:20px">
-      <div style="font-size:10px;font-weight:800;color:var(--rose);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px;display:flex;align-items:center;gap:8px">
-        <span style="display:inline-block;width:3px;height:12px;background:linear-gradient(var(--rose),#a855f7);border-radius:2px"></span>Estratégia editorial
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:10px;font-weight:800;color:var(--rose);text-transform:uppercase;letter-spacing:.12em;display:flex;align-items:center;gap:8px">
+          <span style="display:inline-block;width:3px;height:12px;background:linear-gradient(var(--rose),#a855f7);border-radius:2px"></span>Estratégia editorial
+        </div>
+        <button onclick="confirmDeleteStrategy()" style="background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer;text-decoration:underline">apagar</button>
       </div>
       <div style="font-size:13px;color:var(--text);line-height:1.8">${estrategia}</div>
     </div>` : ''}
@@ -6588,6 +6591,17 @@ function confirmRegenerateCalendar() {
   const hasContent = cal.some(d => d.draft || d.status !== 'pending' || d.feedback);
   if (hasContent && !confirm('⚠️ Isso vai apagar os temas, rascunhos e anotações dos dias que você já trabalhou. Tem certeza que quer gerar um novo calendário do zero?')) return;
   generateMarcaCalendar();
+}
+
+// Apaga a estratégia editorial e o calendário (a estratégia é gerada junto com ele).
+function confirmDeleteStrategy() {
+  if (!confirm('Apagar a sua estratégia editorial e o calendário? Os temas, rascunhos e anotações dos dias serão perdidos. Você pode gerar tudo de novo quando quiser.')) return;
+  try {
+    localStorage.removeItem('liplop-marca-estrategia-v1');
+    localStorage.removeItem(MARCA_CALENDAR_KEY);
+    localStorage.removeItem('liplop-marca-cal-start-v1');
+  } catch(e){}
+  renderTarefasTab();
 }
 
 async function generateMarcaCalendar() {
