@@ -4932,7 +4932,7 @@ const GUIDE_STEPS = [
     errorBody: '⚠️ <strong>A IA tropeçou.</strong> Costuma ser passageiro. Clica de novo em <strong>Gerar meu calendário</strong>. 🙏',
     title: 'Gere a sua estratégia + calendário',
     body: 'Clique em <strong>Gerar meu calendário de 30 dias</strong>. Numa tacada só, a IA cria a sua <strong>estratégia editorial</strong> e 30 ideias de post sob medida.' },
-  { target: '#marca-estrategia-box',
+  { target: '#marca-estrategia-box', explain: true,
     title: 'Sua estratégia, ponto a ponto 🎯',
     body: 'Esse é o <strong>norte</strong> do seu mês. O Liplop leu o seu projeto, o seu tom e as vagas que você persegue pra definir <strong>quais pilares de conteúdo</strong> usar, <strong>por que essa sequência</strong> funciona e <strong>o que você vai transmitir</strong> ao fim dos 30 dias. Todo post daqui pra frente serve a essa estratégia.' },
   { target: '#marca-next-post', event: 'liplop:marca-day-opened',
@@ -4948,7 +4948,7 @@ const GUIDE_STEPS = [
     errorBody: '⚠️ <strong>A IA tropeçou.</strong> Costuma ser passageiro. Clica de novo em <strong>Feedback da IA</strong>. 🙏',
     title: 'Agora, um olhar da IA',
     body: 'Escreveu? Clique em <strong>Feedback da IA</strong>. Ela vai avaliar o seu texto <strong>considerando a estratégia</strong> que vocês desenharam, não um feedback genérico.' },
-  { target: '#marca-feedback-block',
+  { target: '#marca-feedback-block', explain: true,
     title: 'O feedback, ponto a ponto',
     body: 'Veja como o Liplop analisa: <strong>alinhamento com a sua estratégia</strong> (esse post constrói a imagem que você quer?), <strong>o que está funcionando</strong>, <strong>o que dá pra melhorar</strong> e uma <strong>sugestão de reescrita</strong>. Tudo amarrado ao seu posicionamento.' },
   { target: '#marca-day-content button[onclick^="improveDayPost"]',
@@ -4958,7 +4958,7 @@ const GUIDE_STEPS = [
     errorBody: '⚠️ <strong>A IA tropeçou.</strong> Costuma ser passageiro. Clica de novo em <strong>Aplicar melhorias com a IA</strong>. 🙏',
     title: 'Deixe a IA lapidar',
     body: 'Por fim, clique em <strong>Aplicar melhorias com a IA</strong>. Ela reescreve aplicando o feedback, sem inventar nada e mantendo a sua voz.' },
-  { target: '#marca-draft-input',
+  { target: '#marca-draft-input', explain: true,
     title: 'Prontinho, mas revise 👀',
     body: 'Repara que o seu texto <strong>mudou</strong>: a IA aplicou o feedback. <strong>Importante:</strong> dê sempre uma <strong>última revisão</strong> antes de publicar, pra garantir que ficou com a sua cara e o seu tom. O post é seu, a IA só ajuda.' },
   { final: true, tab: 'analyzer',
@@ -6139,7 +6139,7 @@ function renderMarcaStep1(project) {
       <div style="border:1px solid rgba(244,114,182,0.3);border-radius:14px;padding:20px;margin-bottom:20px;background:rgba(244,114,182,0.04)">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.08em">Seu projeto / case</div>
-          <button onclick="confirmResetProject()" style="background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer;text-decoration:underline">refazer</button>
+          <button onclick="confirmResetProject()" style="background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer;text-decoration:underline">apagar</button>
         </div>
         <div>${renderProjectCase(project.text)}</div>
       </div>`;
@@ -6306,7 +6306,7 @@ function approveMarcaProject(text) {
 }
 
 function confirmResetProject() {
-  if (confirm('Tem certeza que quer refazer o projeto? O calendário atual também será apagado.')) {
+  if (confirm('Apagar o seu case? O calendário atual também será apagado.')) {
     localStorage.removeItem(MARCA_PROJECT_KEY);
     localStorage.removeItem(MARCA_CALENDAR_KEY);
     renderMarcaTab();
