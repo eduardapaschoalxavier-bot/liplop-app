@@ -144,6 +144,25 @@
       border-radius: 50%;
       background: var(--rose);
     }
+    .hero-typed {
+      font-size: clamp(12px, 1.6vw, 16px);
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      color: var(--text);
+      margin-bottom: 18px;
+      white-space: nowrap;
+      min-height: 1.4em;
+    }
+    .hero-typed .tt { color: var(--rose); }
+    .hero-typed .caret {
+      display: inline-block;
+      width: 2px; height: 1.05em;
+      background: var(--rose);
+      margin-left: 2px;
+      vertical-align: -0.15em;
+      animation: heroCaret .8s steps(1) infinite;
+    }
+    @keyframes heroCaret { 50% { opacity: 0; } }
     .hero h1 {
       font-size: clamp(34px, 4.5vw, 58px);
       font-weight: 900;
@@ -820,6 +839,7 @@
 
 <!-- HERO -->
 <section class="hero">
+  <p class="hero-typed">Feito para <span class="tt" id="heroTyped">quem lidera e não pode perder tempo</span><span class="caret" aria-hidden="true"></span></p>
   <h1><em><span class="circled">Ninguém te vê<svg class="scribble" viewBox="0 0 320 110" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M161 8 C88 4 17 23 11 53 C5 86 95 101 181 98 C265 95 316 76 306 48 C297 23 226 11 145 15" /></svg></span></em>. E não é falta de repertório. É a triagem que te barra antes da conversa que importa.</h1>
   <p class="hero-sub">Entenda sua compatibilidade real com a vaga, descubra o que te elimina e chegue à entrevista no controle pra defender sua trajetória; candidatando-se só nas vagas certas.</p>
   <div class="hero-screenshot">
@@ -1101,6 +1121,35 @@
       if (!isOpen) item.classList.add('open');
     });
   });
+</script>
+<script>
+  (function () {
+    var el = document.getElementById('heroTyped');
+    if (!el) return;
+    var phrases = [
+      'quem lidera e não pode perder tempo',
+      'quem vai de coordenação a diretoria',
+      'quem busca vaga remota no exterior',
+      'quem quer trabalhar lá fora'
+    ];
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { el.textContent = phrases[0]; return; }
+    var pi = 0, ci = phrases[0].length, deleting = true;
+    function tick() {
+      var word = phrases[pi];
+      if (!deleting) {
+        ci++;
+        el.textContent = word.slice(0, ci);
+        if (ci >= word.length) { deleting = true; return setTimeout(tick, 1700); }
+        return setTimeout(tick, 55);
+      }
+      ci--;
+      el.textContent = word.slice(0, ci);
+      if (ci <= 0) { deleting = false; pi = (pi + 1) % phrases.length; return setTimeout(tick, 320); }
+      return setTimeout(tick, 28);
+    }
+    setTimeout(tick, 1700);
+  })();
 </script>
 </body>
 </html>
