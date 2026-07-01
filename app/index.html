@@ -4832,6 +4832,12 @@ const GUIDE_STEPS = [
   { targetFn: function(){ return '#js-prep-evite-' + window._guidePrepCardId; }, explain: true,
     title: 'O que evitar',
     body: 'O que costuma derrubar candidatos nessa vaga. Saber disso antes já te coloca na frente.' },
+  // Fim do CORE: aqui grava onboarded_at (ativado) e o tour termina. A marca
+  // vira trilho a parte (acessivel pelo menu Atrair e pelo atalho ?tour=marca).
+  { final: true,
+    title: 'Isso é só o começo 🚀',
+    body: 'Você fez o ciclo completo do Liplop: analisou a vaga, gerou o currículo, organizou no kanban e preparou a entrevista. E isso é só uma parte.<br><br>No menu lá em cima tem muito mais: <strong>construção de marca pessoal</strong> (em Atrair), <strong>gestão de currículos</strong> (em Documentos), <strong>expansão de palavras-chave</strong> (em Keywords) e mais. Explore cada área no seu ritmo. O Liplop está com você do início ao fim do processo.',
+    cta: 'Explorar o Liplop' },
   { explain: true,
     title: 'Próxima fase: seja procurado, não só procure 🎯',
     body: 'Aplicar é só metade do jogo. A outra metade é <strong>ser visto</strong>: presença no LinkedIn faz a vaga vir até você. Na aba <strong>Atrair</strong>, o Liplop te ajuda a se posicionar com estratégia, <strong>sem postagens desesperadas</strong>. Clica em Próximo que eu te mostro.' },
