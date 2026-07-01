@@ -68,10 +68,22 @@
       transition: color 0.2s;
     }
     .nav-links a:hover { color: #fff; }
-    .nav-links .btn-entrar {
-      color: #fff;
-      font-weight: 600;
+    .nav-links .nav-link { font-weight: 500; }
+    .nav-links .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff;
+      color: var(--rose);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 18px;
+      border-radius: 999px;
+      text-decoration: none;
+      white-space: nowrap;
+      margin-left: 4px;
     }
+    .nav-links .nav-cta:hover { color: var(--rose-d); }
 
     /* ── HERO ── */
     .hero {
@@ -786,5 +798,5 @@
     @media (max-width: 560px) {
       nav { padding: 0 14px; }
       .nav-logo .beta-tag { display: none; }
-      .nav-links .fale-label { display: none; }
+      .nav-links .nav-link { display: none; }
     }
