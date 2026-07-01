@@ -4876,9 +4876,65 @@ const GUIDE_STEPS = [
     target: '#marca-ideas-result', event: 'liplop:marca-project-chosen',
     title: 'Projetos sob medida pra você 🎯',
     body: 'Cada projeto mostra <strong>o que é</strong>, <strong>por que prova</strong> o seu valor (alinhado com a imagem que você quer passar e com a senioridade das vagas que você persegue) e <strong>como fazer</strong>, rápido. Escolha o que mais combina e clique em <strong>Escolher este projeto</strong>.' },
+  // --- convergência: os dois caminhos (1 case ou 3 opções) seguem daqui ---
+  { tab: 'marca', target: '#marca-step2',
+    title: 'Antes do conteúdo: a sua voz 🎙️',
+    body: 'Pra IA escrever como <strong>você</strong>, e não como robô, ela precisa te ouvir primeiro. Responda essas 2 perguntas do jeito que você fala mesmo: é rápido e muda tudo no resultado.' },
+  { target: '#marca-q1', waitInput: '#marca-q1',
+    title: '1ª · Do seu jeito',
+    body: 'Escreve sem "modo LinkedIn", do jeito que você fala com um amigo. Quanto mais real, melhor a IA captura a sua voz.' },
+  { target: '#marca-step2',
+    event: 'liplop:marca-tone-ready', waitEvent: 'liplop:marca-tone-start',
+    errorEvent: 'liplop:marca-tone-error',
+    waitBody: '🔎 <strong>Aguarde um pouquinho.</strong> A IA está lendo o seu jeito de escrever pra montar o seu tom de voz. A gente promete que vale a pena.',
+    errorBody: '⚠️ <strong>A IA tropeçou.</strong> Costuma ser passageiro. Clica de novo em <strong>Definir meu tom de voz</strong>. 🙏',
+    title: '2ª e finalize',
+    body: 'Responda a segunda também e clique em <strong>Definir meu tom de voz</strong>. A IA vai transformar isso no seu tom pra usar em todos os posts.' },
+  { target: '#marca-step2', event: 'liplop:marca-tone-approved',
+    title: 'Ficou com a sua cara? Confirme',
+    body: 'Se o tom te representa, clique em <strong>Confirmar e continuar</strong>. Se não, dá pra refazer.' },
+  { tab: 'marca', target: 'button[onclick="switchTab(\'tarefas\')"]', waitClick: 'button[onclick="switchTab(\'tarefas\')"]',
+    title: 'Agora, virar isso em conteúdo 🚀',
+    body: 'Sua base está pronta: <strong>projeto</strong> e <strong>voz</strong>. Agora o Liplop transforma isso em 30 dias de posts. Clique em <strong>Ver calendário →</strong>.' },
+  { tab: 'tarefas', target: 'button[onclick="generateMarcaCalendar()"]',
+    event: 'liplop:marca-calendar-ready', waitEvent: 'liplop:marca-calendar-start',
+    errorEvent: 'liplop:marca-calendar-error',
+    waitBody: '🔎 <strong>Aguarde uns 40 segundos.</strong> O Liplop está desenhando a sua <strong>estratégia editorial</strong> e <strong>30 dias</strong> de posts a partir do seu projeto, do seu tom e das vagas que persegue. A gente promete que vale a pena.',
+    errorBody: '⚠️ <strong>A IA tropeçou.</strong> Costuma ser passageiro. Clica de novo em <strong>Gerar meu calendário</strong>. 🙏',
+    title: 'Gere a sua estratégia + calendário',
+    body: 'Clique em <strong>Gerar meu calendário de 30 dias</strong>. Numa tacada só, a IA cria a sua <strong>estratégia editorial</strong> e 30 ideias de post sob medida.' },
+  { target: '#marca-estrategia-box',
+    title: 'Sua estratégia, ponto a ponto 🎯',
+    body: 'Esse é o <strong>norte</strong> do seu mês. O Liplop leu o seu projeto, o seu tom e as vagas que você persegue pra definir <strong>quais pilares de conteúdo</strong> usar, <strong>por que essa sequência</strong> funciona e <strong>o que você vai transmitir</strong> ao fim dos 30 dias. Todo post daqui pra frente serve a essa estratégia.' },
+  { target: '#marca-next-post', event: 'liplop:marca-day-opened',
+    title: 'Escolha um dia pra começar',
+    body: 'Cada post já vem com <strong>tema e ângulo</strong> sugeridos pela IA. Clique no <strong>Próximo post a publicar</strong> aqui pra abrir e escrever o seu.' },
+  { target: '#marca-draft-input', waitInput: '#marca-draft-input',
+    title: 'A essência é SUA ✍️',
+    body: 'Repara: a IA sugeriu o <strong>tema</strong>, mas quem escreve o post é <strong>você</strong>. A sua história, a sua voz e o seu ponto de vista são o que fazem a diferença. A IA entra depois, pra lapidar. Escreve um rascunho aqui, do seu jeito.' },
+  { target: '#marca-day-content button[onclick^="getDayFeedback"]',
+    event: 'liplop:marca-feedback-ready', waitEvent: 'liplop:marca-feedback-start',
+    errorEvent: 'liplop:marca-feedback-error',
+    waitBody: '🔎 <strong>Aguarde um pouquinho.</strong> A IA está lendo o seu rascunho à luz da sua estratégia. A gente promete que vale a pena.',
+    errorBody: '⚠️ <strong>A IA tropeçou.</strong> Costuma ser passageiro. Clica de novo em <strong>Feedback da IA</strong>. 🙏',
+    title: 'Agora, um olhar da IA',
+    body: 'Escreveu? Clique em <strong>Feedback da IA</strong>. Ela vai avaliar o seu texto <strong>considerando a estratégia</strong> que vocês desenharam, não um feedback genérico.' },
+  { target: '#marca-feedback-block',
+    title: 'O feedback, ponto a ponto',
+    body: 'Veja como o Liplop analisa: <strong>alinhamento com a sua estratégia</strong> (esse post constrói a imagem que você quer?), <strong>o que está funcionando</strong>, <strong>o que dá pra melhorar</strong> e uma <strong>sugestão de reescrita</strong>. Tudo amarrado ao seu posicionamento.' },
+  { target: '#marca-day-content button[onclick^="improveDayPost"]',
+    event: 'liplop:marca-improve-applied', waitEvent: 'liplop:marca-improve-start',
+    errorEvent: 'liplop:marca-improve-error',
+    waitBody: '🔎 <strong>Aguarde um pouquinho.</strong> A IA está aplicando as melhorias, preservando a sua voz e os seus fatos. A gente promete.',
+    errorBody: '⚠️ <strong>A IA tropeçou.</strong> Costuma ser passageiro. Clica de novo em <strong>Aplicar melhorias com a IA</strong>. 🙏',
+    title: 'Deixe a IA lapidar',
+    body: 'Por fim, clique em <strong>Aplicar melhorias com a IA</strong>. Ela reescreve aplicando o feedback, sem inventar nada e mantendo a sua voz.' },
+  { target: '#marca-draft-input',
+    title: 'Prontinho, mas revise 👀',
+    body: 'Repara que o seu texto <strong>mudou</strong>: a IA aplicou o feedback. <strong>Importante:</strong> dê sempre uma <strong>última revisão</strong> antes de publicar, pra garantir que ficou com a sua cara e o seu tom. O post é seu, a IA só ajuda.' },
   { final: true, tab: 'analyzer',
     title: 'Agora é com você! 🚀',
-    body: 'Você fez o caminho completo do Liplop. Agora é só seguir por conta própria: volte pra Análise e teste com outra vaga.',
+    body: 'Você fez o caminho completo do Liplop: da análise da vaga até a sua presença no LinkedIn. Agora é só seguir por conta própria.',
     cta: 'Seguir por conta própria' }
 ];
 let _gIndex = 0;
@@ -6281,6 +6337,7 @@ async function generateToneProfile() {
   const status = document.getElementById('marca-tone-status');
   btn.disabled = true; btn.textContent = '⏳ Analisando...';
   status.style.display = 'block'; status.textContent = '';
+  try { window.dispatchEvent(new CustomEvent('liplop:marca-tone-start')); } catch(e){}
 
   const prompt = `Você é especialista em marca pessoal e comunicação. Analise como essa pessoa escreve e descreva o tom de voz dela para o LinkedIn.
 
@@ -6312,13 +6369,16 @@ Escreva UM parágrafo curto, no máximo 4 frases, descrevendo o tom de voz dela.
           <button onclick="renderMarcaTab()" style="padding:10px;background:transparent;border:1px solid rgba(var(--ink),0.15);border-radius:8px;color:var(--mid);font-size:13px;cursor:pointer">Refazer</button>
         </div>
       </div>`;
+    try { window.dispatchEvent(new CustomEvent('liplop:marca-tone-ready')); } catch(e){}
   } catch(e) {
     btn.disabled = false; btn.textContent = '✨ Definir meu tom de voz';
     status.textContent = 'Erro: ' + e.message;
+    try { window.dispatchEvent(new CustomEvent('liplop:marca-tone-error')); } catch(e2){}
   }
 }
 
 function approveMarcaTone(summary) {
+  try { window.dispatchEvent(new CustomEvent('liplop:marca-tone-approved')); } catch(e){}
   saveMarcaTone({ summary, approved: true, createdAt: new Date().toISOString() });
   renderMarcaTab();
 }
@@ -6391,7 +6451,7 @@ function renderMarcaStep3(calendar, enabled) {
   return `
     <!-- Estratégia -->
     ${estrategia ? `
-    <div style="background:linear-gradient(135deg,rgba(244,114,182,0.08),rgba(168,85,247,0.06));border:1px solid rgba(244,114,182,0.2);border-radius:16px;padding:20px 24px;margin-bottom:20px">
+    <div id="marca-estrategia-box" style="background:linear-gradient(135deg,rgba(244,114,182,0.08),rgba(168,85,247,0.06));border:1px solid rgba(244,114,182,0.2);border-radius:16px;padding:20px 24px;margin-bottom:20px">
       <div style="font-size:10px;font-weight:800;color:var(--rose);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px;display:flex;align-items:center;gap:8px">
         <span style="display:inline-block;width:3px;height:12px;background:linear-gradient(var(--rose),#a855f7);border-radius:2px"></span>Estratégia editorial
       </div>
@@ -6436,7 +6496,7 @@ function renderMarcaStep3(calendar, enabled) {
 
     <!-- Próximo post a publicar -->
     ${nextIdx !== -1 ? `
-    <div onclick="openMarcaDay(${nextIdx})" style="cursor:pointer;margin-bottom:18px;padding:15px 18px;background:linear-gradient(135deg,rgba(244,114,182,0.1),rgba(168,85,247,0.07));border:1px solid rgba(244,114,182,0.3);border-radius:14px;display:flex;align-items:center;justify-content:space-between;gap:12px"
+    <div id="marca-next-post" onclick="openMarcaDay(${nextIdx})" style="cursor:pointer;margin-bottom:18px;padding:15px 18px;background:linear-gradient(135deg,rgba(244,114,182,0.1),rgba(168,85,247,0.07));border:1px solid rgba(244,114,182,0.3);border-radius:14px;display:flex;align-items:center;justify-content:space-between;gap:12px"
       onmouseover="this.style.borderColor='rgba(244,114,182,0.55)'" onmouseout="this.style.borderColor='rgba(244,114,182,0.3)'">
       <div style="min-width:0">
         <div style="font-size:10px;font-weight:800;color:var(--rose);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Próximo post a publicar</div>
@@ -6513,6 +6573,7 @@ async function generateMarcaCalendar() {
   const status = document.getElementById('marca-cal-status');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Montando sua grade...'; }
   if (status) { status.style.display = 'block'; status.textContent = 'Isso leva alguns segundos...'; }
+  try { window.dispatchEvent(new CustomEvent('liplop:marca-calendar-start')); } catch(e){}
 
   const project = getMarcaProject();
   const tone    = getMarcaTone();
@@ -6560,9 +6621,11 @@ Na estratégia e nos temas, NÃO use travessão (—) nem (–); use vírgula, p
     localStorage.setItem('liplop-marca-cal-start-v1', new Date().toISOString().split('T')[0]);
     saveMarcaCalendar(calendar); // saveMarcaCalendar já sincroniza a aba Calendário
     renderTarefasTab(); // re-renderiza aba Calendário com o novo conteúdo
+    try { window.dispatchEvent(new CustomEvent('liplop:marca-calendar-ready')); } catch(e){}
   } catch(e) {
     if (btn) { btn.disabled = false; btn.textContent = '✨ Gerar meu calendário de 30 dias'; }
     if (status) status.textContent = 'Erro: ' + e.message;
+    try { window.dispatchEvent(new CustomEvent('liplop:marca-calendar-error')); } catch(e2){}
   }
 }
 
@@ -6660,6 +6723,7 @@ function openMarcaDay(index) {
       </div>` : ''}`;
 
   modal.style.display = 'flex';
+  try { window.dispatchEvent(new CustomEvent('liplop:marca-day-opened')); } catch(e){}
 }
 
 function closeMarcaDay() {
@@ -6746,6 +6810,7 @@ async function improveDayPost(index) {
 
   const btn = document.querySelector('#marca-day-content button[onclick="improveDayPost(' + index + ')"]');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Aplicando...'; }
+  try { window.dispatchEvent(new CustomEvent('liplop:marca-improve-start')); } catch(e){}
 
   const prompt = `Você é um editor especializado em posts de LinkedIn para marca pessoal.
 
@@ -6787,9 +6852,11 @@ Responda APENAS com o post reescrito. Zero explicações, zero comentários.`;
     const note = document.getElementById('marca-review-note');
     if (note) note.style.display = 'block';
     if (ta) ta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    try { window.dispatchEvent(new CustomEvent('liplop:marca-improve-applied')); } catch(e){}
   } catch(e) {
     if (btn) { btn.disabled = false; btn.textContent = '✨ Aplicar melhorias com a IA'; }
     alert('Não consegui aplicar as melhorias agora. Tente de novo em instantes.');
+    try { window.dispatchEvent(new CustomEvent('liplop:marca-improve-error')); } catch(e2){}
   }
 }
 
@@ -6798,6 +6865,7 @@ async function getDayFeedback(index) {
   if (!draft) { alert('Escreva seu rascunho primeiro.'); return; }
   const btn = document.querySelector('#marca-day-content button[onclick="getDayFeedback(' + index + ')"]');
   btn.disabled = true; btn.textContent = '⏳ Lendo...';
+  try { window.dispatchEvent(new CustomEvent('liplop:marca-feedback-start')); } catch(e){}
 
   const tone    = getMarcaTone();
   const calendar = getMarcaCalendar();
@@ -6839,9 +6907,11 @@ Não reescreva o post inteiro. Preserve o tom de voz da pessoa. Seja direto, sem
     calendar[index].feedback = feedback;
     saveMarcaCalendar(calendar);
     openMarcaDay(index);
+    try { window.dispatchEvent(new CustomEvent('liplop:marca-feedback-ready')); } catch(e){}
   } catch(e) {
     btn.disabled = false; btn.textContent = '✨ Feedback da IA';
     alert('Não consegui gerar o feedback agora. Tente de novo em instantes.');
+    try { window.dispatchEvent(new CustomEvent('liplop:marca-feedback-error')); } catch(e2){}
   }
 }
 
