@@ -4859,9 +4859,33 @@ const GUIDE_STEPS = [
     title: 'Agora estruture',
     body: 'Clique em <strong>Estruturar meu case</strong>. A IA vai ler o seu perfil, os seus objetivos e a imagem que você escolheu pra montar o seu case sob medida.' },
   { skipIf: function(){ return window._guideMarcaPath !== 'existing'; },
-    target: '#marca-path-content', tipRight: true,
+    explain: true,
     title: 'Seu case, ponto a ponto 🎯',
-    body: 'Pronto! O Liplop leu o seu <strong>perfil</strong>, os seus <strong>objetivos</strong> (as vagas que você persegue) e a <strong>imagem que você quer passar</strong>, e montou o seu case em blocos: <strong>Projeto</strong>, <strong>Problema</strong>, <strong>Contexto</strong>, <strong>O que fez</strong>, <strong>Resultado</strong> e <strong>O que prova</strong>. Cada bloco foi escolhido pra reforçar o seu posicionamento.' },
+    body: 'Pronto! O Liplop leu o seu <strong>perfil</strong>, os seus <strong>objetivos</strong> (as vagas que você persegue) e a <strong>imagem que você quer passar</strong>, e montou o seu case em 6 blocos. Vou te mostrar pra que serve cada um. Clique em <strong>Próximo</strong>.' },
+  { skipIf: function(){ return window._guideMarcaPath !== 'existing' || !document.getElementById('case-block-PROJETO'); },
+    explain: true, target: '#case-block-PROJETO',
+    title: '1 · Projeto',
+    body: 'O <strong>título</strong> do seu case: o que você construiu, em uma linha. É a âncora que dá nome a tudo que vem depois.' },
+  { skipIf: function(){ return window._guideMarcaPath !== 'existing' || !document.getElementById('case-block-PROBLEMA'); },
+    explain: true, target: '#case-block-PROBLEMA',
+    title: '2 · Problema',
+    body: 'A <strong>dor real</strong> que existia antes. Mostra o tamanho do desafio e por que o seu trabalho importou.' },
+  { skipIf: function(){ return window._guideMarcaPath !== 'existing' || !document.getElementById('case-block-CONTEXTO'); },
+    explain: true, target: '#case-block-CONTEXTO',
+    title: '3 · Contexto',
+    body: 'O <strong>cenário</strong>: empresa, momento, o seu papel e a sua autonomia. Ajuda quem lê a dimensionar a sua responsabilidade.' },
+  { skipIf: function(){ return window._guideMarcaPath !== 'existing' || !document.getElementById('case-block-O-QUE-FEZ'); },
+    explain: true, target: '#case-block-O-QUE-FEZ',
+    title: '4 · O que fez',
+    body: 'As <strong>ações concretas</strong> que você tomou. É aqui que a sua competência aparece em ação, não só o resultado.' },
+  { skipIf: function(){ return window._guideMarcaPath !== 'existing' || !document.getElementById('case-block-RESULTADO'); },
+    explain: true, target: '#case-block-RESULTADO',
+    title: '5 · Resultado',
+    body: 'O <strong>impacto medível</strong> do que você fez. Número fala mais alto: é o que prova que funcionou.' },
+  { skipIf: function(){ return window._guideMarcaPath !== 'existing' || !document.getElementById('case-block-O-QUE-PROVA'); },
+    explain: true, target: '#case-block-O-QUE-PROVA',
+    title: '6 · O que prova',
+    body: 'A <strong>leitura estratégica</strong>: qual competência isso demonstra e por que importa pras vagas que você persegue. É o que conecta o case ao seu objetivo.' },
   { skipIf: function(){ return window._guideMarcaPath !== 'existing'; },
     target: '#marca-path-content', event: 'liplop:marca-project-chosen',
     title: 'Salve o seu case',
@@ -5961,7 +5985,7 @@ function renderProjectCase(text) {
     const content = b.lines.join('\n').trim();
     const isList = content.includes('\n') || content.startsWith('-');
     return `
-      <div style="margin-bottom:16px">
+      <div id="case-block-${b.label.toUpperCase().replace(/\s+/g,'-')}" style="margin-bottom:16px">
         <div style="font-size:10px;font-weight:800;color:${color};text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;display:flex;align-items:center;gap:6px">
           <span style="display:inline-block;width:3px;height:12px;background:${color};border-radius:2px"></span>${b.label}
         </div>
