@@ -4,8 +4,13 @@
 export default function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 'no-store');
+  // Trava do cutover: o login/portão só é ativado quando LOGIN_ENABLED=1.
+  // Sem a flag, o front NÃO recebe as credenciais e o app roda só com cache,
+  // mesmo com SUPABASE_URL/ANON_KEY presentes. Assim o merge sobe o walkthrough
+  // sem ligar o login; a virada do login vira um passo controlado (setar a flag).
+  const loginOn = process.env.LOGIN_ENABLED === '1' || process.env.LOGIN_ENABLED === 'true';
   return res.status(200).json({
-    supabaseUrl: process.env.SUPABASE_URL || null,
-    supabaseAnonKey: process.env.SUPABASE_ANON_KEY || null,
+    supabaseUrl: loginOn ? (process.env.SUPABASE_URL || null) : null,
+    supabaseAnonKey: loginOn ? (process.env.SUPABASE_ANON_KEY || null) : null,
   });
 }
