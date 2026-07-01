@@ -6137,11 +6137,11 @@ function renderMarcaStep1(project) {
     return `
       ${stepA}
       <div style="border:1px solid rgba(244,114,182,0.3);border-radius:14px;padding:20px;margin-bottom:20px;background:rgba(244,114,182,0.04)">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.08em">Seu projeto / case</div>
-          <button onclick="confirmResetProject()" style="background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer;text-decoration:underline">apagar</button>
-        </div>
+        <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">Seu projeto / case</div>
         <div>${renderProjectCase(project.text)}</div>
+        <div style="display:flex;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid rgba(244,114,182,0.15)">
+          <button onclick="confirmResetProject()" style="background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer;text-decoration:underline">apagar case</button>
+        </div>
       </div>`;
   }
 
