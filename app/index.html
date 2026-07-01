@@ -4851,9 +4851,21 @@ const GUIDE_STEPS = [
     title: 'Conte o seu projeto',
     body: 'Detalhe um projeto do qual você se orgulha muito. Não precisa ser perfeito: a IA transforma num case que reforça a imagem que você escolheu.' },
   { skipIf: function(){ return window._guideMarcaPath !== 'existing'; },
-    target: '#marca-path-content', waitClick: '#marca-path-content button',
+    target: '#marca-path-content',
+    event: 'liplop:marca-case-ready', waitEvent: 'liplop:marca-case-start',
+    errorEvent: 'liplop:marca-case-error',
+    waitBody: '🔎 <strong>Aguarde uns 40 segundos sem fechar a tela.</strong> O Liplop está estruturando o seu case a partir do seu perfil, dos seus objetivos e da imagem que você escolheu.',
+    errorBody: '⚠️ <strong>A IA tropeçou.</strong> Costuma ser passageiro. Clica em <strong>Estruturar meu case</strong> de novo, que na segunda quase sempre vai. 🙏',
     title: 'Agora estruture',
-    body: 'Pronto? Clique em <strong>Estruturar meu case</strong> e a IA monta o seu case sob medida pra reforçar a imagem que você escolheu.' },
+    body: 'Clique em <strong>Estruturar meu case</strong>. A IA vai ler o seu perfil, os seus objetivos e a imagem que você escolheu pra montar o seu case sob medida.' },
+  { skipIf: function(){ return window._guideMarcaPath !== 'existing'; },
+    target: '#marca-path-content',
+    title: 'Seu case, ponto a ponto 🎯',
+    body: 'Pronto! O Liplop leu o seu <strong>perfil</strong>, os seus <strong>objetivos</strong> (as vagas que você persegue) e a <strong>imagem que você quer passar</strong>, e montou o seu case em blocos: <strong>Projeto</strong>, <strong>Problema</strong>, <strong>Contexto</strong>, <strong>O que fez</strong>, <strong>Resultado</strong> e <strong>O que prova</strong>. Cada bloco foi escolhido pra reforçar o seu posicionamento.' },
+  { skipIf: function(){ return window._guideMarcaPath !== 'existing'; },
+    target: '#marca-path-content', event: 'liplop:marca-project-chosen',
+    title: 'Salve o seu case',
+    body: 'Se curtiu, clique em <strong>Aprovar e salvar</strong>: ele vira a âncora da sua presença. Se preferir, dá pra gerar outro.' },
   { skipIf: function(){ return window._guideMarcaPath !== 'new'; },
     target: '#marca-path-content',
     event: 'liplop:marca-ideas-ready', waitEvent: 'liplop:marca-ideas-start',
@@ -6102,6 +6114,7 @@ async function generateMarcaCase() {
   const status = document.getElementById('marca-case-status');
   btn.disabled = true; btn.textContent = '⏳ Estruturando...';
   status.style.display = 'block'; status.textContent = '';
+  try { window.dispatchEvent(new CustomEvent('liplop:marca-case-start')); } catch(e){}
 
   const profile = localStorage.getItem(PROFILE_KEY) || '';
   const vagas = opps.slice(0,5).map(o => o.role + ' em ' + o.company).join(', ');
@@ -6147,9 +6160,11 @@ Português brasileiro com todos os acentos. Sem adjetivos vazios. Sem texto fora
         <button onclick="approveMarcaProject(${JSON.stringify(text).replace(/"/g,'&quot;')})" style="padding:10px;background:var(--topbar-bg);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Aprovar e salvar</button>
         <button onclick="showMarcaPath('existing')" style="padding:10px;background:transparent;border:1px solid rgba(var(--ink),0.15);border-radius:8px;color:var(--mid);font-size:13px;cursor:pointer">Não gostei, gerar outro</button>
       </div>`;
+    try { window.dispatchEvent(new CustomEvent('liplop:marca-case-ready')); } catch(e){}
   } catch(e) {
     if (btn) { btn.disabled = false; btn.textContent = '✨ Estruturar meu case'; }
     if (status) { status.style.display = 'block'; status.style.color = '#fc8181'; status.textContent = 'Erro ao gerar. Verifique sua conexão e tente novamente.'; }
+    try { window.dispatchEvent(new CustomEvent('liplop:marca-case-error')); } catch(e2){}
   }
 }
 
