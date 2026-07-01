@@ -5885,15 +5885,9 @@ function renderCalendarBody(calendar, tone, project) {
       <button onclick="switchTab('marca')" style="padding:10px 24px;background:var(--topbar-bg);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Continuar na Marca →</button>
     </div>`;
   }
-  if (!calendar.length) {
-    return `<div style="text-align:center;padding:48px 32px;border:1px dashed rgba(244,114,182,0.3);border-radius:14px">
-      <div style="font-size:32px;margin-bottom:16px">📅</div>
-      <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px">Calendário ainda não gerado</div>
-      <div style="font-size:13px;color:var(--mid);margin-bottom:20px">Gere seus 30 dias de conteúdo com um clique.</div>
-      <button onclick="switchTab('marca')" style="padding:10px 24px;background:var(--topbar-bg);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Gerar calendário →</button>
-    </div>`;
-  }
-  // Reutiliza o renderMarcaStep3 mas só a grade do calendário
+  // Calendário vazio ou preenchido: renderMarcaStep3 já mostra o botão certo de gerar
+  // (estado vazio) ou a grade. Antes havia um estado vazio duplicado aqui cujo botão
+  // chamava switchTab('marca') e voltava pra Marca, sem nunca gerar o calendário.
   return renderMarcaStep3(calendar, true);
 }
 
