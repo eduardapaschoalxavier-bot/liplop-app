@@ -158,7 +158,16 @@
             notes: r.notes, organic: r.organic || undefined, referred: r.referred || undefined, analysis: r.analysis
           };
         });
-        origSet('job-crm-opps-v2', JSON.stringify(arr));
+        // Rede de segurança: NUNCA sobrescreve um cache que tem MAIS vagas que o banco.
+        // Evita perda de dado se a pessoa logar num navegador cujo cache local é mais
+        // completo que a conta (ex.: conta que já migrou por outro navegador com menos dados).
+        var localOppsCount = 0;
+        try { var _lc = JSON.parse(lsGet('job-crm-opps-v2') || '[]'); localOppsCount = Array.isArray(_lc) ? _lc.length : 0; } catch (e) {}
+        if (arr.length >= localOppsCount) {
+          origSet('job-crm-opps-v2', JSON.stringify(arr));
+        } else {
+          console.warn('[liplop-sync] hydrate: banco tem ' + arr.length + ' vaga(s), cache tem ' + localOppsCount + '; mantendo o cache pra nao perder dado');
+        }
       }
       var m = await sb.from('marca').select('*').eq('user_id', user.id).maybeSingle();
       if (m && m.data) {
