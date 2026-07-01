@@ -4838,7 +4838,7 @@ const GUIDE_STEPS = [
   { tab: 'marca', target: '.hero-chips', explain: true,
     onEnter: function(){ try { if (typeof getMarcaMessage === 'function' && getMarcaMessage()) resetMarcaMessage(); } catch(e){} },
     title: 'O que você vai construir aqui',
-    body: 'O Liplop te ajuda a montar 3 coisas, no seu ritmo: um <strong>projeto/case real</strong>, um <strong>tom de voz próprio</strong> e um <strong>calendário de 30 dias</strong> de presença. Bora começar pela base.' },
+    body: 'O Liplop te ajuda a montar 3 coisas, no seu ritmo: um <strong>projeto/case real</strong>, um <strong>tom de voz próprio</strong> e um <strong>calendário de posts</strong> pra um mês inteiro. Bora começar pela base.' },
   { target: '#marca-step1a', waitInput: '#marca-message-input',
     title: '1º · Defina a sua imagem',
     body: 'Numa frase, qual imagem você quer projetar? É isso que vai guiar toda a sua narrativa. Ex.: "alguém que transforma operações caóticas em processos escaláveis".' },
@@ -4924,17 +4924,17 @@ const GUIDE_STEPS = [
     body: 'Se o tom te representa, clique em <strong>Confirmar e continuar</strong>. Se não, dá pra refazer.' },
   { explain: true,
     title: 'Agora, o seu calendário editorial 🚀',
-    body: 'Sua base está pronta: <strong>projeto</strong> e <strong>voz</strong>. Agora o Liplop transforma isso na sua <strong>estratégia editorial</strong> e num calendário de 30 dias de posts. Clique em <strong>Próximo</strong> pra abrir o seu calendário.' },
+    body: 'Sua base está pronta: <strong>projeto</strong> e <strong>voz</strong>. Agora o Liplop transforma isso na sua <strong>estratégia editorial</strong> e num calendário de posts pra 4 semanas. Clique em <strong>Próximo</strong> pra abrir o seu calendário.' },
   { tab: 'tarefas', target: 'button[onclick="generateMarcaCalendar()"]',
     event: 'liplop:marca-calendar-ready', waitEvent: 'liplop:marca-calendar-start',
     errorEvent: 'liplop:marca-calendar-error',
-    waitBody: '🔎 <strong>Aguarde uns 40 segundos.</strong> O Liplop está desenhando a sua <strong>estratégia editorial</strong> e <strong>30 dias</strong> de posts a partir do seu projeto, do seu tom e das vagas que persegue. A gente promete que vale a pena.',
+    waitBody: '🔎 <strong>Aguarde uns 40 segundos.</strong> O Liplop está desenhando a sua <strong>estratégia editorial</strong> e as <strong>4 semanas</strong> de posts a partir do seu projeto, do seu tom e das vagas que persegue. A gente promete que vale a pena.',
     errorBody: '⚠️ <strong>A IA tropeçou.</strong> Costuma ser passageiro. Clica de novo em <strong>Gerar meu calendário</strong>. 🙏',
     title: 'Gere a sua estratégia + calendário',
-    body: 'Clique em <strong>Gerar meu calendário de 30 dias</strong>. Numa tacada só, a IA cria a sua <strong>estratégia editorial</strong> e 30 ideias de post sob medida.' },
+    body: 'Clique em <strong>Gerar meu calendário</strong>. Numa tacada só, a IA cria a sua <strong>estratégia editorial</strong> e 12 ideias de post sob medida.' },
   { target: '#marca-estrategia-box', explain: true,
     title: 'Sua estratégia, ponto a ponto 🎯',
-    body: 'Esse é o <strong>norte</strong> do seu mês. O Liplop leu o seu projeto, o seu tom e as vagas que você persegue pra definir <strong>quais pilares de conteúdo</strong> usar, <strong>por que essa sequência</strong> funciona e <strong>o que você vai transmitir</strong> ao fim dos 30 dias. Todo post daqui pra frente serve a essa estratégia.' },
+    body: 'Esse é o <strong>norte</strong> do seu mês. O Liplop leu o seu projeto, o seu tom e as vagas que você persegue pra definir <strong>quais pilares de conteúdo</strong> usar, <strong>por que essa sequência</strong> funciona e <strong>o que você vai transmitir</strong> ao fim do mês. Todo post daqui pra frente serve a essa estratégia.' },
   { target: '#marca-next-post', event: 'liplop:marca-day-opened',
     title: 'Escolha um dia pra começar',
     body: 'Cada post já vem com <strong>tema e ângulo</strong> sugeridos pela IA. Clique no <strong>Próximo post a publicar</strong> aqui pra abrir e escrever o seu.' },
@@ -5863,7 +5863,7 @@ function renderTarefasTab() {
     <div style="margin-bottom:28px">
       <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">✦ Marca Pessoal</div>
       <h2 style="font-size:1.6rem;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.2">Calendário de postagens</h2>
-      <p style="font-size:13px;color:var(--mid);line-height:1.6">Seus 30 dias de conteúdo para o LinkedIn. Escreva, peça feedback da IA ou gere o post completo.</p>
+      <p style="font-size:13px;color:var(--mid);line-height:1.6">Seu mês de conteúdo para o LinkedIn, 3 posts por semana. Escreva, peça feedback da IA ou gere o post completo.</p>
     </div>
     <div id="cal-tab-body">${renderCalendarBody(calendar, tone, project)}</div>`;
 }
@@ -5909,7 +5909,7 @@ function buildDailyTasks() {
   } else if (!tone?.approved) {
     tasks.push({ title: 'Defina seu tom de voz', sub: 'Para que a IA preserve sua forma de escrever', tab: 'marca', color: '#f472b6' });
   } else if (!calendar.length) {
-    tasks.push({ title: 'Gere seu calendário editorial de 30 dias', sub: 'Plano completo de conteúdo para o LinkedIn', tab: 'marca', color: '#f472b6' });
+    tasks.push({ title: 'Gere seu calendário editorial de posts', sub: 'Plano de conteúdo para o LinkedIn, 3 posts por semana', tab: 'marca', color: '#f472b6' });
   } else {
     // Post do dia
     const dayIndex = calendar.findIndex(d => d.status === 'pending' || d.status === 'draft');
@@ -6420,9 +6420,9 @@ function renderMarcaStep3(calendar, enabled) {
     <div style="text-align:center;padding:56px 32px;border:1px dashed rgba(244,114,182,0.25);border-radius:20px;background:rgba(244,114,182,0.02)">
       <div style="font-size:40px;margin-bottom:16px">📅</div>
       <div style="font-size:17px;font-weight:800;color:var(--text);margin-bottom:8px">Calendário ainda não gerado</div>
-      <p style="font-size:13px;color:var(--mid);line-height:1.6;max-width:360px;margin:0 auto 24px">30 dias, 1 post por dia. A IA monta a grade com temas e ângulos baseados no seu projeto e tom de voz.</p>
+      <p style="font-size:13px;color:var(--mid);line-height:1.6;max-width:360px;margin:0 auto 24px">12 posts, 3 por semana. A IA monta a grade com temas e ângulos baseados no seu projeto e tom de voz.</p>
       <button onclick="generateMarcaCalendar()" style="padding:13px 28px;background:var(--topbar-bg);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(244,114,182,0.3)">
-        ✨ Gerar meu calendário de 30 dias
+        ✨ Gerar meu calendário
       </button>
       <div id="marca-cal-status" style="display:none;font-size:12px;color:var(--mid);text-align:center;margin-top:12px"></div>
     </div>`;
@@ -6448,8 +6448,10 @@ function renderMarcaStep3(calendar, enabled) {
   // As setas passam os meses (histórico atrás, futuro à frente) sem precisar de listas separadas.
   const postByDate = {};
   let minD = null, maxD = null;
+  const WEEK_SLOTS = [0, 2, 4]; // 3 posts/semana, espaçados (ex.: seg, qua, sex)
   calendar.forEach((d, i) => {
-    const dd = new Date(startDate); dd.setDate(dd.getDate() + i); dd.setHours(0,0,0,0);
+    const dayOffset = Math.floor(i / 3) * 7 + WEEK_SLOTS[i % 3];
+    const dd = new Date(startDate); dd.setDate(dd.getDate() + dayOffset); dd.setHours(0,0,0,0);
     postByDate[dd.getFullYear() + '-' + dd.getMonth() + '-' + dd.getDate()] = i;
     if (!minD || dd < minD) minD = new Date(dd);
     if (!maxD || dd > maxD) maxD = new Date(dd);
@@ -6626,14 +6628,14 @@ VAGAS PERSEGUIDAS: ${vagas || ''}
 
 Sua tarefa tem duas partes:
 
-1. Escreva uma ESTRATÉGIA EDITORIAL em 3-4 frases explicando como os 30 dias vão construir a imagem desejada: quais pilares de conteúdo serão usados, por quê essa sequência funciona, e o que a pessoa vai transmitir ao final do mês.
+1. Escreva uma ESTRATÉGIA EDITORIAL em 3-4 frases explicando como o mês (4 semanas, 3 posts por semana) vai construir a imagem desejada: quais pilares de conteúdo serão usados, por quê essa sequência funciona, e o que a pessoa vai transmitir ao final do mês.
 
-2. Monte um CALENDÁRIO de 30 dias para LinkedIn. Cada post deve ter tema distinto e ângulo específico. Varie os formatos: reflexão, bastidor do projeto, aprendizado, opinião de mercado, resultado, processo, erro, dica prática. Tudo alinhado à imagem que a pessoa quer passar.
+2. Monte um CALENDÁRIO de 4 semanas para LinkedIn, com 3 posts por semana (12 posts no total). Cada post deve ter tema distinto e ângulo específico. Varie os formatos: reflexão, bastidor do projeto, aprendizado, opinião de mercado, resultado, processo, erro, dica prática. Tudo alinhado à imagem que a pessoa quer passar.
 
 Responda SOMENTE em JSON:
 {"estrategia":"texto da estratégia aqui","dias":[{"tema":"tema curto","angulo":"como abordar esse tema em 1 frase"}]}
 
-Gere exatamente 30 itens em dias.
+Gere exatamente 12 itens em dias.
 
 Na estratégia e nos temas, NÃO use travessão (—) nem (–); use vírgula, ponto ou dois-pontos.`;
 
@@ -6660,7 +6662,7 @@ Na estratégia e nos temas, NÃO use travessão (—) nem (–); use vírgula, p
     renderTarefasTab(); // re-renderiza aba Calendário com o novo conteúdo
     try { window.dispatchEvent(new CustomEvent('liplop:marca-calendar-ready')); } catch(e){}
   } catch(e) {
-    if (btn) { btn.disabled = false; btn.textContent = '✨ Gerar meu calendário de 30 dias'; }
+    if (btn) { btn.disabled = false; btn.textContent = '✨ Gerar meu calendário'; }
     if (status) status.textContent = 'Erro: ' + e.message;
     try { window.dispatchEvent(new CustomEvent('liplop:marca-calendar-error')); } catch(e2){}
   }
