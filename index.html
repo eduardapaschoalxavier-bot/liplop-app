@@ -144,22 +144,13 @@
       border-radius: 50%;
       background: var(--rose);
     }
-    .hero-typed {
-      font-size: clamp(12px, 1.6vw, 16px);
-      font-weight: 700;
-      letter-spacing: 0.01em;
-      color: var(--text);
-      margin-bottom: 18px;
-      white-space: nowrap;
-      min-height: 1.4em;
-    }
-    .hero-typed .tt { color: var(--rose); }
-    .hero-typed .caret {
+    .hero h1 .tt { color: var(--rose); font-style: normal; }
+    .hero h1 .caret {
       display: inline-block;
-      width: 2px; height: 1.05em;
+      width: 0.08em; height: 0.9em;
       background: var(--rose);
-      margin-left: 2px;
-      vertical-align: -0.15em;
+      margin-left: 4px;
+      vertical-align: -0.05em;
       animation: heroCaret .8s steps(1) infinite;
     }
     @keyframes heroCaret { 50% { opacity: 0; } }
@@ -170,6 +161,7 @@
       letter-spacing: -0.025em;
       max-width: 920px;
       margin: 0 auto 22px;
+      min-height: 3.4em;
     }
     .hero h1 em { font-style: normal; color: var(--rose); }
     .hero h1 .circled { position: relative; display: inline-block; white-space: nowrap; }
@@ -801,6 +793,7 @@
     @media (max-width: 900px) {
       nav { padding: 0 20px; }
       .hero { padding: 64px 20px 56px; }
+      .hero h1 { min-height: 4.8em; }
       .section { padding: 64px 20px; }
       .problem-grid { grid-template-columns: 1fr; }
       .feature-row { grid-template-columns: 1fr; gap: 36px; }
@@ -839,8 +832,7 @@
 
 <!-- HERO -->
 <section class="hero">
-  <p class="hero-typed">Feito para <span class="tt" id="heroTyped">quem lidera e não pode perder tempo</span><span class="caret" aria-hidden="true"></span></p>
-  <h1><em><span class="circled">Ninguém te vê<svg class="scribble" viewBox="0 0 320 110" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M161 8 C88 4 17 23 11 53 C5 86 95 101 181 98 C265 95 316 76 306 48 C297 23 226 11 145 15" /></svg></span></em>. E não é falta de repertório. É a triagem que te barra antes da conversa que importa.</h1>
+  <h1>Para quem <span class="tt" id="heroTyped">lidera times e não pode perder tempo com candidatura no escuro</span><span class="caret" aria-hidden="true"></span></h1>
   <p class="hero-sub">Entenda sua compatibilidade real com a vaga, descubra o que te elimina e chegue à entrevista no controle pra defender sua trajetória; candidatando-se só nas vagas certas.</p>
   <div class="hero-screenshot">
     <div class="fit-mock">
@@ -1127,10 +1119,10 @@
     var el = document.getElementById('heroTyped');
     if (!el) return;
     var phrases = [
-      'quem lidera e não pode perder tempo',
-      'quem vai de coordenação a diretoria',
-      'quem busca vaga remota no exterior',
-      'quem quer trabalhar lá fora'
+      'lidera times e não pode perder tempo com candidatura no escuro',
+      'busca vaga remota no exterior e concorre com o mundo todo',
+      'disputa vaga de liderança e quer saber por que a triagem te barra',
+      'busca salário em dólar e precisa passar na triagem lá fora'
     ];
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce) { el.textContent = phrases[0]; return; }
