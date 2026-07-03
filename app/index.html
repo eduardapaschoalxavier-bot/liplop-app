@@ -1989,7 +1989,7 @@
         <input type="file" accept=".pdf" style="display:none" onchange="extractOnboardingPDF(this)">
       </label>
       <div id="onb-pdf-status" style="font-size:12px;margin-bottom:6px;display:none"></div>
-      <textarea id="onb-profile-input" placeholder="Cole aqui seu LinkedIn, currículo ou resumo profissional…" style="width:100%;min-height:120px;background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.12);border-radius:8px;padding:12px;color:var(--text);font-size:12px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"></textarea>
+      <textarea id="onb-profile-input" placeholder="Cole aqui o TEXTO do seu currículo ou LinkedIn (experiências, empresas, cargos). Não só o link: a IA não abre links." style="width:100%;min-height:120px;background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.12);border-radius:8px;padding:12px;color:var(--text);font-size:12px;line-height:1.6;resize:vertical;font-family:inherit;outline:none;box-sizing:border-box"></textarea>
       <div id="onb-hint" style="display:none;font-size:12px;color:#f87171;margin-top:6px">Cole seu perfil ou suba o PDF para continuar.</div>
     </div>
 
@@ -3640,15 +3640,26 @@ async function extractProfilePDF(input) {
 
 
 // Geração de currículo a partir da tela de análise de fit
+// Perfil "fraco": vazio, so um link, ou curto demais. A IA NAO acessa links, entao
+// com perfil assim ela alucina experiencias. Melhor bloquear e pedir o texto/PDF.
+function profileTooThin(profile) {
+  var t = (profile || '').trim();
+  if (!t) return true;
+  var semUrl = t.replace(/https?:\/\/\S+/gi, ' ').replace(/\s+/g, ' ').trim();
+  var palavras = semUrl ? semUrl.split(' ').filter(Boolean).length : 0;
+  return semUrl.length < 80 || palavras < 15;
+}
+var PROFILE_THIN_MSG = '⚠ Seu perfil está com pouca informação (ou só um link). A IA <strong>não acessa links</strong>: cole o <strong>texto</strong> das suas experiências (empresas, cargos, o que você fez) ou suba o <strong>PDF</strong> do currículo/LinkedIn (no LinkedIn: Mais → Salvar como PDF). Ajuste em <strong>Construir perfil</strong> e gere de novo.';
+
 async function generateResumeFromAnalysis() {
   const jd = document.getElementById('fit-jd-manual').value.trim() || _lastJD;
   const profile = localStorage.getItem(PROFILE_KEY);
   const btn = document.getElementById('btn-gen-resume-from-analysis');
   const st  = document.getElementById('resume-analysis-status');
 
-  if (!profile) {
+  if (!profile || profileTooThin(profile)) {
     st.style.display = 'block';
-    st.textContent = '⚠ Configure seu perfil primeiro em Construir perfil.';
+    st.innerHTML = PROFILE_THIN_MSG;
     return;
   }
   if (!jd) {
@@ -3959,9 +3970,10 @@ async function generateResume(retry = false) {
   if (!opp) return false;
 
   const profile = localStorage.getItem(PROFILE_KEY);
-  if (!profile) {
-    document.getElementById('resume-gen-status').style.display = 'block';
-    document.getElementById('resume-gen-status').textContent = '⚠ Configure seu perfil primeiro em Construir perfil.';
+  if (!profile || profileTooThin(profile)) {
+    const _s = document.getElementById('resume-gen-status');
+    _s.style.display = 'block';
+    _s.innerHTML = PROFILE_THIN_MSG;
     return false;
   }
 
@@ -4709,8 +4721,10 @@ function finishOnboarding() {
   const _roleEl = document.getElementById('onb-roles-input');
   const objectives = _objEl ? _objEl.value.trim() : '';
   const roles      = _roleEl ? _roleEl.value.trim() : '';
-  if (!profile) {
-    document.getElementById('onb-hint').style.display = 'block';
+  if (!profile || profileTooThin(profile)) {
+    const _h = document.getElementById('onb-hint');
+    _h.style.display = 'block';
+    _h.innerHTML = 'Cole o <strong>texto</strong> do seu currículo ou LinkedIn (experiências, empresas, cargos), não só o link. A IA não acessa links. Ou suba o PDF acima.';
     document.getElementById('onb-profile-input').focus();
     return;
   }
