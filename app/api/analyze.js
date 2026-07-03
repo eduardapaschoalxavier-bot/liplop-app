@@ -59,6 +59,15 @@ async function hasActiveSub(email) {
   } catch (e) { return false; }
 }
 
+// Allowlist de e-mails SEMPRE tratados como assinantes. Serve pros pagantes legados
+// cujo e-mail do Stripe pode diferir do e-mail de login (o hasActiveSub busca por
+// e-mail e nao acha). Configura via env SUBSCRIBER_EMAILS (lista separada por virgula).
+function isAllowlistedSub(email) {
+  if (!email || !process.env.SUBSCRIBER_EMAILS) return false;
+  const list = process.env.SUBSCRIBER_EMAILS.split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+  return list.includes(email.toLowerCase());
+}
+
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -95,7 +104,7 @@ export default async function handler(req, res) {
     const usage = await getUsage(user.id);
     const total = ((usage && usage.analyses_used) || 0) + ((usage && usage.resumes_used) || 0) + ((usage && usage.interviews_used) || 0);
     if (total >= FREE_TOTAL) {
-      const subbed = await hasActiveSub(user.email);
+      const subbed = isAllowlistedSub(user.email) || await hasActiveSub(user.email);
       if (!subbed) return res.status(402).json({ error: 'trial_over', kind: kind });
     } else {
       _incCol = col; _incUser = user.id; _incCur = (usage && usage[col]) || 0;
