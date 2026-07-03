@@ -3660,6 +3660,17 @@ function profileTooThin(profile) {
 }
 var PROFILE_THIN_MSG = '⚠ Seu perfil está com pouca informação (ou só um link). A IA <strong>não acessa links</strong>: cole o <strong>texto</strong> das suas experiências (empresas, cargos, o que você fez) ou suba o <strong>PDF</strong> do currículo/LinkedIn (no LinkedIn: Mais → Salvar como PDF). Ajuste em <strong>Construir perfil</strong> e gere de novo.';
 
+// Idioma do curriculo = idioma da VAGA. Detecta no cliente (heuristica) e injeta um
+// comando forte no TOPO do prompt, porque o modelo teimava em PT quando o perfil era PT.
+function langCommand(jd) {
+  var t = (jd || '').toLowerCase();
+  var pt = (t.match(/[ãõçáéíóúâêô]/g) || []).length
+         + (t.match(/\b(você|não|são|também|experiência|responsável|requisitos|salário|benefícios|vaga|empresa|atividades|desejável|conhecimento)\b/g) || []).length;
+  var en = (t.match(/\b(the|and|with|for|you|your|will|our|team|experience|requirements|responsibilities|about|role|skills|years|work|we|are|is)\b/g) || []).length;
+  if (en > pt * 1.2) return 'INSTRUÇÃO OBRIGATÓRIA, ACIMA DE TUDO: a vaga está em INGLÊS. Escreva o currículo INTEIRO em inglês, traduzindo TODAS as experiências do perfil para o inglês (mesmo o perfil estando em português). NÃO escreva NADA em português.\n\n';
+  return 'INSTRUÇÃO OBRIGATÓRIA: escreva o currículo inteiro em português.\n\n';
+}
+
 async function generateResumeFromAnalysis() {
   const jd = document.getElementById('fit-jd-manual').value.trim() || _lastJD;
   const profile = localStorage.getItem(PROFILE_KEY);
@@ -3680,7 +3691,7 @@ async function generateResumeFromAnalysis() {
   btn.textContent = '⏳ Gerando currículo...';
   st.style.display = 'none';
 
-  const prompt = `Você é um especialista em carreira e recrutamento com 15+ anos de experiência. Você já avaliou mais de 50.000 currículos e sabe exatamente o que faz um recrutador parar de ler — e o que faz ele ligar.
+  const prompt = langCommand(jd) + `Você é um especialista em carreira e recrutamento com 15+ anos de experiência. Você já avaliou mais de 50.000 currículos e sabe exatamente o que faz um recrutador parar de ler — e o que faz ele ligar.
 
 Sua missão é construir um currículo que funciona como um documento de vendas com evidências, não como um histórico de vida. Cada linha precisa responder à pergunta implícita do recrutador: "por que esse candidato vai resolver meu problema?"
 
@@ -4008,7 +4019,7 @@ async function generateResume(retry = false) {
   btn.textContent = '⏳ Gerando currículo...';
   st.style.display = 'none';
 
-  const prompt = `Você é um especialista em carreira e recrutamento com 15+ anos de experiência. Você já avaliou mais de 50.000 currículos e sabe exatamente o que faz um recrutador parar de ler — e o que faz ele ligar.
+  const prompt = langCommand(jd) + `Você é um especialista em carreira e recrutamento com 15+ anos de experiência. Você já avaliou mais de 50.000 currículos e sabe exatamente o que faz um recrutador parar de ler — e o que faz ele ligar.
 
 Sua missão é construir um currículo que funciona como um documento de vendas com evidências, não como um histórico de vida. Cada linha precisa responder à pergunta implícita do recrutador: "por que esse candidato vai resolver meu problema?"
 
