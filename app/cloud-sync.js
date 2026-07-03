@@ -120,9 +120,29 @@
     }
   }
 
+  // Limpa os dados locais (perfil, kanban, marca, docs) do dominio sincronizado.
+  function clearLocalDomains() {
+    try { Object.keys(KEY_DOMAIN).forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}
+  }
+
   // --- no login: 1ª vez migra o cache; depois passa a LER do banco ---
   async function onLogin() {
     if (!user || !sb) return;
+
+    // Troca de conta no MESMO navegador: se o cache pertence a OUTRO usuario, limpa antes
+    // de migrar/hidratar (senao o novo usuario herda perfil/vagas alheios e o onboarding e
+    // pulado). Recarrega pra reiniciar limpo. So dispara em troca real de conta.
+    var cacheOwner = null;
+    try { cacheOwner = localStorage.getItem('liplop-cache-uid'); } catch (e) {}
+    if (cacheOwner && cacheOwner !== user.id) {
+      clearLocalDomains();
+      try { localStorage.setItem('liplop-cache-uid', user.id); } catch (e) {}
+      console.info('[liplop-sync] troca de conta detectada: cache local limpo');
+      location.reload();
+      return;
+    }
+    try { localStorage.setItem('liplop-cache-uid', user.id); } catch (e) {}
+
     try {
       var sel = await sb.from('profiles').select('migrated_at').eq('id', user.id).maybeSingle();
       if (sel.data && sel.data.migrated_at) {
