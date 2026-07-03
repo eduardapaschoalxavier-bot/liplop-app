@@ -2342,22 +2342,10 @@
       </div>
       <div class="modal-section" id="m-link-section"></div>
       <div class="modal-section">
-        <div class="modal-label" style="margin-bottom:6px">Descrição da vaga <span style="font-weight:400;color:var(--dim);font-size:10px">(usada para gerar currículo adaptado)</span></div>
+        <div class="modal-label" style="margin-bottom:6px">Descrição da vaga</div>
         <textarea id="m-jd-text" rows="4" placeholder="Cole aqui o texto da vaga..." style="width:100%;background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.1);border-radius:10px;padding:10px 12px;color:var(--text);font-size:13px;resize:vertical;outline:none;font-family:inherit;box-sizing:border-box" onchange="saveInlineField('jd_text',this.value)"></textarea>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
-        <button id="btn-gen-resume" onclick="generateResume()"
-          style="padding:16px 10px;background:var(--topbar-bg);border:none;border-radius:14px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;line-height:1.3;text-align:center;box-shadow:0 4px 14px rgba(233,30,140,0.3)"
-          onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
-          ✨ Gerar currículo<br><span style="font-weight:400;font-size:11px;opacity:.85">adaptado para esta vaga</span>
-        </button>
-        <button id="btn-find-network" onclick="openLinkedInSearch()"
-          style="padding:16px 10px;background:transparent;border:1.5px solid #f472b6;border-radius:14px;color:#f472b6;font-size:14px;font-weight:700;cursor:pointer;line-height:1.3;text-align:center"
-          onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">
-          🤝 Contactar pessoas<br><span style="font-weight:400;font-size:11px;opacity:.85">no LinkedIn</span>
-        </button>
-      </div>
-      <div id="resume-gen-status" style="font-size:12px;color:var(--mid);text-align:center;margin-top:8px;display:none"></div>
+      <div id="resume-gen-status" style="display:none"></div>
       <div id="m-contacts-section" style="margin-top:16px"></div>
       <div id="network-section" style="margin-top:16px"></div>
     </div>
@@ -3992,8 +3980,8 @@ async function generateResume(retry = false) {
 
   // Verifica cota (admin tem acesso ilimitado)
 
-  const btn = document.getElementById('btn-gen-resume');
-  const st  = document.getElementById('resume-gen-status');
+  const btn = document.getElementById('btn-gen-resume') || { style: {} };   // card nao tem mais esses botoes: no-op seguro
+  const st  = document.getElementById('resume-gen-status') || { style: {} };
   btn.disabled = true;
   btn.textContent = '⏳ Gerando currículo...';
   st.style.display = 'none';
@@ -7034,6 +7022,7 @@ async function analyzeFit() {
     document.getElementById('fit-jd-manual').focus();
     return;
   }
+  _lastJD = jd;   // guarda a descricao (colada ou buscada) pra ir junto quando a vaga entrar no kanban
 
   const btn = document.getElementById('btn-analyze');
   btn.disabled = true;
