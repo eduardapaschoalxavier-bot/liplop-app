@@ -3951,8 +3951,6 @@ function showPaywall(kind) {
   // Se o paywall surgiu durante o onboarding, encerra o tour: ele não tem como
   // avançar por uma ação bloqueada, então prenderia a pessoa num passo morto.
   try { if (document.getElementById('wt-root') && typeof endWalkthrough === 'function') endWalkthrough(false); } catch(e){}
-  const labels = { analysis: 'análise de fit', resume: 'geração de currículo', interview: 'preparação para entrevista' };
-  const what = labels[kind] || 'esse recurso';
   let ov = document.getElementById('lp-paywall');
   if (!ov) {
     ov = document.createElement('div');
@@ -3965,7 +3963,7 @@ function showPaywall(kind) {
     + '<button onclick="document.getElementById(\'lp-paywall\').style.display=\'none\'" style="position:absolute;top:14px;right:18px;background:none;border:none;color:var(--dim);font-size:22px;cursor:pointer;line-height:1">×</button>'
     + '<div style="font-size:34px;margin-bottom:4px">✨</div>'
     + '<h3 style="margin:0 0 8px;font-size:20px;font-weight:800;color:var(--text)">Seu teste grátis acabou</h3>'
-    + '<p style="margin:0 0 22px;font-size:14px;color:var(--mid);line-height:1.55">Você já usou seu teste grátis de ' + what + '. Pra continuar usando o Liplop sem limites, assine um plano.</p>'
+    + '<p style="margin:0 0 22px;font-size:14px;color:var(--mid);line-height:1.55">Você já usou seus <strong>créditos grátis</strong> do Liplop, que valem pra tudo: análise, currículo e preparação. Pra continuar sem limites, assine um plano.</p>'
     + '<button onclick="subscribe(\'mensal\')" style="width:100%;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;background:var(--topbar-bg);margin-bottom:10px">Assinar mensal · R$67/mês</button>'
     + '<button onclick="subscribe(\'semestral\')" style="width:100%;border:1px solid var(--border);border-radius:10px;padding:12px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;background:var(--card)">Assinar semestral · R$250 (6 meses)</button>'
     + '<div id="lp-paywall-msg" style="margin-top:14px;font-size:13px;min-height:16px"></div>'
