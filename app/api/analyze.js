@@ -68,6 +68,20 @@ function isAllowlistedSub(email) {
   return list.includes(email.toLowerCase());
 }
 
+// Assinatura ativa lida da tabela `subscriptions` (populada pelo webhook do Stripe),
+// amarrada por user_id. E o caminho CONFIAVEL: independe do e-mail do Stripe bater.
+async function hasActiveSubDB(userId) {
+  if (!userId || !process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return false;
+  try {
+    const r = await fetch(process.env.SUPABASE_URL + '/rest/v1/subscriptions?user_id=eq.' + userId + '&select=status', {
+      headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY, Authorization: 'Bearer ' + process.env.SUPABASE_SERVICE_ROLE_KEY }
+    });
+    const d = await r.json();
+    const row = Array.isArray(d) && d[0];
+    return !!(row && ['active', 'trialing', 'past_due'].includes(row.status));
+  } catch (e) { return false; }
+}
+
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -104,7 +118,7 @@ export default async function handler(req, res) {
     const usage = await getUsage(user.id);
     const total = ((usage && usage.analyses_used) || 0) + ((usage && usage.resumes_used) || 0) + ((usage && usage.interviews_used) || 0);
     if (total >= FREE_TOTAL) {
-      const subbed = isAllowlistedSub(user.email) || await hasActiveSub(user.email);
+      const subbed = isAllowlistedSub(user.email) || await hasActiveSubDB(user.id) || await hasActiveSub(user.email);
       if (!subbed) return res.status(402).json({ error: 'trial_over', kind: kind });
     } else {
       _incCol = col; _incUser = user.id; _incCur = (usage && usage[col]) || 0;

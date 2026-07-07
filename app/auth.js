@@ -195,6 +195,7 @@
       const em = document.getElementById('lp-auth-email');
       if (em) em.innerHTML = '<strong style="color:var(--text,#1A0E15);font-weight:700;display:block;font-size:13px;margin-bottom:2px">' + displayName(user) + '</strong>' + (user.email || '');
       try { window.liplopUserEmail = user.email || ''; } catch (e) {}   // exposto pro checkout pre-preencher o e-mail
+      try { window.liplopUserId = user.id || ''; } catch (e) {}          // exposto pro checkout amarrar a assinatura (client_reference_id)
       // tour por conta: dispara depois que o portão liberou (uma vez por conta nesta página)
       if (window.liplopRunNewUserFlow) window.liplopRunNewUserFlow(user.id);
     } else {

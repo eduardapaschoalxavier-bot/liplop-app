@@ -3977,10 +3977,10 @@ async function subscribe(plan) {
   // Mensal vai direto pro link de pagamento do Stripe, com o e-mail de login pre-preenchido
   // (pra a assinatura ser reconhecida pela conta). Semestral segue pelo checkout dinamico.
   if (plan === 'mensal') {
-    var _url = 'https://buy.stripe.com/4gMaEYgtg06t7oV41q00002';
-    var _em = '';
-    try { _em = window.liplopUserEmail || ''; } catch (e) {}
-    if (_em) _url += '?prefilled_email=' + encodeURIComponent(_em);
+    var _params = [];
+    try { if (window.liplopUserEmail) _params.push('prefilled_email=' + encodeURIComponent(window.liplopUserEmail)); } catch (e) {}
+    try { if (window.liplopUserId)    _params.push('client_reference_id=' + encodeURIComponent(window.liplopUserId)); } catch (e) {}
+    var _url = 'https://buy.stripe.com/4gMaEYgtg06t7oV41q00002' + (_params.length ? '?' + _params.join('&') : '');
     window.location.href = _url;
     return;
   }
