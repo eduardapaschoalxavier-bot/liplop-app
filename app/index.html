@@ -3976,6 +3976,16 @@ function showPaywall(kind) {
 
 async function subscribe(plan) {
   const msg = document.getElementById('lp-paywall-msg');
+  // Mensal vai direto pro link de pagamento do Stripe, com o e-mail de login pre-preenchido
+  // (pra a assinatura ser reconhecida pela conta). Semestral segue pelo checkout dinamico.
+  if (plan === 'mensal') {
+    var _url = 'https://buy.stripe.com/4gMaEYgtg06t7oV41q00002';
+    var _em = '';
+    try { _em = window.liplopUserEmail || ''; } catch (e) {}
+    if (_em) _url += '?prefilled_email=' + encodeURIComponent(_em);
+    window.location.href = _url;
+    return;
+  }
   if (msg) { msg.style.color = 'var(--mid)'; msg.textContent = 'Abrindo o checkout…'; }
   try {
     const token = await _aiToken();
