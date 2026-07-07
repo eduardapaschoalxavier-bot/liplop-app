@@ -4602,6 +4602,7 @@ function runNewUserFlow(uid) {
   try {
     var _ts = location.search;
     var _findStep = function (frag) { return GUIDE_STEPS.findIndex(function (s) { return s.title && s.title.indexOf(frag) >= 0; }); };
+    if (_ts.indexOf('paywall') >= 0)        { setTimeout(function(){ try { showPaywall('resume'); } catch(e){} }, 500); return; }   // atalho de teste: ve o paywall sem gastar creditos
     if (_ts.indexOf('tour=marca') >= 0)     { startWalkthrough(true, _findStep('Defina a sua imagem')); return; }
     if (_ts.indexOf('tour=interview') >= 0) { startWalkthrough(true, _findStep('Hora da entrevista')); return; }
     if (_ts.indexOf('tour=1') >= 0)         { startWalkthrough(true); return; }
