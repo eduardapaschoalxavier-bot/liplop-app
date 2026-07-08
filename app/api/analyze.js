@@ -1,3 +1,5 @@
+import { brevoUpsert, brevoToday, brevoListPaywall, brevoListResume } from './_brevo.js';
+
 // ── Free trial: trava por uso, contada no servidor ──────────────────────────
 // Free trial POOLED: 3 ações de IA que a pessoa faz SOZINHA (fit + currículo
 // + preparação, somadas). Ações do tour guiado (guided) NÃO contam. Ao chegar
@@ -194,7 +196,10 @@ export default async function handler(req, res) {
       const total = ((usage && usage.analyses_used) || 0) + ((usage && usage.resumes_used) || 0) + ((usage && usage.interviews_used) || 0);
       if (total >= FREE_TOTAL) {
         const subbed = isAllowlistedSub(user.email) || await hasActiveSubDB(user.id) || await hasActiveSub(user.email);
-        if (!subbed) return res.status(402).json({ error: 'trial_over', kind: kind });
+        if (!subbed) {
+          await brevoUpsert(user.email, { IS_SUBSCRIBER: 'no' }, brevoListPaywall());   // fluxo 1: bateu no paywall e nao e assinante
+          return res.status(402).json({ error: 'trial_over', kind: kind });
+        }
       } else {
         _incCol = col; _incUser = user.id; _incCur = (usage && usage[col]) || 0;
       }
@@ -298,6 +303,8 @@ export default async function handler(req, res) {
     if (_incCol) await bumpUsage(_incUser, _incCol, _incCur);  // consumiu 1 uso grátis
     if (_evtKind) await logEvent(_evtUser, _evtKind);          // registra o evento de uso
     if (_logGuided) await logEvent(_evtUser, 'guided');        // conta a ação guided no teto
+    // Brevo (ativacao): marca 'ativo hoje'; se gerou curriculo, entra na lista do fluxo 2.
+    await brevoUpsert(user.email, { LAST_ACTIVE: brevoToday() }, _evtKind === 'resume' ? brevoListResume() : []);
     return res.status(200).json({ result: text });
 
   } catch (e) {
