@@ -3983,7 +3983,7 @@ function showPaywall(kind) {
     + '<div style="font-size:34px;margin-bottom:4px">✨</div>'
     + '<h3 style="margin:0 0 8px;font-size:20px;font-weight:800;color:var(--text)">Seu teste grátis acabou</h3>'
     + '<p style="margin:0 0 22px;font-size:14px;color:var(--mid);line-height:1.55">Você já usou seus <strong>créditos grátis</strong> do Liplop, que valem pra tudo: análise, currículo e preparação. Pra continuar sem limites, assine um plano.</p>'
-    + '<button onclick="subscribe(\'mensal\')" style="width:100%;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;background:var(--topbar-bg);margin-bottom:10px">Assinar mensal · R$67/mês</button>'
+    + '<button onclick="subscribe(\'mensal\')" style="width:100%;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;background:var(--topbar-bg);margin-bottom:10px">Assinar mensal · R$97/mês</button>'
     + '<button onclick="subscribe(\'semestral\')" style="width:100%;border:1px solid var(--border);border-radius:10px;padding:12px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;background:var(--card)">Assinar semestral · R$250 (6 meses)</button>'
     + '<div id="lp-paywall-msg" style="margin-top:14px;font-size:13px;min-height:16px"></div>'
     + '<button onclick="document.getElementById(\'lp-paywall\').style.display=\'none\'" style="background:none;border:none;color:var(--dim);font-size:13px;cursor:pointer;margin-top:4px">Agora não</button>'
@@ -4000,7 +4000,7 @@ async function subscribe(plan) {
     var _params = [];
     try { if (window.liplopUserEmail) _params.push('prefilled_email=' + encodeURIComponent(window.liplopUserEmail)); } catch (e) {}
     try { if (window.liplopUserId)    _params.push('client_reference_id=' + encodeURIComponent(window.liplopUserId)); } catch (e) {}
-    var _url = 'https://buy.stripe.com/4gMaEYgtg06t7oV41q00002' + (_params.length ? '?' + _params.join('&') : '');
+    var _url = 'https://buy.stripe.com/7sY6oIgtgg5rgZveG400004' + (_params.length ? '?' + _params.join('&') : '');
     window.location.href = _url;
     return;
   }
