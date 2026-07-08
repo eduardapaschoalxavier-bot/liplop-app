@@ -640,10 +640,11 @@
     }
     .plans-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, 1fr);
       gap: 20px;
-      max-width: 760px;
+      max-width: 1040px;
       margin: 0 auto;
+      align-items: start;
     }
     .plan-solo-wrap { display: flex; justify-content: center; }
     .plan-solo { max-width: 400px; width: 100%; }
