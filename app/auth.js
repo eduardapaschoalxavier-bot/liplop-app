@@ -339,8 +339,18 @@
     rows.push(subRow('Nome', d.name || '—'));
     rows.push(subRow('E-mail', d.email || '—'));
     if (!d.hasCustomer || !d.subscription) {
+      // Sem assinatura: em vez de beco sem saida, oferece o caminho pra assinar.
       body.innerHTML = '<div class="lp-sub-rows">' + rows.join('') + '</div>'
-        + '<p style="font-size:13px;color:var(--mid,#6E5762);line-height:1.5;margin:16px 0 0">Não encontramos uma assinatura ativa ligada a este e-mail. Se você assinou com outro e-mail, entre com ele.</p>';
+        + '<p style="font-size:13px;color:var(--mid,#6E5762);line-height:1.5;margin:16px 0 14px">Você ainda não tem uma assinatura ativa neste e-mail. Assine para usar o Liplop sem limites: análise, currículo e preparação.</p>'
+        + '<button class="lp-auth-primary" id="lp-sub-subscribe">Assinar o Liplop</button>'
+        + '<p style="font-size:11.5px;color:var(--dim,#A2909B);text-align:center;line-height:1.5;margin:10px 0 0">Já assinou com outro e-mail? Entre com ele para ver sua assinatura.</p>';
+      const sbtn = document.getElementById('lp-sub-subscribe');
+      if (sbtn) sbtn.onclick = function () {
+        const so = document.getElementById('lp-sub-overlay'); if (so) so.classList.remove('open');   // fecha o modal de assinatura
+        if (typeof window.showPaywall === 'function') window.showPaywall('upgrade');                 // abre o paywall (escolhe plano)
+        else if (typeof window.subscribe === 'function') window.subscribe('mensal');                 // fallback: vai direto pro mensal
+        else window.location.href = 'https://buy.stripe.com/7sY6oIgtgg5rgZveG400004';                // ultimo recurso: link do Stripe
+      };
       return;
     }
     const s = d.subscription;
