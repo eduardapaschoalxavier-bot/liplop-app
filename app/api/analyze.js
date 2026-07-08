@@ -102,6 +102,48 @@ async function hasActiveSubDB(userId) {
   } catch (e) { return false; }
 }
 
+// ── Regras de negocio (prompts) no SERVIDOR, nao mais no frontend ────────────
+// O cliente manda so os dados (perfil, vaga); o prompt e montado aqui e nunca
+// aparece no view-source. Fase 1: analise de fit. (Curriculo/entrevista virao nas
+// proximas fases.)
+function buildAnalysisPrompt(d) {
+  const profile = (d && d.profile) || '';
+  const jd = (d && d.jd) || '';
+  return `Você é um especialista em recrutamento e carreira. Analise o fit entre o perfil profissional e a vaga abaixo.
+
+## PERFIL DA CANDIDATA
+${profile}
+
+## DESCRIÇÃO DA VAGA
+${jd}
+
+Responda SOMENTE com um JSON válido neste formato exato (sem markdown, sem texto extra):
+{
+  "score": <número 0-100>,
+  "company": "<nome da empresa da vaga>",
+  "role": "<título exato do cargo da vaga>",
+  "label": "<Ex: Fit muito forte | Fit sólido | Fit parcial | Fit baixo>",
+  "summary": "<1-2 frases explicando o score de forma direta>",
+  "pillars": [
+    {"name": "Experiência", "pct": <0-100>},
+    {"name": "Skills técnicas", "pct": <0-100>},
+    {"name": "Senioridade", "pct": <0-100>},
+    {"name": "Contexto/setor", "pct": <0-100>},
+    {"name": "LATAM / idioma", "pct": <0-100>}
+  ],
+  "has": ["<ponto forte 1>", "<ponto forte 2>", "<ponto forte 3>"],
+  "lacks": ["<gap 1>", "<gap 2>"],
+  "tips": ["<dica específica de como adaptar o currículo ou posicionamento para passar na triagem do ATS e do recrutador para esta vaga, por exemplo: quais keywords incluir, como reescrever o resumo, o que destacar>", "<dica 2>", "<dica 3>"]
+}
+
+Nos textos (summary, has, lacks, tips), NÃO use travessão nem meia-risca; use vírgula, ponto ou dois-pontos. Português brasileiro correto com todos os acentos.`;
+}
+
+function buildPromptForTask(task, data) {
+  if (task === 'analysis') return buildAnalysisPrompt(data);
+  return null;
+}
+
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', (function(o){return (['https://app.myliplop.com','https://myliplop.com','https://www.myliplop.com'].includes(o)||/^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(o))?o:'https://app.myliplop.com';})(req.headers.origin||''));
@@ -118,7 +160,10 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  const { prompt, json_mode = true, mode = 'standard', model = 'claude-sonnet-4-5', kind, guided } = req.body;
+  const { json_mode = true, mode = 'standard', model = 'claude-sonnet-4-5', kind, guided, task, data } = req.body;
+  // Prompt vem montado no SERVIDOR (via task+data) ou, legado, direto do cliente (prompt).
+  // As proximas fases migram os demais fluxos pra task; ate la o legado segue funcionando.
+  const prompt = task ? buildPromptForTask(task, data || {}) : req.body.prompt;
 
   if (!prompt) {
     return res.status(400).json({ error: 'Prompt ausente' });

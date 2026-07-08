@@ -7038,40 +7038,11 @@ async function analyzeFit() {
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner" style="border-top-color:#fff;vertical-align:middle;margin-right:8px"></span> Analisando com IA…';
 
-  const prompt = `Você é um especialista em recrutamento e carreira. Analise o fit entre o perfil profissional e a vaga abaixo.
-
-## PERFIL DA CANDIDATA
-${profile}
-
-## DESCRIÇÃO DA VAGA
-${jd}
-
-Responda SOMENTE com um JSON válido neste formato exato (sem markdown, sem texto extra):
-{
-  "score": <número 0-100>,
-  "company": "<nome da empresa da vaga>",
-  "role": "<título exato do cargo da vaga>",
-  "label": "<Ex: Fit muito forte | Fit sólido | Fit parcial | Fit baixo>",
-  "summary": "<1-2 frases explicando o score de forma direta>",
-  "pillars": [
-    {"name": "Experiência", "pct": <0-100>},
-    {"name": "Skills técnicas", "pct": <0-100>},
-    {"name": "Senioridade", "pct": <0-100>},
-    {"name": "Contexto/setor", "pct": <0-100>},
-    {"name": "LATAM / idioma", "pct": <0-100>}
-  ],
-  "has": ["<ponto forte 1>", "<ponto forte 2>", "<ponto forte 3>"],
-  "lacks": ["<gap 1>", "<gap 2>"],
-  "tips": ["<dica específica de como adaptar o currículo ou posicionamento para passar na triagem do ATS e do recrutador para esta vaga, por exemplo: quais keywords incluir, como reescrever o resumo, o que destacar>", "<dica 2>", "<dica 3>"]
-}
-
-Nos textos (summary, has, lacks, tips), NÃO use travessão (—) nem (–); use vírgula, ponto ou dois-pontos. Português brasileiro correto com todos os acentos.`;
-
   try {
     // avisa o tour que a análise começou (pra trocar o balão pro aviso de espera)
     try { window.dispatchEvent(new CustomEvent('liplop:analysis-start')); } catch(e){}
-    // Backend Vercel, com retry automático em falhas transitórias
-    const raw = await callAI({ prompt, kind: 'analysis' });
+    // Prompt montado no SERVIDOR (regra de negocio fora do frontend): manda so os dados.
+    const raw = await callAI({ task: 'analysis', data: { profile, jd }, kind: 'analysis' });
     incFreeCount(); // só conta quando deu certo
 
     const json = JSON.parse(raw.replace(/^```json?\n?/, '').replace(/\n?```$/, ''));
