@@ -2440,21 +2440,9 @@ const PROFILE_KEY   = 'liplop-profile';
 const PROVIDER_KEY  = 'liplop-provider';
 const FREE_KEY      = 'liplop-free-count'; // mantido por compatibilidade
 const FREE_LIMIT    = 0; // free trial desativado
-const ADMIN_KEY     = 'liplop-admin';
-
-// Modo admin — acesso via ?admin=duda2026
-(function checkAdmin() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('admin') === 'duda2026') {
-    localStorage.setItem(ADMIN_KEY, '1');
-    // Remove o parâmetro da URL sem recarregar
-    window.history.replaceState({}, '', window.location.pathname);
-  }
-})();
-
-function isAdmin() {
-  return localStorage.getItem(ADMIN_KEY) === '1';
-}
+// Modo admin via localStorage REMOVIDO por seguranca (era codigo morto, nao dava
+// privilegio real, mas o especialista pediu pra tirar). Limpa o valor de quem ja tiver.
+try { localStorage.removeItem('liplop-admin'); } catch (e) {}
 
 // fit scores por id (para migrar dados do v1 que não tinham fit)
 const DEFAULT_FIT = {1:85,2:78,3:62};

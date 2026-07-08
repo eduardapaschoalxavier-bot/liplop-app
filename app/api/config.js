@@ -2,7 +2,7 @@
 // A anon key é pública por design (o RLS é quem protege). Segredos de servidor
 // (service_role, stripe sk_, whsec_) NUNCA passam por aqui.
 export default function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin', (function(o){return (['https://app.myliplop.com','https://myliplop.com','https://www.myliplop.com'].includes(o)||/^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(o))?o:'https://app.myliplop.com';})(req.headers.origin||''));
   res.setHeader('Cache-Control', 'no-store');
   // Trava do cutover: o login/portão só é ativado quando LOGIN_ENABLED=1.
   // Sem a flag, o front NÃO recebe as credenciais e o app roda só com cache,
