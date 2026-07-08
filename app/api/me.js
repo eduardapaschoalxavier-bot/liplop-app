@@ -53,6 +53,23 @@ async function hasActiveSubDB(userId) {
   } catch (e) { return false; }
 }
 
+// Fallback: assinatura ativa buscada no Stripe pelo e-mail (mesma checagem do
+// analyze.js). Garante que quem paga NAO seja bloqueado pelo paywall mesmo que
+// ainda nao esteja na tabela subscriptions nem na allowlist.
+async function hasActiveSubStripe(email) {
+  if (!process.env.STRIPE_SECRET_KEY || !email) return false;
+  try {
+    const h = { Authorization: 'Bearer ' + process.env.STRIPE_SECRET_KEY };
+    const cr = await fetch('https://api.stripe.com/v1/customers?limit=1&email=' + encodeURIComponent(email), { headers: h });
+    const cd = await cr.json();
+    const cust = cd.data && cd.data[0];
+    if (!cust) return false;
+    const sr = await fetch('https://api.stripe.com/v1/subscriptions?status=all&limit=5&customer=' + cust.id, { headers: h });
+    const sd = await sr.json();
+    return !!(sd.data || []).find(s => ['active', 'trialing', 'past_due'].includes(s.status));
+  } catch (e) { return false; }
+}
+
 export default async function handler(req, res) {
   cors(res, req.headers.origin || '');
   if (req.method === 'OPTIONS') { res.status(204).end(); return; }
@@ -62,7 +79,7 @@ export default async function handler(req, res) {
   const user = await getUser(token);
   if (!user) { res.status(401).json({ error: 'Não autenticado' }); return; }
 
-  const subscriber = isAllowlistedSub(user.email) || await hasActiveSubDB(user.id);
+  const subscriber = isAllowlistedSub(user.email) || await hasActiveSubDB(user.id) || await hasActiveSubStripe(user.email);
   const u = await getUsage(user.id);
   const used = u ? ((u.analyses_used || 0) + (u.resumes_used || 0) + (u.interviews_used || 0)) : 0;
   // clamp pra sanidade visual (uso legado pode ser negativo por ajuste manual)
