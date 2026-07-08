@@ -3905,7 +3905,7 @@ async function callAI(body, tries = 3) {
       const res = await fetch('/api/analyze', { method: 'POST', headers, body: JSON.stringify(body) });
       if (res.status === 402) {                      // trial acabou → paywall
         const err = await res.json().catch(() => ({}));
-        showPaywall(err.kind || (body && body.kind));
+        showPaywall(err.kind || (body && body.kind), true);   // trial acabou = bloqueia tudo
         const pe = new Error('paywall'); pe.paywall = true; throw pe;
       }
       if (res.status === 401 && !refreshed && window.liplopSupabase) {
@@ -3966,7 +3966,11 @@ async function refreshCredits() {
 window.liplopRefreshCredits = refreshCredits;
 
 // ── Paywall (free trial acabou) ──────────────────────────────────────────────
-function showPaywall(kind) {
+// showPaywall(kind, blocking): blocking=true => paywall trava TUDO (sem X, sem
+// "Agora não", não fecha no clique fora). Usado quando o trial acabou (402 e no
+// re-login). blocking=false (padrão) => dismissível, pra quem clica em "Tenha o
+// Liplop Ilimitado" ainda tendo créditos.
+function showPaywall(kind, blocking) {
   // Se o paywall surgiu durante o onboarding, encerra o tour: ele não tem como
   // avançar por uma ação bloqueada, então prenderia a pessoa num passo morto.
   try { if (document.getElementById('wt-root') && typeof endWalkthrough === 'function') endWalkthrough(false); } catch(e){}
@@ -3976,20 +3980,43 @@ function showPaywall(kind) {
     ov.id = 'lp-paywall';
     ov.style.cssText = 'position:fixed;inset:0;z-index:10070;background:rgba(12,5,9,0.55);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px';
     document.body.appendChild(ov);
-    ov.addEventListener('click', e => { if (e.target === ov) ov.style.display = 'none'; });
+    ov.addEventListener('click', e => { if (e.target === ov && ov.dataset.blocking !== '1') ov.style.display = 'none'; });   // bloqueante não fecha no clique fora
   }
+  ov.dataset.blocking = blocking ? '1' : '';
+  const closeX = blocking ? ''
+    : '<button onclick="document.getElementById(\'lp-paywall\').style.display=\'none\'" style="position:absolute;top:14px;right:18px;background:none;border:none;color:var(--dim);font-size:22px;cursor:pointer;line-height:1">×</button>';
+  const subcopy = blocking
+    ? 'Você usou seus <strong>créditos grátis</strong> do Liplop. Para continuar usando análise, currículo e preparação, assine um plano.'
+    : 'Você já usou seus <strong>créditos grátis</strong> do Liplop, que valem pra tudo: análise, currículo e preparação. Pra continuar sem limites, assine um plano.';
+  const footer = blocking
+    ? '<button onclick="try{window.liplopAuth&&window.liplopAuth.signOut()}catch(e){}" style="background:none;border:none;color:var(--dim);font-size:12.5px;cursor:pointer;margin-top:10px;text-decoration:underline">Assinou com outro e-mail? Entrar com outro</button>'
+    : '<button onclick="document.getElementById(\'lp-paywall\').style.display=\'none\'" style="background:none;border:none;color:var(--dim);font-size:13px;cursor:pointer;margin-top:4px">Agora não</button>';
   ov.innerHTML = '<div style="background:var(--card,#fff);border:1px solid var(--border,#ECE2E8);border-radius:18px;width:400px;max-width:100%;padding:30px 28px;text-align:center;position:relative;box-shadow:0 24px 60px rgba(0,0,0,0.3)">'
-    + '<button onclick="document.getElementById(\'lp-paywall\').style.display=\'none\'" style="position:absolute;top:14px;right:18px;background:none;border:none;color:var(--dim);font-size:22px;cursor:pointer;line-height:1">×</button>'
+    + closeX
     + '<div style="font-size:34px;margin-bottom:4px">✨</div>'
     + '<h3 style="margin:0 0 8px;font-size:20px;font-weight:800;color:var(--text)">Seu teste grátis acabou</h3>'
-    + '<p style="margin:0 0 22px;font-size:14px;color:var(--mid);line-height:1.55">Você já usou seus <strong>créditos grátis</strong> do Liplop, que valem pra tudo: análise, currículo e preparação. Pra continuar sem limites, assine um plano.</p>'
+    + '<p style="margin:0 0 22px;font-size:14px;color:var(--mid);line-height:1.55">' + subcopy + '</p>'
     + '<button onclick="subscribe(\'mensal\')" style="width:100%;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;background:var(--topbar-bg);margin-bottom:10px">Assinar mensal · R$97/mês</button>'
     + '<button onclick="subscribe(\'semestral\')" style="width:100%;border:1px solid var(--border);border-radius:10px;padding:12px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;background:var(--card)">Assinar semestral · R$250 (6 meses)</button>'
     + '<div id="lp-paywall-msg" style="margin-top:14px;font-size:13px;min-height:16px"></div>'
-    + '<button onclick="document.getElementById(\'lp-paywall\').style.display=\'none\'" style="background:none;border:none;color:var(--dim);font-size:13px;cursor:pointer;margin-top:4px">Agora não</button>'
+    + footer
     + '</div>';
   ov.style.display = 'flex';
   try { refreshCredits(); } catch (e) {}   // ao bater no paywall, o contador reflete 0 creditos
+}
+
+// Trava de re-login: se a pessoa não é assinante e já zerou os créditos grátis,
+// bloqueia o sistema inteiro com o paywall. Não roda durante o tour.
+async function enforcePaywallGate() {
+  try {
+    if (document.getElementById('wt-root')) return;   // no meio do tour, não bloqueia
+    var token = await _aiToken();
+    if (!token) return;
+    var r = await fetch('/api/me', { headers: { Authorization: 'Bearer ' + token } });
+    if (!r.ok) return;
+    var d = await r.json();
+    if (d && !d.subscriber && ((d.remaining | 0) <= 0)) showPaywall('blocked', true);
+  } catch (e) {}
 }
 
 async function subscribe(plan) {
@@ -4639,6 +4666,7 @@ async function _pingHelloOnce(uid) {
 function runNewUserFlow(uid) {
   _pingHelloOnce(uid);   // ativacao: registra cadastro novo no Brevo (idempotente, nao bloqueia o tour)
   if (uid) { try { refreshCredits(); } catch (e) {} }   // mostra creditos/botao na topbar assim que loga
+  if (uid) { try { enforcePaywallGate(); } catch (e) {} }   // re-login sem creditos e sem assinatura = trava tudo
   if (_wkRan) return;    // roda só uma vez por carga: evita reabrir o welcome por cima do tour
   _wkRan = true;
   _wkUid = uid || '';
