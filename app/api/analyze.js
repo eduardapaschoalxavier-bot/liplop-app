@@ -45,6 +45,26 @@ async function logEvent(userId, action) {
     });
   } catch (e) {}
 }
+
+// Teto de acoes 'guided' (tour) por usuario. O tour faz ~3-4 chamadas de IA;
+// depois disso, guided deixa de ser gratuito (conta como normal), pra ninguem
+// fingir tour infinito e furar o paywall gastando a chave da IA.
+const GUIDED_CAP = 10;
+async function countGuidedEvents(userId) {
+  if (!userId || !process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return GUIDED_CAP; // sem como contar: trava por seguranca
+  try {
+    const r = await fetch(process.env.SUPABASE_URL + '/rest/v1/usage_events?user_id=eq.' + userId + '&action=eq.guided&select=id', {
+      headers: {
+        apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+        Authorization: 'Bearer ' + process.env.SUPABASE_SERVICE_ROLE_KEY,
+        Prefer: 'count=exact', Range: '0-0'
+      }
+    });
+    const cr = r.headers.get('content-range') || '';   // ex.: "0-0/5"
+    const n = parseInt((cr.split('/')[1] || '0'), 10);
+    return isNaN(n) ? 0 : n;
+  } catch (e) { return GUIDED_CAP; }   // erro: trava por seguranca
+}
 async function hasActiveSub(email) {
   if (!process.env.STRIPE_SECRET_KEY || !email) return false;
   try {
@@ -108,22 +128,31 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Chave da API não configurada no servidor' });
   }
 
-  // ── Trava do free trial (só quando vem 'kind' de uma ação gratuita-limitada) ──
-  let _incCol = null, _incUser = null, _incCur = 0, _evtKind = null, _evtUser = null;
-  if (kind && KIND_COL[kind] && !guided) {   // 'guided' = ação do tour: não conta nem trava
+  // ── Auth OBRIGATORIA + trava do free trial (toda acao de IA com 'kind') ──
+  let _incCol = null, _incUser = null, _incCur = 0, _evtKind = null, _evtUser = null, _logGuided = false;
+  if (kind && KIND_COL[kind]) {
     const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
     const user = await getUser(token);
-    if (!user) return res.status(401).json({ error: 'Não autenticado' });
-    const col = KIND_COL[kind];
-    const usage = await getUsage(user.id);
-    const total = ((usage && usage.analyses_used) || 0) + ((usage && usage.resumes_used) || 0) + ((usage && usage.interviews_used) || 0);
-    if (total >= FREE_TOTAL) {
-      const subbed = isAllowlistedSub(user.email) || await hasActiveSubDB(user.id) || await hasActiveSub(user.email);
-      if (!subbed) return res.status(402).json({ error: 'trial_over', kind: kind });
+    if (!user) return res.status(401).json({ error: 'Não autenticado' });   // sem login, sem IA (fecha o abuso anonimo com guided)
+    _evtUser = user.id;
+
+    // 'guided' (tour) so e gratuito ate o teto; passou disso, conta como acao normal.
+    const guidedOk = guided && (await countGuidedEvents(user.id)) < GUIDED_CAP;
+
+    if (!guidedOk) {
+      const col = KIND_COL[kind];
+      const usage = await getUsage(user.id);
+      const total = ((usage && usage.analyses_used) || 0) + ((usage && usage.resumes_used) || 0) + ((usage && usage.interviews_used) || 0);
+      if (total >= FREE_TOTAL) {
+        const subbed = isAllowlistedSub(user.email) || await hasActiveSubDB(user.id) || await hasActiveSub(user.email);
+        if (!subbed) return res.status(402).json({ error: 'trial_over', kind: kind });
+      } else {
+        _incCol = col; _incUser = user.id; _incCur = (usage && usage[col]) || 0;
+      }
+      _evtKind = kind;   // registra o evento normal (uso permitido, nao-guided)
     } else {
-      _incCol = col; _incUser = user.id; _incCur = (usage && usage[col]) || 0;
+      _logGuided = true;   // conta esse uso guided no teto
     }
-    _evtKind = kind; _evtUser = user.id;   // registra o evento (qualquer uso permitido)
   }
 
   try {
@@ -219,6 +248,7 @@ export default async function handler(req, res) {
     const text = data.content[0].text.trim();
     if (_incCol) await bumpUsage(_incUser, _incCol, _incCur);  // consumiu 1 uso grátis
     if (_evtKind) await logEvent(_evtUser, _evtKind);          // registra o evento de uso
+    if (_logGuided) await logEvent(_evtUser, 'guided');        // conta a ação guided no teto
     return res.status(200).json({ result: text });
 
   } catch (e) {
