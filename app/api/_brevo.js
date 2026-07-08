@@ -33,3 +33,6 @@ export function brevoListPaywall() {
 export function brevoListResume() {
   return process.env.BREVO_LIST_RESUME ? [Number(process.env.BREVO_LIST_RESUME)] : [];
 }
+export function brevoListWelcome() {
+  return process.env.BREVO_LIST_WELCOME ? [Number(process.env.BREVO_LIST_WELCOME)] : [];
+}

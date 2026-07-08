@@ -4590,7 +4590,22 @@ const WELCOME_KEY = 'liplop_welcome_v1';
 let _wkUid = '';
 let _wkRan = false;      // o fluxo de boas-vindas já rodou nesta carga de página?
 function wkKey(base) { return _wkUid ? (base + '::' + _wkUid) : base; }
+// Sinal de "conta nova" pro Brevo (boas-vindas). Chama /api/hello UMA vez por
+// conta neste navegador; o servidor so manda boas-vindas se a conta for recente.
+async function _pingHelloOnce(uid) {
+  if (!uid) return;   // so com login de verdade (uid anonimo/null nao conta)
+  var k = 'liplop-hello-' + uid;
+  try { if (localStorage.getItem(k)) return; } catch (e) {}
+  try {
+    var token = await _aiToken();
+    if (!token) return;
+    await fetch('/api/hello', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token } });
+    try { localStorage.setItem(k, '1'); } catch (e) {}   // so marca como feito se a chamada saiu
+  } catch (e) {}
+}
+
 function runNewUserFlow(uid) {
+  _pingHelloOnce(uid);   // ativacao: registra cadastro novo no Brevo (idempotente, nao bloqueia o tour)
   if (_wkRan) return;    // roda só uma vez por carga: evita reabrir o welcome por cima do tour
   _wkRan = true;
   _wkUid = uid || '';
