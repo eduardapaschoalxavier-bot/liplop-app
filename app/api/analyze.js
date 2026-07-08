@@ -128,12 +128,16 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Chave da API não configurada no servidor' });
   }
 
-  // ── Auth OBRIGATORIA + trava do free trial (toda acao de IA com 'kind') ──
+  // ── Auth OBRIGATORIA pra QUALQUER chamada a este endpoint. Fecha o endpoint aberto:
+  // antes, um request SEM 'kind' (ou via curl/script) passava direto e usava o Claude
+  // sem login, gastando a chave da Anthropic. Agora: sem token valido, sem IA. ──
+  const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  const user = await getUser(token);
+  if (!user) return res.status(401).json({ error: 'Não autenticado' });
+
+  // ── Trava do free trial (toda acao de IA com 'kind') ──
   let _incCol = null, _incUser = null, _incCur = 0, _evtKind = null, _evtUser = null, _logGuided = false;
   if (kind && KIND_COL[kind]) {
-    const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
-    const user = await getUser(token);
-    if (!user) return res.status(401).json({ error: 'Não autenticado' });   // sem login, sem IA (fecha o abuso anonimo com guided)
     _evtUser = user.id;
 
     // 'guided' (tour) so e gratuito ate o teto; passou disso, conta como acao normal.
