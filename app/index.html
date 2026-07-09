@@ -5605,8 +5605,14 @@ function renderInterviewTab() {
       <h2 style="font-size:1.25rem;font-weight:800;color:var(--text);margin-bottom:4px">Preparação para Entrevista</h2>
       <p style="font-size:0.85rem;color:var(--mid)">Preparação personalizada para as vagas em Entrevista Agendada e as de fit alto (78%+). A IA analisa sua experiência, a vaga e a empresa.</p>
     </div>
+    <div style="position:relative;margin-bottom:20px">
+      <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--dim);font-size:14px;pointer-events:none">🔎</span>
+      <input id="interview-search" type="text" oninput="filterInterviewCards(this.value)" placeholder="Buscar por empresa ou cargo…" autocomplete="off"
+        style="width:100%;box-sizing:border-box;padding:11px 14px 11px 38px;border:1px solid rgba(var(--ink),0.14);border-radius:10px;background:var(--card,#fff);color:var(--text);font-size:13.5px;font-family:inherit;outline:none" />
+    </div>
+    <div id="interview-search-empty" style="display:none;text-align:center;color:var(--mid);font-size:13px;padding:24px 0">Nenhuma vaga encontrada com esse nome.</div>
     ${recruiterOpps.map(opp => `
-      <div style="border:1px solid rgba(var(--ink),0.08);border-radius:14px;padding:20px;margin-bottom:16px;background:rgba(var(--ink),0.02)" id="icard-${opp.id}">
+      <div data-search="${((opp.company || '') + ' ' + (opp.role || '')).toLowerCase().replace(/"/g, '&quot;')}" style="border:1px solid rgba(var(--ink),0.08);border-radius:14px;padding:20px;margin-bottom:16px;background:rgba(var(--ink),0.02)" id="icard-${opp.id}">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
           <div>
             <div style="font-size:1rem;font-weight:800;color:var(--text)">${opp.company}</div>
@@ -5623,6 +5629,20 @@ function renderInterviewTab() {
         </div>
       </div>
     `).join('')}`;
+}
+
+// Filtra os cards de preparação pela busca (empresa/cargo), sem re-renderizar.
+function filterInterviewCards(q) {
+  q = (q || '').trim().toLowerCase();
+  const cards = document.querySelectorAll('#interview-wrap [data-search]');
+  let shown = 0;
+  cards.forEach(function (c) {
+    const match = !q || (c.getAttribute('data-search') || '').indexOf(q) >= 0;
+    c.style.display = match ? '' : 'none';
+    if (match) shown++;
+  });
+  const empty = document.getElementById('interview-search-empty');
+  if (empty) empty.style.display = (q && shown === 0) ? 'block' : 'none';
 }
 
 async function generateInterviewPrep(oppId) {
