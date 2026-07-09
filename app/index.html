@@ -3955,10 +3955,12 @@ async function refreshCredits() {
       badge.style.display = 'none';
     } else {
       var left = Math.max(0, (d && d.remaining) | 0);
+      var total = (d && d.total) | 0; if (!total) total = 3;
+      var used = Math.max(0, (d && d.used) | 0);
       btn.style.display = '';
       badge.style.display = '';
-      badge.textContent = left + (left === 1 ? ' crédito' : ' créditos');
-      badge.title = 'Créditos grátis restantes (valem para análise, currículo e preparação)';
+      badge.textContent = used + ' de ' + total + ' usados';   // deixa claro o limite e quanto ja usou
+      badge.title = 'Você já usou ' + used + ' de ' + total + ' créditos grátis. Restam ' + left + '. Valem para análise, currículo e preparação.';
     }
   } catch (e) {}
 }
