@@ -33,31 +33,10 @@
     const { data } = await sb.auth.getSession();
     user = data.session && data.session.user || null;
     render();
-    persistPendingWhatsapp();
     sb.auth.onAuthStateChange(function (_e, session) {
       user = session && session.user || null;
       render();
-      persistPendingWhatsapp();
     });
-  }
-
-  // Grava no cadastro o whatsapp que a pessoa digitou no login. Cobre usuario
-  // ANTIGO: o signInWithOtp so seta metadata em cadastro novo, entao aqui, ja
-  // logado, usamos updateUser (que atualiza o metadata de quem ja existe).
-  let _waSaving = false;
-  async function persistPendingWhatsapp() {
-    if (!sb || !user || _waSaving) return;
-    let pending = null;
-    try { pending = localStorage.getItem('liplop-pending-whatsapp'); } catch (e) {}
-    if (!pending) return;
-    const current = user.user_metadata && user.user_metadata.whatsapp;
-    if (current === pending) { try { localStorage.removeItem('liplop-pending-whatsapp'); } catch (e) {} return; }   // ja esta salvo (usuario novo)
-    _waSaving = true;
-    try {
-      await sb.auth.updateUser({ data: { whatsapp: pending } });
-      try { localStorage.removeItem('liplop-pending-whatsapp'); } catch (e) {}
-    } catch (e) { /* tenta de novo no proximo evento de auth */ }
-    finally { _waSaving = false; }
   }
 
   // Completa o login quando o link do e-mail traz ?token_hash=...&type=... . Esse
@@ -167,7 +146,6 @@
         + '<h3>Entre pra acessar seu painel</h3>'
         + '<p>Descubra seu fit com cada vaga, gere currículos que passam na triagem e prepare suas entrevistas pra passar nas melhores vagas.</p>'
         + '<input class="lp-auth-input" id="lp-auth-name-input" type="text" placeholder="Seu nome" autocomplete="name" />'
-        + '<input class="lp-auth-input" id="lp-auth-whatsapp-input" type="tel" placeholder="Seu WhatsApp (com DDD)" autocomplete="tel" inputmode="tel" />'
         + '<input class="lp-auth-input" id="lp-auth-email-input" type="email" placeholder="seu@email.com" autocomplete="email" />'
         + '<button class="lp-auth-primary" id="lp-auth-magic">Enviar link de acesso</button>'
         + '<div class="lp-auth-or">ou</div>'
@@ -268,19 +246,10 @@
     const email = (input && input.value || '').trim();
     const nameEl = document.getElementById('lp-auth-name-input');
     const name = (nameEl && nameEl.value || '').trim();
-    const waEl = document.getElementById('lp-auth-whatsapp-input');
-    const whatsapp = (waEl && waEl.value || '').trim();
     if (!email || email.indexOf('@') < 0) { msg('Digite um e-mail válido.'); return; }
-    if (whatsapp.replace(/\D/g, '').length < 10) { msg('Digite seu WhatsApp com DDD.'); return; }
     msg('Enviando...', true);
     const options = { emailRedirectTo: window.location.origin };
-    const meta = {};                                 // vira user_metadata no cadastro (usuario NOVO)
-    if (name) meta.full_name = name;
-    if (whatsapp) meta.whatsapp = whatsapp;
-    if (Object.keys(meta).length) options.data = meta;
-    // guarda o whatsapp pra gravar DEPOIS do login tambem (cobre usuario ANTIGO,
-    // cujo metadata o signInWithOtp nao atualiza). Aplicado em persistPendingWhatsapp().
-    try { if (whatsapp) localStorage.setItem('liplop-pending-whatsapp', whatsapp); } catch (e) {}
+    if (name) options.data = { full_name: name };    // vira user_metadata no cadastro
     const { error } = await sb.auth.signInWithOtp({ email: email, options: options });
     if (error) { msg('Erro: ' + error.message); return; }
     const el = document.getElementById('lp-auth-msg');
