@@ -5550,7 +5550,16 @@ Responda SOMENTE com JSON válido:
 // ── Aba Entrevistas ──────────────────────────────────────────────
 function renderInterviewTab() {
   const wrap = document.getElementById('interview-wrap');
-  const recruiterOpps = opps.filter(o => o.stage === 'recruiter');
+  // Prepara não só as vagas em Entrevista Agendada, mas também as de fit alto
+  // (>= FIT_PREP_MIN), pra a pessoa já chegar preparada. Ignora as descartadas.
+  const FIT_PREP_MIN = 78;
+  const recruiterOpps = opps
+    .filter(o => o.stage !== 'lost' && (o.stage === 'recruiter' || (o.fit != null && o.fit >= FIT_PREP_MIN)))
+    .sort((a, b) => {
+      const ar = a.stage === 'recruiter' ? 1 : 0, br = b.stage === 'recruiter' ? 1 : 0;
+      if (ar !== br) return br - ar;              // Entrevista Agendada primeiro
+      return (b.fit || 0) - (a.fit || 0);         // depois, maior fit primeiro
+    });
 
   if (!recruiterOpps.length) {
     const exBlock = (title, items) => `
@@ -5559,7 +5568,7 @@ function renderInterviewTab() {
     wrap.innerHTML = `
       <div style="margin-bottom:22px">
         <h2 style="font-size:1.25rem;font-weight:800;color:var(--text);margin-bottom:4px">Preparação para Entrevista</h2>
-        <p style="font-size:0.85rem;color:var(--mid);line-height:1.6">Quando uma vaga chega na coluna <strong style="color:var(--rose)">Entrevista Agendada</strong> no Kanban, a IA monta aqui sua preparação: o que a empresa valoriza, o que avaliam no cargo, o que destacar na sua narrativa e o que evitar falar.</p>
+        <p style="font-size:0.85rem;color:var(--mid);line-height:1.6">A IA monta aqui sua preparação para as vagas em <strong style="color:var(--rose)">Entrevista Agendada</strong> no Kanban e também para as de <strong style="color:var(--rose)">fit alto (78%+)</strong>, pra você já chegar preparada: o que a empresa valoriza, o que avaliam no cargo, o que destacar na sua narrativa e o que evitar falar.</p>
       </div>
 
       <div style="font-size:11px;font-weight:800;color:var(--rose);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Veja um exemplo do que você vai receber</div>
@@ -5594,7 +5603,7 @@ function renderInterviewTab() {
   wrap.innerHTML = `
     <div style="margin-bottom:28px">
       <h2 style="font-size:1.25rem;font-weight:800;color:var(--text);margin-bottom:4px">Preparação para Entrevista</h2>
-      <p style="font-size:0.85rem;color:var(--mid)">Dicas personalizadas para cada processo em andamento. A IA analisa sua experiência, a vaga e a empresa.</p>
+      <p style="font-size:0.85rem;color:var(--mid)">Preparação personalizada para as vagas em Entrevista Agendada e as de fit alto (78%+). A IA analisa sua experiência, a vaga e a empresa.</p>
     </div>
     ${recruiterOpps.map(opp => `
       <div style="border:1px solid rgba(var(--ink),0.08);border-radius:14px;padding:20px;margin-bottom:16px;background:rgba(var(--ink),0.02)" id="icard-${opp.id}">
@@ -5602,6 +5611,7 @@ function renderInterviewTab() {
           <div>
             <div style="font-size:1rem;font-weight:800;color:var(--text)">${opp.company}</div>
             <div style="font-size:0.85rem;color:#f472b6;margin-top:2px">${opp.role}</div>
+            <div style="font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;margin-top:5px">${opp.stage === 'recruiter' ? '🗓️ Entrevista agendada' : '⭐ Fit alto'}</div>
           </div>
           ${opp.fit != null ? `<span style="font-size:0.8rem;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(244,114,182,0.12);color:#f472b6">${opp.fit}% fit</span>` : ''}
         </div>
