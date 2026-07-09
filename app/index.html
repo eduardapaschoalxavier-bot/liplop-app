@@ -3960,11 +3960,41 @@ async function refreshCredits() {
       btn.style.display = '';
       badge.style.display = '';
       badge.textContent = used + ' de ' + total + ' créditos usados';   // deixa claro o limite e quanto ja usou
-      badge.title = 'Você já usou ' + used + ' de ' + total + ' créditos grátis. Restam ' + left + '. Valem para análise, currículo e preparação.';
+      badge.title = '';   // usa o tooltip customizado (abaixo), nao o nativo
+      var tip = _ensureCreditsTip();
+      tip.innerHTML = '<strong>Você está na versão grátis do Liplop.</strong><br>'
+        + 'Este contador mostra quantos dos seus ' + total + ' créditos você já usou. '
+        + 'Ainda dá pra fazer <strong>' + left + '</strong> ' + (left === 1 ? 'ação' : 'ações') + ' de IA (análise, currículo ou preparação) antes de assinar.';
     }
   } catch (e) {}
 }
 window.liplopRefreshCredits = refreshCredits;
+
+// Tooltip customizado do contador de créditos: aparece ao passar o mouse, mais
+// visível que o title nativo. Criado uma vez; o texto é atualizado no refreshCredits.
+function _ensureCreditsTip() {
+  var tip = document.getElementById('topbar-credits-tip');
+  if (tip) return tip;
+  tip = document.createElement('div');
+  tip.id = 'topbar-credits-tip';
+  tip.style.cssText = 'position:fixed;z-index:10080;max-width:250px;background:var(--card,#fff);color:var(--text,#1A0E15);'
+    + 'border:1px solid var(--border,#ECE2E8);border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;'
+    + 'font-weight:500;text-align:left;box-shadow:0 10px 30px rgba(0,0,0,0.18);display:none;pointer-events:none';
+  document.body.appendChild(tip);
+  var badge = document.getElementById('topbar-credits');
+  if (badge) {
+    badge.style.cursor = 'help';
+    badge.addEventListener('mouseenter', function () {
+      var r = badge.getBoundingClientRect();
+      tip.style.display = 'block';
+      tip.style.top = (r.bottom + 8) + 'px';
+      tip.style.left = 'auto';
+      tip.style.right = Math.max(8, window.innerWidth - r.right) + 'px';   // alinha a direita do tooltip com a direita do contador
+    });
+    badge.addEventListener('mouseleave', function () { tip.style.display = 'none'; });
+  }
+  return tip;
+}
 
 // ── Paywall (free trial acabou) ──────────────────────────────────────────────
 // showPaywall(kind, blocking): blocking=true => paywall trava TUDO (sem X, sem
