@@ -146,6 +146,7 @@
         + '<h3>Entre pra acessar seu painel</h3>'
         + '<p>Descubra seu fit com cada vaga, gere currículos que passam na triagem e prepare suas entrevistas pra passar nas melhores vagas.</p>'
         + '<input class="lp-auth-input" id="lp-auth-name-input" type="text" placeholder="Seu nome" autocomplete="name" />'
+        + '<input class="lp-auth-input" id="lp-auth-whatsapp-input" type="tel" placeholder="Seu WhatsApp (com DDD)" autocomplete="tel" inputmode="tel" />'
         + '<input class="lp-auth-input" id="lp-auth-email-input" type="email" placeholder="seu@email.com" autocomplete="email" />'
         + '<button class="lp-auth-primary" id="lp-auth-magic">Enviar link de acesso</button>'
         + '<div class="lp-auth-or">ou</div>'
@@ -246,10 +247,16 @@
     const email = (input && input.value || '').trim();
     const nameEl = document.getElementById('lp-auth-name-input');
     const name = (nameEl && nameEl.value || '').trim();
+    const waEl = document.getElementById('lp-auth-whatsapp-input');
+    const whatsapp = (waEl && waEl.value || '').trim();
     if (!email || email.indexOf('@') < 0) { msg('Digite um e-mail válido.'); return; }
+    if (whatsapp.replace(/\D/g, '').length < 10) { msg('Digite seu WhatsApp com DDD.'); return; }
     msg('Enviando...', true);
     const options = { emailRedirectTo: window.location.origin };
-    if (name) options.data = { full_name: name };   // vira user_metadata no cadastro
+    const meta = {};                                 // vira user_metadata no cadastro
+    if (name) meta.full_name = name;
+    if (whatsapp) meta.whatsapp = whatsapp;
+    if (Object.keys(meta).length) options.data = meta;
     const { error } = await sb.auth.signInWithOtp({ email: email, options: options });
     if (error) { msg('Erro: ' + error.message); return; }
     const el = document.getElementById('lp-auth-msg');
