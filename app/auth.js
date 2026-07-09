@@ -28,6 +28,8 @@
     injectStyles();
     injectUI();
 
+    await completeTokenHashLogin(sb);   // login por link do e-mail à prova de scanner (token_hash)
+
     const { data } = await sb.auth.getSession();
     user = data.session && data.session.user || null;
     render();
@@ -35,6 +37,22 @@
       user = session && session.user || null;
       render();
     });
+  }
+
+  // Completa o login quando o link do e-mail traz ?token_hash=...&type=... . Esse
+  // formato só é consumido AQUI (no navegador que roda o JS), então o scanner do
+  // Gmail (que só faz GET, sem rodar JS) não queima o link. Continua compatível com
+  // os links antigos (hash implícito), que o detectSessionInUrl resolve sozinho.
+  async function completeTokenHashLogin(client) {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      const token_hash = p.get('token_hash');
+      const type = p.get('type');
+      if (!token_hash || !type) return;
+      await client.auth.verifyOtp({ type: type, token_hash: token_hash });
+      // tira o token do endereço (mesmo em falha) pra não reprocessar nem vazar na URL
+      try { history.replaceState({}, document.title, window.location.origin + window.location.pathname); } catch (e) {}
+    } catch (e) { /* link inválido/expirado: segue pro getSession e cai no portão de login */ }
   }
 
   // ── UI ──────────────────────────────────────────────────────────────────
