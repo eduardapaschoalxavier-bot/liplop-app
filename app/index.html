@@ -3950,10 +3950,9 @@ async function refreshCredits() {
     if (!r.ok) return;
     var d = await r.json();
     if (d && d.subscriber) {
+      // assinante: some com o botao E o contador (nao mostra nada no topbar)
       btn.style.display = 'none';
-      badge.style.display = '';
-      badge.textContent = '✓ Ilimitado';
-      badge.title = 'Você tem o Liplop Ilimitado';
+      badge.style.display = 'none';
     } else {
       var left = Math.max(0, (d && d.remaining) | 0);
       btn.style.display = '';
