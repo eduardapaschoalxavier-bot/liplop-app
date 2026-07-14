@@ -42,6 +42,23 @@ async function patchSubBySubId(subId, fields) {
   });
 }
 
+// Plano B: acha o user_id pelo e-mail do pagamento quando o checkout nao trouxe
+// client_reference_id (ex.: link cru do Stripe compartilhado fora do app). Usa uma
+// funcao no banco (public.user_id_by_email), porque o PostgREST nao expoe auth.users.
+async function userIdByEmail(email) {
+  if (!email) return null;
+  try {
+    const r = await fetch(process.env.SUPABASE_URL + '/rest/v1/rpc/user_id_by_email', {
+      method: 'POST',
+      headers: sbHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ p_email: email })
+    });
+    if (!r.ok) return null;
+    const d = await r.json();                 // retorna o uuid (escalar) ou null
+    return (typeof d === 'string' && d) || null;
+  } catch (e) { return null; }
+}
+
 function subRowFromStripe(sub, userId, customerId) {
   const price = sub.items && sub.items.data && sub.items.data[0] && sub.items.data[0].price;
   return {
@@ -68,12 +85,31 @@ export default async function handler(req, res) {
 
   try {
     if (type === 'checkout.session.completed' && obj && obj.id) {
-      // re-confirma a sessao no Stripe e amarra ao usuario pelo client_reference_id
+      // re-confirma a sessao no Stripe e amarra ao usuario pelo client_reference_id;
+      // se nao veio (link cru), Plano B: acha o usuario pelo e-mail do pagamento.
       const session = await stripeGet('checkout/sessions/' + obj.id);
-      const userId = session && session.client_reference_id;
+      let userId = session && session.client_reference_id;
+      if (session && !userId) {
+        const email = (session.customer_details && session.customer_details.email) || session.customer_email;
+        userId = await userIdByEmail(email);
+      }
       if (session && userId && session.subscription) {
+        // assinatura recorrente
         const sub = await stripeGet('subscriptions/' + session.subscription);
         if (sub && sub.id) await upsertSub(subRowFromStripe(sub, userId, session.customer));
+      } else if (session && userId && session.mode === 'payment' && session.payment_status === 'paid') {
+        // pagamento unico (ex.: semestral avulso): nao existe objeto de assinatura no
+        // Stripe, entao gravamos acesso manual por ~6 meses. Ajuste se o plano mudar.
+        await upsertSub({
+          user_id: userId,
+          stripe_customer_id: session.customer || null,
+          stripe_subscription_id: 'onetime_' + session.id,
+          status: 'active',
+          plan: 'onetime',
+          price_id: null,
+          current_period_end: new Date(Date.now() + 183 * 24 * 3600 * 1000).toISOString(),
+          updated_at: new Date().toISOString()
+        });
       }
     } else if ((type === 'customer.subscription.updated' || type === 'customer.subscription.deleted') && obj && obj.id) {
       const sub = (await stripeGet('subscriptions/' + obj.id)) || obj;
