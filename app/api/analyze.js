@@ -239,6 +239,7 @@ export default async function handler(req, res) {
         const data = await response.json();
 
         if (!response.ok) {
+          console.error('[analyze/job_search] Anthropic', response.status, 'model=claude-opus-4-5', JSON.stringify(data && data.error));
           return res.status(response.status).json({ error: data.error?.message || 'Erro na API Anthropic' });
         }
 
@@ -294,6 +295,7 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
+      console.error('[analyze] Anthropic', response.status, 'model=' + model, 'promptChars=' + (prompt ? prompt.length : 0), JSON.stringify(data && data.error));
       return res.status(response.status).json({
         error: data.error?.message || 'Erro na API Anthropic'
       });
