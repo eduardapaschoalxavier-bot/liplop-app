@@ -119,6 +119,8 @@ ${profile}
 ## DESCRIÇÃO DA VAGA
 ${jd}
 
+Se a vaga for INTERNACIONAL (descrição em inglês, remoto global, exige inglês fluente, menciona visto, relocation ou sponsorship, ou é de empresa/país fora do Brasil), considere também na análise: (a) o nível de inglês exigido versus o que o perfil aparenta ter; (b) prontidão para remoto ou relocation; (c) como a experiência LATAM/Brasil do perfil se traduz para aquele mercado; (d) diferenças de senioridade e de título entre o Brasil e o mercado da vaga. Reflita isso no pilar "LATAM / idioma" e nos gaps, e traga pelo menos UMA dica de posicionamento para recrutador internacional. Se a vaga for claramente doméstica brasileira, ignore esta parte.
+
 Responda SOMENTE com um JSON válido neste formato exato (sem markdown, sem texto extra):
 {
   "score": <número 0-100>,
