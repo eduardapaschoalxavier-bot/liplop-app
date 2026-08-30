@@ -2202,6 +2202,13 @@
         <button class="btn-fit-save" id="btn-save-to-kanban" onclick="saveAnalysisToKanban()">
           + Salvar no Kanban com esse score
         </button>
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;color:var(--mid)">
+          <span>Idioma do currículo:</span>
+          <select id="resume-lang-analysis" style="background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.12);border-radius:8px;padding:5px 8px;color:var(--text);font-size:12px;font-family:inherit;outline:none;cursor:pointer">
+            <option value="auto">Automático (idioma da vaga)</option>
+            <option value="en">Inglês (padrão internacional)</option>
+          </select>
+        </div>
         <button class="btn-fit-save" id="btn-gen-resume-from-analysis" onclick="generateResumeFromAnalysis()"
           style="background:transparent;border:2px solid #f472b6;color:#f472b6"
           onmouseover="this.style.background='rgba(244,114,182,0.1)'" onmouseout="this.style.background='transparent'">
@@ -2356,6 +2363,13 @@
       <div class="modal-section">
         <div class="modal-label" style="margin-bottom:6px">Descrição da vaga <span style="font-weight:400;color:var(--dim);font-size:10px">(usada para gerar currículo adaptado)</span></div>
         <textarea id="m-jd-text" rows="4" placeholder="Cole aqui o texto da vaga..." style="width:100%;background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.1);border-radius:10px;padding:10px 12px;color:var(--text);font-size:13px;resize:vertical;outline:none;font-family:inherit;box-sizing:border-box" onchange="saveInlineField('jd_text',this.value)"></textarea>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;color:var(--mid);margin-top:12px">
+        <span>Idioma do currículo:</span>
+        <select id="resume-lang" style="background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.12);border-radius:8px;padding:5px 8px;color:var(--text);font-size:12px;font-family:inherit;outline:none;cursor:pointer">
+          <option value="auto">Automático (idioma da vaga)</option>
+          <option value="en">Inglês (padrão internacional)</option>
+        </select>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
         <button id="btn-gen-resume" onclick="generateResume()"
@@ -3661,6 +3675,24 @@ function langCommand(jd) {
   return 'INSTRUÇÃO OBRIGATÓRIA: escreva o currículo inteiro em português.\n\n';
 }
 
+// Currículo internacional: quando o usuário escolhe "Inglês (padrão internacional)",
+// força inglês + convenções de CV internacional (EUA/Europa), sobrepondo a detecção
+// automática por idioma da vaga. Retorna vazio no modo 'auto' (comportamento antigo).
+function resumeLangMode(id) {
+  var el = document.getElementById(id);
+  return (el && el.value) || 'auto';
+}
+function intlResumeCommand(mode) {
+  if (mode !== 'en') return '';
+  return 'INSTRUÇÃO OBRIGATÓRIA, ACIMA DE TUDO (sobrepõe QUALQUER regra de idioma mais abaixo): escreva o currículo INTEIRO em INGLÊS, no PADRÃO INTERNACIONAL de currículo (EUA/Europa). Regras do padrão internacional, siga TODAS:\n'
+    + '(1) NÃO inclua foto.\n'
+    + '(2) NÃO inclua dados pessoais: idade, data de nascimento, estado civil, gênero, nacionalidade, CPF, RG ou endereço completo. No cabeçalho use no máximo cidade e país (ex: "São Paulo, Brazil" ou "Remote").\n'
+    + '(3) Títulos de seção em inglês: "Professional Summary", "Professional Experience", "Skills", "Education", "Languages".\n'
+    + '(4) Bullets começando com verbo de ação no passado (Led, Built, Scaled, Delivered, Launched) e conquista quantificada sempre que o perfil permitir.\n'
+    + '(5) Traduza TODAS as experiências, cargos e formações do perfil para o inglês, mesmo que o perfil esteja em português. NÃO escreva NADA em português.\n'
+    + '(6) Inglês profissional e natural, sem traduções literais estranhas.\n\n';
+}
+
 async function generateResumeFromAnalysis() {
   const jd = document.getElementById('fit-jd-manual').value.trim() || _lastJD;
   const profile = localStorage.getItem(PROFILE_KEY);
@@ -3681,7 +3713,7 @@ async function generateResumeFromAnalysis() {
   btn.textContent = '⏳ Gerando currículo...';
   st.style.display = 'none';
 
-  const prompt = langCommand(jd) + `Você é um especialista em carreira e recrutamento com 15+ anos de experiência. Você já avaliou mais de 50.000 currículos e sabe exatamente o que faz um recrutador parar de ler — e o que faz ele ligar.
+  const prompt = intlResumeCommand(resumeLangMode('resume-lang-analysis')) + langCommand(jd) + `Você é um especialista em carreira e recrutamento com 15+ anos de experiência. Você já avaliou mais de 50.000 currículos e sabe exatamente o que faz um recrutador parar de ler — e o que faz ele ligar.
 
 Sua missão é construir um currículo que funciona como um documento de vendas com evidências, não como um histórico de vida. Cada linha precisa responder à pergunta implícita do recrutador: "por que esse candidato vai resolver meu problema?"
 
@@ -4105,7 +4137,7 @@ async function generateResume(retry = false) {
   btn.textContent = '⏳ Gerando currículo...';
   st.style.display = 'none';
 
-  const prompt = langCommand(jd) + `Você é um especialista em carreira e recrutamento com 15+ anos de experiência. Você já avaliou mais de 50.000 currículos e sabe exatamente o que faz um recrutador parar de ler — e o que faz ele ligar.
+  const prompt = intlResumeCommand(resumeLangMode('resume-lang')) + langCommand(jd) + `Você é um especialista em carreira e recrutamento com 15+ anos de experiência. Você já avaliou mais de 50.000 currículos e sabe exatamente o que faz um recrutador parar de ler — e o que faz ele ligar.
 
 Sua missão é construir um currículo que funciona como um documento de vendas com evidências, não como um histórico de vida. Cada linha precisa responder à pergunta implícita do recrutador: "por que esse candidato vai resolver meu problema?"
 
