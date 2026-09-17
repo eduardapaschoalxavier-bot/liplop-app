@@ -6110,10 +6110,11 @@ function renderTarefasTab() {
   const project  = getMarcaProject();
 
   wrap.innerHTML = `
-    <div style="margin-bottom:28px">
-      <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">✦ Marca Pessoal</div>
-      <h2 style="font-size:1.6rem;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.2">Calendário de postagens</h2>
-      <p style="font-size:13px;color:var(--mid);line-height:1.6">Seus 30 dias de conteúdo para o LinkedIn. Escreva, peça feedback da IA ou gere o post completo.</p>
+    <div id="daily-plan-body">${renderDailyPlanHTML()}</div>
+    <div style="margin:40px 0 24px;border-top:1px solid rgba(var(--ink),0.08);padding-top:28px">
+      <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">✦ LinkedIn: presença que dá respaldo</div>
+      <h2 style="font-size:1.4rem;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.2">Calendário de postagens</h2>
+      <p style="font-size:13px;color:var(--mid);line-height:1.6">Seus 30 dias de conteúdo para o LinkedIn. Postar dá o respaldo que faz a sua abordagem de outbound chegar mais forte.</p>
     </div>
     <div id="cal-tab-body">${renderCalendarBody(calendar, tone, project)}</div>`;
 }
@@ -6194,6 +6195,100 @@ function buildDailyTasks() {
   }
 
   return tasks;
+}
+
+// ── Seu plano de hoje (motor de accountability do outbound) ────────────────
+// Puxa as tarefas reais dos cards do kanban (não inventa): para cada vaga ativa,
+// mostra o próximo passo que ainda falta, na ordem que conquista entrevista.
+function nextOutboundStep(o){
+  if (!o || o.stage === 'lost' || o.stage === 'offer') return null;
+  var cl = o.checklist || {};
+  if (!cl.applied)      return 'apply';
+  if (!o.attackKit)     return 'kit';
+  if (!cl.foundPerson)  return 'find';
+  if (!cl.messageSent)  return 'message';
+  if (!cl.followUpDone) return 'followup';
+  return null; // tudo feito nesta vaga
+}
+var OUTBOUND_BUCKETS = [
+  { key: 'apply',    emoji: '📝', label: 'Candidaturas para enviar',        color: '#c9974a' },
+  { key: 'kit',      emoji: '🎯', label: 'Kits de ataque para gerar',       color: '#D43A6E' },
+  { key: 'find',     emoji: '🔎', label: 'Pessoas para encontrar',          color: '#63b3ed' },
+  { key: 'message',  emoji: '✉️', label: 'Mensagens para enviar',           color: '#a78bfa' },
+  { key: 'followup', emoji: '🔁', label: 'Follow-ups pendentes',            color: '#f59e0b' }
+];
+function buildOutboundPlan(){
+  var active = opps.filter(function(o){ return o.stage !== 'lost' && o.stage !== 'offer'; });
+  var byKey = {}; OUTBOUND_BUCKETS.forEach(function(b){ byKey[b.key] = []; });
+  active.forEach(function(o){ var s = nextOutboundStep(o); if (s && byKey[s]) byKey[s].push(o); });
+  var buckets = OUTBOUND_BUCKETS.map(function(b){ return { key: b.key, emoji: b.emoji, label: b.label, color: b.color, opps: byKey[b.key] }; }).filter(function(b){ return b.opps.length; });
+  var pendingCount = buckets.reduce(function(n, b){ return n + b.opps.length; }, 0);
+  // progresso: atividades marcadas / total possível (4 por vaga ativa)
+  var doneSteps = active.reduce(function(n, o){ return n + checklistProgress(o); }, 0);
+  var totalSteps = active.length * KIT_CHECKLIST.length;
+  return { active: active, buckets: buckets, pendingCount: pendingCount, doneSteps: doneSteps, totalSteps: totalSteps };
+}
+function openCardById(id){
+  var o = opps.find(function(x){ return x.id === id; });
+  if (!o) return;
+  switchTab('kanban');
+  try { openModal(o); } catch(e){}
+}
+window.openCardById = openCardById;
+
+function renderDailyPlanHTML(){
+  var plan = buildOutboundPlan();
+  var head = ''
+    + '<div style="margin-bottom:20px">'
+    +   '<div style="font-size:11px;font-weight:700;color:var(--rose,#D43A6E);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">✦ Seu plano de hoje</div>'
+    +   '<h2 style="font-size:1.6rem;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.2">O que conquista entrevista hoje</h2>'
+    +   '<p style="font-size:13px;color:var(--mid);line-height:1.6">Aplicar é só o começo. Quem consegue entrevista alcança as pessoas certas todo dia. Estas são as suas ações de hoje, puxadas direto das suas vagas.</p>'
+    + '</div>';
+
+  if (!plan.active.length){
+    return head + '<div style="text-align:center;padding:48px 32px;border:1px dashed rgba(var(--ink),0.15);border-radius:14px">'
+      + '<div style="font-size:32px;margin-bottom:12px">🚀</div>'
+      + '<div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px">Comece adicionando vagas</div>'
+      + '<div style="font-size:13px;color:var(--mid);margin-bottom:20px">Analise uma vaga e salve no kanban. Aqui vai aparecer, todo dia, o que fazer pra conseguir a entrevista.</div>'
+      + '<button onclick="switchTab(\'analyzer\')" style="padding:10px 24px;background:var(--topbar-bg);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Analisar uma vaga →</button>'
+      + '</div>';
+  }
+
+  var pct = plan.totalSteps ? Math.round((plan.doneSteps / plan.totalSteps) * 100) : 0;
+  var progress = ''
+    + '<div style="border:1px solid rgba(var(--ink),0.1);border-radius:14px;padding:16px;margin-bottom:16px;background:rgba(var(--ink),0.02)">'
+    +   '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+    +     '<span style="font-size:13px;font-weight:700;color:var(--text)">Seu progresso de outbound</span>'
+    +     '<span style="font-size:13px;font-weight:800;color:var(--rose,#D43A6E)">' + plan.doneSteps + ' de ' + plan.totalSteps + ' atividades</span>'
+    +   '</div>'
+    +   '<div style="height:10px;border-radius:999px;background:rgba(var(--ink),0.08);overflow:hidden"><div style="height:100%;width:' + pct + '%;background:var(--rose,#D43A6E);border-radius:999px;transition:width .4s"></div></div>'
+    + '</div>';
+
+  var body;
+  if (!plan.buckets.length){
+    body = '<div style="text-align:center;padding:40px 28px;border:1px solid rgba(var(--ink),0.1);border-radius:14px;background:rgba(var(--ink),0.02)">'
+      + '<div style="font-size:34px;margin-bottom:10px">🎉</div>'
+      + '<div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:6px">Você fez o que tinha que fazer hoje</div>'
+      + '<div style="font-size:13px;color:var(--mid)">Todas as suas vagas ativas estão em dia. É assim que se conquista entrevista: consistência. Volte amanhã ou adicione novas vagas.</div>'
+      + '</div>';
+  } else {
+    body = plan.buckets.map(function(b){
+      var chips = b.opps.map(function(o){
+        return '<button onclick="openCardById(' + o.id + ')" style="text-align:left;background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.1);border-radius:10px;padding:8px 12px;font-size:12.5px;color:var(--text);cursor:pointer;font-family:inherit;display:flex;flex-direction:column;gap:2px">'
+          + '<span style="font-weight:700">' + _kitEsc(o.company) + '</span>'
+          + '<span style="color:var(--mid);font-size:11.5px">' + _kitEsc(o.role) + '</span></button>';
+      }).join('');
+      return '<div style="border:1px solid rgba(var(--ink),0.1);border-radius:14px;padding:16px;margin-bottom:12px">'
+        + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">'
+        +   '<span style="font-size:20px">' + b.emoji + '</span>'
+        +   '<span style="font-size:15px;font-weight:800;color:var(--text)">' + b.opps.length + ' ' + _kitEsc(b.label.toLowerCase()) + '</span>'
+        + '</div>'
+        + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px">' + chips + '</div>'
+        + '</div>';
+    }).join('');
+  }
+
+  return head + progress + body;
 }
 
 function renderProjectCase(text) {
