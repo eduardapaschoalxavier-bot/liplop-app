@@ -84,6 +84,10 @@
       margin-left: 4px;
     }
     .nav-links .nav-cta:hover { color: var(--rose-d); }
+    .lang-switch { display: inline-flex; gap: 2px; border: 1px solid rgba(255,255,255,0.4); border-radius: 999px; padding: 2px; margin-right: 4px; }
+    .lang-switch button { background: transparent; border: none; color: rgba(255,255,255,0.85); font-family: inherit; font-size: 12px; font-weight: 700; padding: 4px 9px; border-radius: 999px; cursor: pointer; line-height: 1; transition: background 0.15s, color 0.15s; }
+    .lang-switch button:hover { color: #fff; }
+    .lang-switch button.active { background: #fff; color: var(--rose); }
 
     /* ── HERO ── */
     .hero {

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Liplop — CRM de busca de emprego com IA</title>
-  <meta name="description" content="O Liplop coloca sua energia nas vagas certas, mostra quais têm mais chance de virar oferta e revela em qual etapa do processo seletivo o recrutador está desistindo de você." />
+  <title>Liplop — mais entrevistas, um cargo melhor</title>
+  <meta name="description" content="O Liplop te coloca na frente de quem decide a contratação, com um plano diário de ação. Mais entrevistas e um cargo melhor, inclusive fora do país." />
   <link rel="icon" type="image/png" href="liplop-favicon.png" />
   <!-- Microsoft Clarity -->
   <script type="text/javascript">
@@ -37,51 +37,55 @@
     <span class="beta-tag" style="font-size:10px;font-weight:700;letter-spacing:0.08em;background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.45);border-radius:4px;padding:2px 6px;margin-left:4px">BETA</span>
   </a>
   <div class="nav-links">
-    <a class="nav-link" href="precos.html">Preços</a>
-    <a class="nav-link" href="https://wa.me/5532988391282" target="_blank" rel="noopener">Fale conosco</a>
-    <a class="nav-link" href="https://app.myliplop.com">Login</a>
-    <a class="nav-cta" href="https://app.myliplop.com">Testar agora</a>
+    <div class="lang-switch" role="group" aria-label="Idioma">
+      <button type="button" data-lang="pt">PT</button>
+      <button type="button" data-lang="en">EN</button>
+    </div>
+    <a class="nav-link" href="precos.html" data-i18n="nav.pricing">Preços</a>
+    <a class="nav-link" href="https://wa.me/5532988391282" target="_blank" rel="noopener" data-i18n="nav.contact">Fale conosco</a>
+    <a class="nav-link" href="https://app.myliplop.com" data-i18n="nav.login">Login</a>
+    <a class="nav-cta" href="https://app.myliplop.com" data-i18n="nav.cta">Testar agora</a>
   </div>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-  <h1>Menos candidaturas. Mais aprovações. <em>Mais <span class="circled">poder de escolha<svg class="scribble" viewBox="0 0 320 110" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M161 8 C88 4 17 23 11 53 C5 86 95 101 181 98 C265 95 316 76 306 48 C297 23 226 11 145 15" /></svg></span></em>.</h1>
-  <p class="hero-typed">Para quem <span class="tt" id="heroTyped">lidera times e não pode perder tempo com candidatura no escuro</span><span class="caret" aria-hidden="true"></span></p>
-  <p class="hero-sub">Entenda sua compatibilidade real com a vaga, descubra o que te elimina e chegue à entrevista no controle pra defender sua trajetória; candidatando-se só nas vagas certas.</p>
-  <div style="margin-bottom:52px;"><a class="btn-rose" href="https://app.myliplop.com">Testar agora →</a></div>
+  <h1><span data-i18n="hero.pre">Seu próximo cargo paga mais.</span> <em><span data-i18n="hero.mid">E pode ser</span> <span class="circled"><span data-i18n="hero.hi">fora do país</span><svg class="scribble" viewBox="0 0 320 110" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M161 8 C88 4 17 23 11 53 C5 86 95 101 181 98 C265 95 316 76 306 48 C297 23 226 11 145 15" /></svg></span>.</em></h1>
+  <p class="hero-typed"><span data-i18n="hero.typedPrefix">Para quem </span><span class="tt" id="heroTyped"></span><span class="caret" aria-hidden="true"></span></p>
+  <p class="hero-sub" data-i18n="hero.sub">O Liplop te coloca na frente de quem decide a contratação, com um plano diário de ação. Mais entrevistas, sem depender da sorte do ATS.</p>
+  <div style="margin-bottom:52px;"><a class="btn-rose" href="https://app.myliplop.com" data-i18n="hero.cta">Testar agora →</a></div>
   <div class="hero-screenshot">
     <div class="fit-mock">
-      <div class="fm-chrome"><i></i><i></i><i></i><span>app.myliplop.com · Análise de Fit</span></div>
+      <div class="fm-chrome"><i></i><i></i><i></i><span data-i18n="mock.chrome">app.myliplop.com · Análise de Fit</span></div>
       <div class="fm-body">
         <div class="fm-head">
           <div class="fm-score"><b>42</b><span>fit</span></div>
           <div>
-            <div class="fm-title">Fit parcial</div>
-            <p class="fm-desc">Forte experiência em growth e gestão de times em fintechs e marketplaces, com gap na formação técnica exigida e na gestão hands-on de budgets de mídia paga.</p>
+            <div class="fm-title" data-i18n="mock.title">Fit parcial</div>
+            <p class="fm-desc" data-i18n="mock.desc">Forte experiência em growth e gestão de times em fintechs e marketplaces, com gap na formação técnica exigida e na gestão hands-on de budgets de mídia paga.</p>
           </div>
         </div>
         <div class="fm-bars">
-          <div class="fm-row"><span class="fm-label">Experiência</span><span class="fm-track"><i class="b-amber" style="width:65%"></i></span><span class="fm-pct c-amber">65%</span></div>
-          <div class="fm-row"><span class="fm-label">Skills técnicas</span><span class="fm-track"><i class="b-red" style="width:35%"></i></span><span class="fm-pct c-red">35%</span></div>
-          <div class="fm-row"><span class="fm-label">Senioridade</span><span class="fm-track"><i class="b-lime" style="width:70%"></i></span><span class="fm-pct c-lime">70%</span></div>
-          <div class="fm-row"><span class="fm-label">Contexto/setor</span><span class="fm-track"><i class="b-lime" style="width:75%"></i></span><span class="fm-pct c-lime">75%</span></div>
-          <div class="fm-row"><span class="fm-label">LATAM / idioma</span><span class="fm-track"><i class="b-green" style="width:85%"></i></span><span class="fm-pct c-green">85%</span></div>
+          <div class="fm-row"><span class="fm-label" data-i18n="mock.bar1">Experiência</span><span class="fm-track"><i class="b-amber" style="width:65%"></i></span><span class="fm-pct c-amber">65%</span></div>
+          <div class="fm-row"><span class="fm-label" data-i18n="mock.bar2">Skills técnicas</span><span class="fm-track"><i class="b-red" style="width:35%"></i></span><span class="fm-pct c-red">35%</span></div>
+          <div class="fm-row"><span class="fm-label" data-i18n="mock.bar3">Senioridade</span><span class="fm-track"><i class="b-lime" style="width:70%"></i></span><span class="fm-pct c-lime">70%</span></div>
+          <div class="fm-row"><span class="fm-label" data-i18n="mock.bar4">Contexto/setor</span><span class="fm-track"><i class="b-lime" style="width:75%"></i></span><span class="fm-pct c-lime">75%</span></div>
+          <div class="fm-row"><span class="fm-label" data-i18n="mock.bar5">LATAM / idioma</span><span class="fm-track"><i class="b-green" style="width:85%"></i></span><span class="fm-pct c-green">85%</span></div>
         </div>
         <div class="fm-cols">
           <div class="fm-col">
-            <div class="fm-col-h yes">✅ Você tem</div>
+            <div class="fm-col-h yes" data-i18n="mock.have">✅ Você tem</div>
             <ul>
-              <li>Experiência in-house em fintechs e marketplaces (Nomad, Hotmart, Singu)</li>
-              <li>Gestão de times multidisciplinares de 20+ pessoas</li>
-              <li>Vivência em LATAM e growth orientado a dados (CPA, ROI)</li>
+              <li data-i18n="mock.have1">Experiência in-house em fintechs e marketplaces (Nomad, Hotmart, Singu)</li>
+              <li data-i18n="mock.have2">Gestão de times multidisciplinares de 20+ pessoas</li>
+              <li data-i18n="mock.have3">Vivência em LATAM e growth orientado a dados (CPA, ROI)</li>
             </ul>
           </div>
           <div class="fm-col">
-            <div class="fm-col-h no">❌ Gaps</div>
+            <div class="fm-col-h no" data-i18n="mock.gaps">❌ Gaps</div>
             <ul>
-              <li>Formação em ciências duras ou perfil quantitativo comprovado</li>
-              <li>Gestão hands-on de Google, Meta e TikTok Ads em budget volumoso</li>
+              <li data-i18n="mock.gap1">Formação em ciências duras ou perfil quantitativo comprovado</li>
+              <li data-i18n="mock.gap2">Gestão hands-on de Google, Meta e TikTok Ads em budget volumoso</li>
             </ul>
           </div>
         </div>
@@ -90,131 +94,178 @@
   </div>
 </section>
 
-<!-- DEPOIMENTOS (textos de EXEMPLO/placeholder - trocar pelos reais) -->
+<!-- DEPOIMENTOS -->
 <section class="section" style="padding-top:56px;padding-bottom:80px;">
   <div class="section-inner">
-    <div style="text-align:center;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--rose);margin-bottom:14px">Quem já usa</div>
-    <h2 class="section-h" style="text-align:center;margin-bottom:46px;">Não é mais uma plataforma. <em>É quem está usando inteligência pra escolher, não só se candidatar.</em></h2>
+    <div style="text-align:center;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--rose);margin-bottom:14px" data-i18n="testi.kicker">Quem já usa</div>
+    <h2 class="section-h" style="text-align:center;margin-bottom:46px;" data-i18n="testi.h2">Não é mais uma plataforma. <em>É quem está usando inteligência pra escolher, não só se candidatar.</em></h2>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:20px;max-width:1120px;margin:0 auto;align-items:start">
       <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 8px 30px rgba(26,14,21,0.05)">
         <div style="color:var(--gold);font-size:14px;letter-spacing:2px;margin-bottom:12px">★★★★★</div>
-        <p style="font-size:15px;line-height:1.7;color:var(--text);margin-bottom:18px">"Quando vejo uma vaga que me interessa, peço pra ele analisar meu perfil e me dizer o que eu preciso pra dar 100% de fit."</p>
+        <p style="font-size:15px;line-height:1.7;color:var(--text);margin-bottom:18px" data-i18n="testi.1.q">"Quando vejo uma vaga que me interessa, peço pra ele analisar meu perfil e me dizer o que eu preciso pra dar 100% de fit."</p>
         <div style="display:flex;align-items:center;gap:12px">
           <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#f472b6,#ec4899);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0">V</div>
-          <div><div style="font-size:14px;font-weight:700;color:var(--text)">Vanessa</div><div style="font-size:12px;color:var(--mid)">Especialista em transição de carreira</div></div>
+          <div><div style="font-size:14px;font-weight:700;color:var(--text)">Vanessa</div><div style="font-size:12px;color:var(--mid)" data-i18n="testi.1.r">Especialista em transição de carreira</div></div>
         </div>
       </div>
       <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 8px 30px rgba(26,14,21,0.05)">
         <div style="color:var(--gold);font-size:14px;letter-spacing:2px;margin-bottom:12px">★★★★★</div>
-        <p style="font-size:15px;line-height:1.7;color:var(--text);margin-bottom:18px">"A análise tem me ajudado a enxergar onde não tem match."</p>
+        <p style="font-size:15px;line-height:1.7;color:var(--text);margin-bottom:18px" data-i18n="testi.2.q">"A análise tem me ajudado a enxergar onde não tem match."</p>
         <div style="display:flex;align-items:center;gap:12px">
           <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#f472b6,#ec4899);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0">I</div>
-          <div><div style="font-size:14px;font-weight:700;color:var(--text)">Iara</div><div style="font-size:12px;color:var(--mid)">Coordenadora em transição de carreira</div></div>
+          <div><div style="font-size:14px;font-weight:700;color:var(--text)">Iara</div><div style="font-size:12px;color:var(--mid)" data-i18n="testi.2.r">Coordenadora em transição de carreira</div></div>
         </div>
       </div>
       <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 8px 30px rgba(26,14,21,0.05)">
         <div style="color:var(--gold);font-size:14px;letter-spacing:2px;margin-bottom:12px">★★★★★</div>
-        <p style="font-size:15px;line-height:1.7;color:var(--text);margin-bottom:18px">"Uso o Liplop pra fazer meus currículos em inglês e ele é magnífico. Magnífico mesmo! Até a adaptação das palavras e dos termos ficou fantástica. Hoje eu aplico pra vagas em inglês, coisa que eu não fazia."</p>
+        <p style="font-size:15px;line-height:1.7;color:var(--text);margin-bottom:18px" data-i18n="testi.3.q">"Uso o Liplop pra fazer meus currículos em inglês e ele é magnífico. Magnífico mesmo! Até a adaptação das palavras e dos termos ficou fantástica. Hoje eu aplico pra vagas em inglês, coisa que eu não fazia."</p>
         <div style="display:flex;align-items:center;gap:12px">
           <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#f472b6,#ec4899);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0">F</div>
-          <div><div style="font-size:14px;font-weight:700;color:var(--text)">Fabi</div><div style="font-size:12px;color:var(--mid)">Gerente em transição de carreira</div></div>
+          <div><div style="font-size:14px;font-weight:700;color:var(--text)">Fabi</div><div style="font-size:12px;color:var(--mid)" data-i18n="testi.3.r">Gerente em transição de carreira</div></div>
         </div>
       </div>
       <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 8px 30px rgba(26,14,21,0.05)">
         <div style="color:var(--gold);font-size:14px;letter-spacing:2px;margin-bottom:12px">★★★★★</div>
-        <p style="font-size:15px;line-height:1.7;color:var(--text);margin-bottom:18px">"O Liplop me deu esperança. Eu não tinha visto nada parecido."</p>
+        <p style="font-size:15px;line-height:1.7;color:var(--text);margin-bottom:18px" data-i18n="testi.4.q">"O Liplop me deu esperança. Eu não tinha visto nada parecido."</p>
         <div style="display:flex;align-items:center;gap:12px">
           <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#f472b6,#ec4899);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0">B</div>
-          <div><div style="font-size:14px;font-weight:700;color:var(--text)">Bia</div><div style="font-size:12px;color:var(--mid)">Analista buscando recolocação</div></div>
+          <div><div style="font-size:14px;font-weight:700;color:var(--text)">Bia</div><div style="font-size:12px;color:var(--mid)" data-i18n="testi.4.r">Analista buscando recolocação</div></div>
         </div>
       </div>
     </div>
-    <p style="text-align:center;font-size:13px;color:var(--mid);max-width:660px;margin:34px auto 0;line-height:1.75;font-style:italic">* Omitimos sobrenomes e fotos de propósito. Muitos usam o Liplop ainda empregados, buscando uma saída com discrição.</p>
+    <p style="text-align:center;font-size:13px;color:var(--mid);max-width:660px;margin:34px auto 0;line-height:1.75;font-style:italic" data-i18n="testi.note">* Omitimos sobrenomes e fotos de propósito. Muitos usam o Liplop ainda empregados, buscando uma saída com discrição.</p>
   </div>
 </section>
 
 <!-- O PROBLEMA -->
 <section class="section" id="produto">
   <div class="section-inner">
-    <div class="label">O Problema</div>
-    <h2 class="section-h">Meses de busca. Dezenas de candidaturas. Nenhuma oferta. <em>Por quê?</em></h2>
+    <div class="label" data-i18n="problem.label">O Problema</div>
+    <h2 class="section-h" data-i18n="problem.h2">Você aplica, aplica, aplica. E o retorno não vem. <em>Por quê?</em></h2>
     <div class="problem-grid">
       <div class="problem-card">
         <div class="problem-num">01</div>
-        <h3>Candidatura no escuro.</h3>
-        <p>Você aplica para vagas que o algoritmo já descartou antes de qualquer humano ver o seu currículo. Sem saber o fit real, o esforço some antes de começar.</p>
+        <h3 data-i18n="problem.c1h">Some no ATS.</h3>
+        <p data-i18n="problem.c1p">Seu currículo cai num sistema automático e desaparece antes de qualquer pessoa ver. Você não é rejeitado; você nem chega a ser visto.</p>
       </div>
       <div class="problem-card">
         <div class="problem-num">02</div>
-        <h3>Esforço sem prioridade.</h3>
-        <p>A vaga que poderia te dar a oferta recebe o mesmo currículo genérico que todas as outras. Uma candidatura bem trabalhada pode triplicar sua aprovação mas você não sabe qual vale.</p>
+        <h3 data-i18n="problem.c2h">Você não chega em quem decide.</h3>
+        <p data-i18n="problem.c2p">Recrutador, RH e hiring manager nem sabem que você existe. Quem consegue as melhores vagas fala direto com essas pessoas, não fica só aplicando.</p>
       </div>
       <div class="problem-card">
         <div class="problem-num">03</div>
-        <h3>Sem saber onde exatamente você está quebrando.</h3>
-        <p>É o currículo? A narrativa da entrevista? A falta de indicação? Sem dados do seu funil, cada tentativa é um chute no escuro.</p>
+        <h3 data-i18n="problem.c3h">Sem método, sem constância.</h3>
+        <p data-i18n="problem.c3p">Sem um plano diário, a busca vira surto e desânimo. Numa semana você manda trinta candidaturas, na outra some. A diferença raramente é talento; é método.</p>
       </div>
     </div>
-    <p style="font-size:16px; color:var(--mid); line-height:1.7; text-align:center; margin-top:40px;">
-      <strong style="color:var(--text);">O Liplop resolve os três.</strong> Organização, priorização e diagnóstico para você chegar à oferta, não ficar preso na triagem.
+    <p style="font-size:16px; color:var(--mid); line-height:1.7; text-align:center; margin-top:40px;" data-i18n="problem.summary">
+      <strong style="color:var(--text);">O Liplop resolve os três.</strong> Ele te faz chegar nas pessoas certas, com um plano diário e um currículo que te vende, pra você conquistar um cargo melhor, inclusive fora do país.
     </p>
   </div>
 </section>
 
-<!-- COMO O LIPLOP VAI TE AJUDAR -->
+<!-- COMO O LIPLOP FUNCIONA (mecanismo novo) -->
 <section class="section" id="como-funciona" style="background: var(--bg2);">
   <div class="section-inner">
-    <div class="label">Como o Liplop vai te ajudar</div>
-    <h2 class="section-h" style="margin-bottom:80px;">Cada detalhe pensado para transformar<br />busca em oferta.</h2>
+    <div class="label" data-i18n="how.label">Como o Liplop funciona</div>
+    <h2 class="section-h" style="margin-bottom:16px;" data-i18n="how.h2">Menos candidatura no vácuo. <em>Mais conversas com quem decide.</em></h2>
+    <p class="section-p" style="margin-bottom:56px;" data-i18n="how.sub">Não é sorte nem talento sozinho. É um sistema que te faz executar o outbound de verdade, todo dia.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;max-width:1120px;margin:0 auto;align-items:start">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px 24px">
+        <div style="font-size:24px;margin-bottom:12px">🎯</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap"><h3 style="font-size:17px;font-weight:800;color:var(--text)" data-i18n="mech.1h">Alcance quem decide</h3><span class="em-breve-badge" style="margin:0" data-i18n="mech.soon">Em breve</span></div>
+        <p style="font-size:14px;color:var(--mid);line-height:1.7" data-i18n="mech.1p">O Liplop identifica o recrutador, o RH e o hiring manager de cada vaga e te mostra como chegar direto neles, sem depender do ATS.</p>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px 24px">
+        <div style="font-size:24px;margin-bottom:12px">🗓️</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap"><h3 style="font-size:17px;font-weight:800;color:var(--text)" data-i18n="mech.2h">Plano diário</h3><span class="em-breve-badge" style="margin:0" data-i18n="mech.soon">Em breve</span></div>
+        <p style="font-size:14px;color:var(--mid);line-height:1.7" data-i18n="mech.2p">Todo dia o Liplop te diz o que fazer: quem contatar, o que enviar e quando dar follow-up. Você executa em minutos, sem travar sem saber por onde começar.</p>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px 24px">
+        <div style="font-size:24px;margin-bottom:12px">✍️</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap"><h3 style="font-size:17px;font-weight:800;color:var(--text)" data-i18n="mech.3h">Mensagens prontas</h3><span class="em-breve-badge" style="margin:0" data-i18n="mech.soon">Em breve</span></div>
+        <p style="font-size:14px;color:var(--mid);line-height:1.7" data-i18n="mech.3p">Mensagens personalizadas pro seu perfil e pra vaga, prontas pra enviar. Nada de copiar e colar genérico que ninguém responde.</p>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px 24px">
+        <div style="font-size:24px;margin-bottom:12px">🔁</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap"><h3 style="font-size:17px;font-weight:800;color:var(--text)" data-i18n="mech.4h">Follow-up no controle</h3><span class="em-breve-badge" style="margin:0" data-i18n="mech.soon">Em breve</span></div>
+        <p style="font-size:14px;color:var(--mid);line-height:1.7" data-i18n="mech.4p">O Liplop acompanha cada conversa e te lembra do follow-up na hora certa. É o follow-up que fecha entrevista, e é onde quase todo mundo desiste.</p>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px 24px">
+        <div style="font-size:24px;margin-bottom:12px">💼</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap"><h3 style="font-size:17px;font-weight:800;color:var(--text)" data-i18n="mech.5h">LinkedIn otimizado</h3><span class="em-breve-badge" style="margin:0" data-i18n="mech.soon">Em breve</span></div>
+        <p style="font-size:14px;color:var(--mid);line-height:1.7" data-i18n="mech.5p">Seu perfil precisa vender por você antes de qualquer conversa. O Liplop deixa seu LinkedIn com a cara do cargo que você quer.</p>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px 24px">
+        <div style="font-size:24px;margin-bottom:12px">📄</div>
+        <div style="margin-bottom:8px"><h3 style="font-size:17px;font-weight:800;color:var(--text)" data-i18n="mech.6h">Currículo que te vende, inclusive em inglês</h3></div>
+        <p style="font-size:14px;color:var(--mid);line-height:1.7" data-i18n="mech.6p">O Liplop gera uma versão do seu currículo com a linguagem certa da vaga e do setor, inclusive em inglês, pra você parecer a pessoa certa no segundo em que abrem seu perfil.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIFERENCIAL -->
+<section class="section">
+  <div class="section-inner" style="max-width:760px;text-align:center">
+    <div class="label" data-i18n="diff.label">Por que o Liplop</div>
+    <h2 class="section-h" style="margin-bottom:20px;" data-i18n="diff.h2">Não é mais um curso de dicas. <em>É o sistema que te faz executar.</em></h2>
+    <p class="section-p" style="max-width:680px;margin-bottom:0;" data-i18n="diff.p">Influenciador te motiva e some. Curso te dá teoria e te deixa sozinho na hora de agir. O Liplop te dá o passo a passo diário, as mensagens prontas e o acompanhamento, pra você fazer o outbound de verdade. Método e disciplina, não esperança. A gente não promete que todo mundo fecha uma vaga de seis dígitos em dólar; a gente te dá o sistema pra aumentar de verdade as suas chances.</p>
+  </div>
+</section>
+
+<!-- FEATURES REAIS (o que já está no ar) -->
+<section class="section" style="background: var(--bg2);">
+  <div class="section-inner">
+    <div class="label" data-i18n="feat.label">O que já está no Liplop</div>
+    <h2 class="section-h" style="margin-bottom:80px;" data-i18n="feat.h2">A inteligência que te posiciona<br />como a pessoa certa pra vaga.</h2>
 
     <div class="features-wrap">
 
-      <!-- Feature 1: Análise de compatibilidade -->
       <div class="feature-row">
         <div class="feat-img">
           <img src="analise-fit.png" alt="Análise de compatibilidade com IA no Liplop" />
         </div>
         <div>
-          <div class="feat-label">Análise de Compatibilidade</div>
-          <h2 class="feat-h">Entenda em segundos por que você é, ou não, a pessoa certa para a vaga.</h2>
-          <p class="feat-p">Antes de se candidatar, o Liplop analisa o job description e compara com o seu perfil. Você recebe um score de fit, seus pontos fortes, os gaps reais e os próximos passos concretos para aumentar sua chance de aprovação. Sem achismo. Sem surpresa no meio do processo.</p>
+          <div class="feat-label" data-i18n="feat.1label">Análise de Compatibilidade</div>
+          <h2 class="feat-h" data-i18n="feat.1h">Entenda em segundos por que você é, ou não, a pessoa certa para a vaga.</h2>
+          <p class="feat-p" data-i18n="feat.1p">Antes de investir seu tempo, o Liplop analisa a descrição da vaga e compara com o seu perfil. Você recebe um score de fit, seus pontos fortes, os gaps reais e os próximos passos concretos para aumentar sua chance. Sem achismo, sem surpresa no meio do processo.</p>
         </div>
       </div>
 
-      <!-- Feature 2: Currículo Adaptado -->
       <div class="feature-row rev">
         <div class="feat-img">
           <img src="gerador-curriculo.png" alt="Gerador de currículo adaptado no Liplop" />
         </div>
         <div>
-          <div class="feat-label">Currículo Adaptado</div>
-          <h2 class="feat-h">Saber o fit é metade da equação. <em>A outra metade é o currículo certo.</em></h2>
-          <p class="feat-p">A maioria dos candidatos envia o mesmo currículo para todas as vagas, e é eliminada antes de qualquer recrutador abrir o arquivo. O Liplop analisa o que a vaga exige e gera uma versão do seu currículo com as palavras-chave certas, no formato que os sistemas de triagem automática estão procurando.</p>
-          <p class="feat-p" style="margin-top:12px;">Não é um template genérico. <strong style="color:var(--text);">É o seu histórico real, reposicionado para essa vaga específica</strong>, com a linguagem do setor, as métricas que o recrutador quer ver e a narrativa que aumenta sua probabilidade de chegar à entrevista.</p>
+          <div class="feat-label" data-i18n="feat.2label">Currículo Adaptado</div>
+          <h2 class="feat-h" data-i18n="feat.2h">Saber o fit é metade. <em>A outra metade é o currículo certo.</em></h2>
+          <p class="feat-p" data-i18n="feat.2p">A maioria envia o mesmo currículo pra tudo. O Liplop gera uma versão do seu currículo com as palavras certas da vaga e do setor, inclusive em inglês, pra você parecer a pessoa certa no segundo em que abrem seu perfil.</p>
+          <p class="feat-p" style="margin-top:12px;" data-i18n="feat.2p2">Não é template genérico. <strong style="color:var(--text);">É o seu histórico real, reposicionado para essa vaga específica</strong>, com a linguagem do setor, as métricas que importam e a narrativa que aumenta sua chance de chegar à entrevista.</p>
         </div>
       </div>
 
-      <!-- Feature 3: Priorização -->
       <div class="feature-row">
         <div class="feat-img">
           <img src="ranking-compatibilidade.png" alt="Ranking de compatibilidade das vagas no Liplop" />
         </div>
         <div>
-          <div class="feat-label">Priorização</div>
-          <h2 class="feat-h">Pare de se candidatar por intuição. <em>Candidate-se por dado.</em></h2>
-          <p class="feat-p">A maioria aplica pelo feeling e desperdiça horas em vagas que nunca teriam virado oferta. O Liplop analisa cada job description, cruza com o seu perfil e gera um score de fit objetivo. As vagas com maior chance aparecem no topo, e é só nelas que você investe o esforço real: currículo adaptado, mensagem personalizada, pesquisa da empresa.</p>
+          <div class="feat-label" data-i18n="feat.3label">Priorização</div>
+          <h2 class="feat-h" data-i18n="feat.3h">Pare de agir por intuição. <em>Aja por dado.</em></h2>
+          <p class="feat-p" data-i18n="feat.3p">A maioria vai pelo feeling e desperdiça horas em vagas que nunca dariam certo. O Liplop cruza cada vaga com o seu perfil e mostra onde vale a pena investir o esforço real: currículo adaptado, mensagem personalizada, pesquisa da empresa.</p>
         </div>
       </div>
 
-      <!-- Feature 4: Visão do Funil -->
       <div class="feature-row rev">
         <div class="feat-img">
           <img src="kanban.png" alt="Visão do funil de vagas no Liplop" />
         </div>
         <div>
-          <div class="feat-label">Visão do Funil</div>
-          <h2 class="feat-h">Você vê o todo e sabe onde agir.</h2>
-          <p class="feat-p">Sem visibilidade do funil, você distribui energia de forma igual para vagas com potenciais completamente diferentes. O Liplop muda isso: cada vaga tem um fit score automático que mostra onde vale mais a pena investir, e um próximo passo claro: aplicar, fazer follow-up, buscar uma indicação. Você para de improvisar e começa a executar com estratégia.</p>
+          <div class="feat-label" data-i18n="feat.4label">Visão do Funil</div>
+          <h2 class="feat-h" data-i18n="feat.4h">Você vê o todo e sabe onde agir.</h2>
+          <p class="feat-p" data-i18n="feat.4p">Cada vaga fica organizada num só lugar, com o próximo passo claro: contatar, fazer follow-up, buscar uma indicação. Você para de improvisar e começa a executar com estratégia.</p>
         </div>
       </div>
 
@@ -223,100 +274,90 @@
           <img src="preparacao-entrevista.png" alt="Preparação para entrevista com IA no Liplop" />
         </div>
         <div>
-          <div class="feat-label">Preparação para Entrevista</div>
-          <h2 class="feat-h">Chegou na entrevista. <em>Agora não dá pra ir no improviso.</em></h2>
-          <p class="feat-p">Você conseguiu a entrevista, mas entra sem saber o que aquela empresa valoriza, o que vão testar pra esse cargo e onde é melhor não tocar. Aí trava numa pergunta, fala demais onde devia segurar, e perde uma vaga que era pra ser sua.</p>
-          <p class="feat-p" style="margin-top:12px;">O Liplop estuda a vaga, a empresa e o seu histórico e te entrega o plano da conversa: <strong style="color:var(--text);">o que provavelmente vão avaliar e o que você deve destacar na sua narrativa</strong> para se posicionar como a pessoa certa, e o que é melhor evitar falar para não se queimar. Você entra preparado, não na sorte.</p>
+          <div class="feat-label" data-i18n="feat.5label">Preparação para Entrevista</div>
+          <h2 class="feat-h" data-i18n="feat.5h">Chegou na entrevista. <em>Agora não dá pra ir no improviso.</em></h2>
+          <p class="feat-p" data-i18n="feat.5p">O Liplop estuda a vaga, a empresa e o seu histórico e te entrega o plano da conversa: o que provavelmente vão avaliar, o que destacar na sua narrativa e o que é melhor evitar. Você entra preparado, não na sorte.</p>
         </div>
-      </div>
-
-      <!-- Feature 5: Em breve -->
-      <div class="em-breve-solo">
-        <div class="em-breve-badge">Em breve</div>
-        <h3>Buscador de vagas com maior fit<br />e maior probabilidade de aprovação.</h3>
-        <p>Chega de garimpar manualmente. A IA do Liplop varre LinkedIn, Gupy e outros portais, cruza com o seu perfil e entrega só as vagas onde você tem real chance de virar oferta.</p>
       </div>
 
     </div>
   </div>
 </section>
-
-<!-- QUOTE -->
 
 <!-- FAQ -->
 <section class="section faq-section">
   <div class="section-inner">
-    <div class="label">Perguntas frequentes</div>
-    <h2 class="section-h" style="margin-bottom:48px;">Talvez você esteja se perguntando...</h2>
+    <div class="label" data-i18n="faq.label">Perguntas frequentes</div>
+    <h2 class="section-h" style="margin-bottom:48px;" data-i18n="faq.h2">Talvez você esteja se perguntando...</h2>
     <div class="faq-list">
       <div class="faq-item">
-        <button class="faq-q">Estou em busca de emprego. Faz sentido gastar agora?<span class="faq-icon">+</span></button>
-        <p class="faq-a">O Liplop encurta o tempo em um emprego do qual você não gosta. Cada mês a mais na busca custa mais que isso.</p>
+        <button class="faq-q"><span data-i18n="faq.q1">Já trabalho. Faz sentido investir nisso agora?</span><span class="faq-icon">+</span></button>
+        <p class="faq-a" data-i18n="faq.a1">É um investimento com retorno claro: você gasta pouco por mês para conquistar um cargo que paga muito mais. Cada mês parado no cargo atual custa mais que isso.</p>
       </div>
       <div class="faq-item">
-        <button class="faq-q">Por que não uso o LinkedIn Premium?<span class="faq-icon">+</span></button>
-        <p class="faq-a">LinkedIn Premium te ajuda a ser visto. O Liplop te ajuda a candidatar certo. Um resolve exposição, o outro resolve estratégia.</p>
+        <button class="faq-q"><span data-i18n="faq.q2">Funciona para vagas internacionais e em inglês?</span><span class="faq-icon">+</span></button>
+        <p class="faq-a" data-i18n="faq.a2">Sim. O Liplop adapta seu currículo e sua narrativa para vagas em inglês e para o mercado internacional. Tem gente que passou a aplicar pra vagas em inglês depois de usar o Liplop, coisa que não fazia antes.</p>
       </div>
       <div class="faq-item">
-        <button class="faq-q">Isso eu não faço numa planilha?<span class="faq-icon">+</span></button>
-        <p class="faq-a">Organizar, sim. Score de fit por IA e currículo adaptado por vaga, não.</p>
+        <button class="faq-q"><span data-i18n="faq.q3">Por que não uso só o LinkedIn Premium?</span><span class="faq-icon">+</span></button>
+        <p class="faq-a" data-i18n="faq.a3">LinkedIn Premium te ajuda a ser visto. O Liplop te ajuda a agir certo: chegar nas pessoas certas, com a mensagem certa, na hora certa. Um resolve exposição, o outro resolve execução.</p>
       </div>
       <div class="faq-item">
-        <button class="faq-q">É difícil de usar?<span class="faq-icon">+</span></button>
-        <p class="faq-a">O setup leva menos de 10 minutos. Você adiciona suas vagas e o Liplop faz o resto.</p>
+        <button class="faq-q"><span data-i18n="faq.q4">É difícil de usar?</span><span class="faq-icon">+</span></button>
+        <p class="faq-a" data-i18n="faq.a4">O setup leva menos de 10 minutos. Você adiciona suas vagas e o Liplop faz o resto.</p>
       </div>
     </div>
   </div>
 </section>
 
 <!-- PLANOS -->
-<!-- PLANOS -->
 <section class="section plans-section" id="precos">
   <div class="section-inner">
-    <div class="label">Planos</div>
-    <h2 class="section-h" style="margin-bottom:16px;">Dois planos. Tudo incluso.</h2>
-    <p class="section-p" style="margin-bottom:48px;">Sem método, você vai continuar aplicando para as vagas erradas, com o currículo errado, sem saber onde está quebrando. Isso não é falta de qualificação; é falta de ferramenta.</p>
+    <div class="label" data-i18n="plans.label">Planos</div>
+    <h2 class="section-h" style="margin-bottom:16px;" data-i18n="plans.h2">Um investimento, não um gasto.</h2>
+    <p class="section-p" style="margin-bottom:48px;" data-i18n="plans.sub">Você paga pouco por mês para conquistar um cargo que paga muito mais. Comece grátis e veja o resultado antes de assinar.</p>
     <div class="plans-grid">
 
       <!-- Teste grátis -->
       <div class="plan-card">
-        <div class="plan-name">Teste grátis</div>
-        <div class="plan-price">R$ 0 <span class="per">pra começar</span></div>
-        <div class="plan-annual">Você tem direito a 3 ações de inteligência do Liplop</div>
-        <a class="btn-plan-outline" href="https://app.myliplop.com">Começar teste →</a>
-        <p class="plan-trust">Sem cartão. Experimente antes de assinar.</p>
+        <div class="plan-name" data-i18n="plans.freeName">Teste grátis</div>
+        <div class="plan-price">R$ 0 <span class="per" data-i18n="plans.freePer">pra começar</span></div>
+        <div class="plan-annual" data-i18n="plans.freeDesc">Você tem direito a 3 ações de inteligência do Liplop</div>
+        <a class="btn-plan-outline" href="https://app.myliplop.com" data-i18n="plans.freeCta">Começar teste →</a>
+        <p class="plan-trust" data-i18n="plans.freeTrust">Sem cartão. Experimente antes de assinar.</p>
       </div>
 
       <!-- Semestral (destaque) -->
       <div class="plan-card featured">
-        <div class="plan-best">Recomendado</div>
-        <div class="plan-name">Semestral</div>
-        <div class="plan-price">R$ 250 <span class="per">/ 6 meses</span></div>
-        <div class="plan-annual">equivale a R$ 41,66/mês · você economiza R$ 332</div>
-        <a class="btn-plan-rose" href="https://buy.stripe.com/eVq7sM4Ky4mJ4cJeG400003">Assinar semestral →</a>
-        <p class="plan-trust">Acesso imediato assim que o pagamento for confirmado</p>
+        <div class="plan-best" data-i18n="plans.best">Recomendado</div>
+        <div class="plan-name" data-i18n="plans.semName">Semestral</div>
+        <div class="plan-price">R$ 250 <span class="per" data-i18n="plans.semPer">/ 6 meses</span></div>
+        <div class="plan-annual" data-i18n="plans.semDesc">equivale a R$ 41,66/mês · você economiza R$ 332</div>
+        <a class="btn-plan-rose" href="https://buy.stripe.com/eVq7sM4Ky4mJ4cJeG400003" data-i18n="plans.semCta">Assinar semestral →</a>
+        <p class="plan-trust" data-i18n="plans.trust">Acesso imediato assim que o pagamento for confirmado</p>
       </div>
 
       <!-- Mensal -->
       <div class="plan-card">
-        <div class="plan-name">Mensal</div>
-        <div class="plan-price">R$ 97 <span class="per">/ mês</span></div>
-        <div class="plan-annual">sem fidelidade</div>
-        <a class="btn-plan-outline" href="https://buy.stripe.com/7sY6oIgtgg5rgZveG400004">Assinar mensal →</a>
-        <p class="plan-trust">Acesso imediato assim que o pagamento for confirmado</p>
+        <div class="plan-name" data-i18n="plans.monName">Mensal</div>
+        <div class="plan-price">R$ 97 <span class="per" data-i18n="plans.monPer">/ mês</span></div>
+        <div class="plan-annual" data-i18n="plans.monDesc">sem fidelidade</div>
+        <a class="btn-plan-outline" href="https://buy.stripe.com/7sY6oIgtgg5rgZveG400004" data-i18n="plans.monCta">Assinar mensal →</a>
+        <p class="plan-trust" data-i18n="plans.trust">Acesso imediato assim que o pagamento for confirmado</p>
       </div>
 
     </div>
+    <p class="section-p" style="margin:34px auto 0;font-size:13px;" data-i18n="plans.note"></p>
   </div>
 </section>
 
 <!-- CTA FINAL -->
 <section class="cta-section">
   <div class="cta-inner">
-    <div class="cta-label">Pronto para começar?</div>
-    <h2 class="cta-h">Você já tem o talento. <em>Agora você vai ter a estratégia.</em></h2>
-    <p class="cta-p">A diferença entre quem recebe oferta e quem passa meses na busca raramente é qualificação. É método.</p>
-    <div style="margin-top:32px;"><a class="btn-rose" href="https://app.myliplop.com">Testar agora →</a></div>
+    <div class="cta-label" data-i18n="cta.label">Pronto para começar?</div>
+    <h2 class="cta-h" data-i18n="cta.h">Seu talento já existe. <em>Falta o método pra chegar em quem decide.</em></h2>
+    <p class="cta-p" data-i18n="cta.p">Cada mês aplicando no vácuo é um mês a menos no cargo que paga o que você merece.</p>
+    <div style="margin-top:32px;"><a class="btn-rose" href="https://app.myliplop.com" data-i18n="cta.btn">Testar agora →</a></div>
   </div>
 </section>
 
@@ -327,9 +368,9 @@
     Liplop
   </a>
   <div class="footer-links">
-    <a href="precos.html">Preços</a>
-    <a href="https://app.myliplop.com">Login</a>
-    <a href="https://wa.me/5532988391282" target="_blank" rel="noopener">Fale conosco</a>
+    <a href="precos.html" data-i18n="nav.pricing">Preços</a>
+    <a href="https://app.myliplop.com" data-i18n="nav.login">Login</a>
+    <a href="https://wa.me/5532988391282" target="_blank" rel="noopener" data-i18n="nav.contact">Fale conosco</a>
   </div>
   <span class="footer-copy">© 2026 Liplop</span>
 </footer>
@@ -345,34 +386,182 @@
   });
 </script>
 <script>
-  (function () {
+(function () {
+  var TITLE = {
+    pt: 'Liplop — mais entrevistas, um cargo melhor',
+    en: 'Liplop — more interviews, a better role'
+  };
+  var TYPED = {
+    pt: [
+      'já trabalha e quer ganhar mais',
+      'quer um cargo remoto que pague em dólar',
+      'quer internacionalizar a carreira sem sair do Brasil',
+      'quer subir de nível com método, não com sorte'
+    ],
+    en: [
+      'already work and want to earn more',
+      'want a role that pays what they are worth',
+      'are done applying into the void',
+      'want to level up with method, not luck'
+    ]
+  };
+  var I18N = {
+    pt: {
+      'nav.pricing':'Preços','nav.contact':'Fale conosco','nav.login':'Login','nav.cta':'Testar agora',
+      'hero.pre':'Seu próximo cargo paga mais.','hero.mid':'E pode ser','hero.hi':'fora do país',
+      'hero.typedPrefix':'Para quem ',
+      'hero.sub':'O Liplop te coloca na frente de quem decide a contratação, com um plano diário de ação. Mais entrevistas, sem depender da sorte do ATS.',
+      'hero.cta':'Testar agora →',
+      'mock.chrome':'app.myliplop.com · Análise de Fit','mock.title':'Fit parcial',
+      'mock.desc':'Forte experiência em growth e gestão de times em fintechs e marketplaces, com gap na formação técnica exigida e na gestão hands-on de budgets de mídia paga.',
+      'mock.bar1':'Experiência','mock.bar2':'Skills técnicas','mock.bar3':'Senioridade','mock.bar4':'Contexto/setor','mock.bar5':'LATAM / idioma',
+      'mock.have':'✅ Você tem','mock.gaps':'❌ Gaps',
+      'mock.have1':'Experiência in-house em fintechs e marketplaces (Nomad, Hotmart, Singu)','mock.have2':'Gestão de times multidisciplinares de 20+ pessoas','mock.have3':'Vivência em LATAM e growth orientado a dados (CPA, ROI)',
+      'mock.gap1':'Formação em ciências duras ou perfil quantitativo comprovado','mock.gap2':'Gestão hands-on de Google, Meta e TikTok Ads em budget volumoso',
+      'testi.kicker':'Quem já usa','testi.h2':'Não é mais uma plataforma. <em>É quem está usando inteligência pra escolher, não só se candidatar.</em>',
+      'testi.1.q':'"Quando vejo uma vaga que me interessa, peço pra ele analisar meu perfil e me dizer o que eu preciso pra dar 100% de fit."','testi.1.r':'Especialista em transição de carreira',
+      'testi.2.q':'"A análise tem me ajudado a enxergar onde não tem match."','testi.2.r':'Coordenadora em transição de carreira',
+      'testi.3.q':'"Uso o Liplop pra fazer meus currículos em inglês e ele é magnífico. Magnífico mesmo! Até a adaptação das palavras e dos termos ficou fantástica. Hoje eu aplico pra vagas em inglês, coisa que eu não fazia."','testi.3.r':'Gerente em transição de carreira',
+      'testi.4.q':'"O Liplop me deu esperança. Eu não tinha visto nada parecido."','testi.4.r':'Analista buscando recolocação',
+      'testi.note':'* Omitimos sobrenomes e fotos de propósito. Muitos usam o Liplop ainda empregados, buscando uma saída com discrição.',
+      'problem.label':'O Problema','problem.h2':'Você aplica, aplica, aplica. E o retorno não vem. <em>Por quê?</em>',
+      'problem.c1h':'Some no ATS.','problem.c1p':'Seu currículo cai num sistema automático e desaparece antes de qualquer pessoa ver. Você não é rejeitado; você nem chega a ser visto.',
+      'problem.c2h':'Você não chega em quem decide.','problem.c2p':'Recrutador, RH e hiring manager nem sabem que você existe. Quem consegue as melhores vagas fala direto com essas pessoas, não fica só aplicando.',
+      'problem.c3h':'Sem método, sem constância.','problem.c3p':'Sem um plano diário, a busca vira surto e desânimo. Numa semana você manda trinta candidaturas, na outra some. A diferença raramente é talento; é método.',
+      'problem.summary':'<strong style="color:var(--text);">O Liplop resolve os três.</strong> Ele te faz chegar nas pessoas certas, com um plano diário e um currículo que te vende, pra você conquistar um cargo melhor, inclusive fora do país.',
+      'how.label':'Como o Liplop funciona','how.h2':'Menos candidatura no vácuo. <em>Mais conversas com quem decide.</em>','how.sub':'Não é sorte nem talento sozinho. É um sistema que te faz executar o outbound de verdade, todo dia.',
+      'mech.soon':'Em breve',
+      'mech.1h':'Alcance quem decide','mech.1p':'O Liplop identifica o recrutador, o RH e o hiring manager de cada vaga e te mostra como chegar direto neles, sem depender do ATS.',
+      'mech.2h':'Plano diário','mech.2p':'Todo dia o Liplop te diz o que fazer: quem contatar, o que enviar e quando dar follow-up. Você executa em minutos, sem travar sem saber por onde começar.',
+      'mech.3h':'Mensagens prontas','mech.3p':'Mensagens personalizadas pro seu perfil e pra vaga, prontas pra enviar. Nada de copiar e colar genérico que ninguém responde.',
+      'mech.4h':'Follow-up no controle','mech.4p':'O Liplop acompanha cada conversa e te lembra do follow-up na hora certa. É o follow-up que fecha entrevista, e é onde quase todo mundo desiste.',
+      'mech.5h':'LinkedIn otimizado','mech.5p':'Seu perfil precisa vender por você antes de qualquer conversa. O Liplop deixa seu LinkedIn com a cara do cargo que você quer.',
+      'mech.6h':'Currículo que te vende, inclusive em inglês','mech.6p':'O Liplop gera uma versão do seu currículo com a linguagem certa da vaga e do setor, inclusive em inglês, pra você parecer a pessoa certa no segundo em que abrem seu perfil.',
+      'diff.label':'Por que o Liplop','diff.h2':'Não é mais um curso de dicas. <em>É o sistema que te faz executar.</em>','diff.p':'Influenciador te motiva e some. Curso te dá teoria e te deixa sozinho na hora de agir. O Liplop te dá o passo a passo diário, as mensagens prontas e o acompanhamento, pra você fazer o outbound de verdade. Método e disciplina, não esperança. A gente não promete que todo mundo fecha uma vaga de seis dígitos em dólar; a gente te dá o sistema pra aumentar de verdade as suas chances.',
+      'feat.label':'O que já está no Liplop','feat.h2':'A inteligência que te posiciona<br />como a pessoa certa pra vaga.',
+      'feat.1label':'Análise de Compatibilidade','feat.1h':'Entenda em segundos por que você é, ou não, a pessoa certa para a vaga.','feat.1p':'Antes de investir seu tempo, o Liplop analisa a descrição da vaga e compara com o seu perfil. Você recebe um score de fit, seus pontos fortes, os gaps reais e os próximos passos concretos para aumentar sua chance. Sem achismo, sem surpresa no meio do processo.',
+      'feat.2label':'Currículo Adaptado','feat.2h':'Saber o fit é metade. <em>A outra metade é o currículo certo.</em>','feat.2p':'A maioria envia o mesmo currículo pra tudo. O Liplop gera uma versão do seu currículo com as palavras certas da vaga e do setor, inclusive em inglês, pra você parecer a pessoa certa no segundo em que abrem seu perfil.','feat.2p2':'Não é template genérico. <strong style="color:var(--text);">É o seu histórico real, reposicionado para essa vaga específica</strong>, com a linguagem do setor, as métricas que importam e a narrativa que aumenta sua chance de chegar à entrevista.',
+      'feat.3label':'Priorização','feat.3h':'Pare de agir por intuição. <em>Aja por dado.</em>','feat.3p':'A maioria vai pelo feeling e desperdiça horas em vagas que nunca dariam certo. O Liplop cruza cada vaga com o seu perfil e mostra onde vale a pena investir o esforço real: currículo adaptado, mensagem personalizada, pesquisa da empresa.',
+      'feat.4label':'Visão do Funil','feat.4h':'Você vê o todo e sabe onde agir.','feat.4p':'Cada vaga fica organizada num só lugar, com o próximo passo claro: contatar, fazer follow-up, buscar uma indicação. Você para de improvisar e começa a executar com estratégia.',
+      'feat.5label':'Preparação para Entrevista','feat.5h':'Chegou na entrevista. <em>Agora não dá pra ir no improviso.</em>','feat.5p':'O Liplop estuda a vaga, a empresa e o seu histórico e te entrega o plano da conversa: o que provavelmente vão avaliar, o que destacar na sua narrativa e o que é melhor evitar. Você entra preparado, não na sorte.',
+      'faq.label':'Perguntas frequentes','faq.h2':'Talvez você esteja se perguntando...',
+      'faq.q1':'Já trabalho. Faz sentido investir nisso agora?','faq.a1':'É um investimento com retorno claro: você gasta pouco por mês para conquistar um cargo que paga muito mais. Cada mês parado no cargo atual custa mais que isso.',
+      'faq.q2':'Funciona para vagas internacionais e em inglês?','faq.a2':'Sim. O Liplop adapta seu currículo e sua narrativa para vagas em inglês e para o mercado internacional. Tem gente que passou a aplicar pra vagas em inglês depois de usar o Liplop, coisa que não fazia antes.',
+      'faq.q3':'Por que não uso só o LinkedIn Premium?','faq.a3':'LinkedIn Premium te ajuda a ser visto. O Liplop te ajuda a agir certo: chegar nas pessoas certas, com a mensagem certa, na hora certa. Um resolve exposição, o outro resolve execução.',
+      'faq.q4':'É difícil de usar?','faq.a4':'O setup leva menos de 10 minutos. Você adiciona suas vagas e o Liplop faz o resto.',
+      'plans.label':'Planos','plans.h2':'Um investimento, não um gasto.','plans.sub':'Você paga pouco por mês para conquistar um cargo que paga muito mais. Comece grátis e veja o resultado antes de assinar.',
+      'plans.freeName':'Teste grátis','plans.freePer':'pra começar','plans.freeDesc':'Você tem direito a 3 ações de inteligência do Liplop','plans.freeCta':'Começar teste →','plans.freeTrust':'Sem cartão. Experimente antes de assinar.',
+      'plans.best':'Recomendado','plans.semName':'Semestral','plans.semPer':'/ 6 meses','plans.semDesc':'equivale a R$ 41,66/mês · você economiza R$ 332','plans.semCta':'Assinar semestral →',
+      'plans.monName':'Mensal','plans.monPer':'/ mês','plans.monDesc':'sem fidelidade','plans.monCta':'Assinar mensal →',
+      'plans.trust':'Acesso imediato assim que o pagamento for confirmado','plans.note':'',
+      'cta.label':'Pronto para começar?','cta.h':'Seu talento já existe. <em>Falta o método pra chegar em quem decide.</em>','cta.p':'Cada mês aplicando no vácuo é um mês a menos no cargo que paga o que você merece.','cta.btn':'Testar agora →'
+    },
+    en: {
+      'nav.pricing':'Pricing','nav.contact':'Contact','nav.login':'Log in','nav.cta':'Start now',
+      'hero.pre':'Your next role pays more.','hero.mid':'And you actually','hero.hi':'land it',
+      'hero.typedPrefix':'For people who ',
+      'hero.sub':'Liplop puts you in front of the people who decide the hire, with a daily action plan. More interviews, without leaving it to the ATS.',
+      'hero.cta':'Start now →',
+      'mock.chrome':'app.myliplop.com · Fit Analysis','mock.title':'Partial fit',
+      'mock.desc':'Strong experience in growth and team leadership at fintechs and marketplaces, with a gap in the required technical background and in hands-on paid media budget management.',
+      'mock.bar1':'Experience','mock.bar2':'Technical skills','mock.bar3':'Seniority','mock.bar4':'Context/industry','mock.bar5':'Region / language',
+      'mock.have':'✅ You have','mock.gaps':'❌ Gaps',
+      'mock.have1':'In-house experience at fintechs and marketplaces (Nomad, Hotmart, Singu)','mock.have2':'Leadership of cross-functional teams of 20+ people','mock.have3':'LATAM experience and data-driven growth (CPA, ROI)',
+      'mock.gap1':'A hard-science degree or a proven quantitative profile','mock.gap2':'Hands-on management of Google, Meta and TikTok Ads at large budgets',
+      'testi.kicker':"Who's using it",'testi.h2':"It's not just another platform. <em>It's people using intelligence to choose, not just apply.</em>",
+      'testi.1.q':'"When I see a role I want, I ask it to analyze my profile and tell me exactly what I need to be a 100% fit."','testi.1.r':'Career transition specialist',
+      'testi.2.q':'"The analysis has helped me see where there is no match."','testi.2.r':'Coordinator in career transition',
+      'testi.3.q':'"I use Liplop to build my resumes in English and it is magnificent. Truly magnificent! Even the way it adapts the words and terms came out fantastic. Today I apply to roles in English, something I never used to do."','testi.3.r':'Manager in career transition',
+      'testi.4.q':'"Liplop gave me hope. I had not seen anything like it."','testi.4.r':'Analyst looking for a new role',
+      'testi.note':'* We leave out last names and photos on purpose. Many use Liplop while still employed, looking for a move discreetly.',
+      'problem.label':'The Problem','problem.h2':'You apply, apply, apply. And nothing comes back. <em>Why?</em>',
+      'problem.c1h':'Lost in the ATS.','problem.c1p':'Your resume drops into an automated system and vanishes before a human ever sees it. You are not rejected; you are simply never seen.',
+      'problem.c2h':'You never reach the decision-makers.','problem.c2p':'The recruiter, HR and hiring manager do not even know you exist. The people who land the best roles talk to them directly instead of just applying.',
+      'problem.c3h':'No method, no consistency.','problem.c3p':'Without a daily plan, the search swings between panic and burnout. One week you send thirty applications, the next you disappear. The difference is rarely talent; it is method.',
+      'problem.summary':'<strong style="color:var(--text);">Liplop solves all three.</strong> It gets you in front of the right people, with a daily plan and a resume that sells you, so you land a better, higher-paying role.',
+      'how.label':'How Liplop works','how.h2':'Less applying into the void. <em>More conversations with decision-makers.</em>','how.sub':'It is not luck or talent alone. It is a system that makes you actually do the outbound, every day.',
+      'mech.soon':'Coming soon',
+      'mech.1h':'Reach the decision-makers','mech.1p':'Liplop finds the recruiter, HR and hiring manager for each role and shows you how to reach them directly, without relying on the ATS.',
+      'mech.2h':'Daily plan','mech.2p':'Every day, Liplop tells you exactly what to do: who to contact, what to send and when to follow up. You execute in minutes instead of staring at a blank screen.',
+      'mech.3h':'Ready-to-send messages','mech.3p':'Messages tailored to your profile and the role, ready to send. No generic copy-paste that nobody replies to.',
+      'mech.4h':'Follow-up on track','mech.4p':'Liplop tracks every conversation and reminds you to follow up at the right time. Follow-up is what lands interviews, and it is where almost everyone gives up.',
+      'mech.5h':'LinkedIn optimized','mech.5p':'Your profile has to sell for you before any conversation. Liplop makes your LinkedIn look like the right person for the role you want.',
+      'mech.6h':'A resume that sells you, in English too','mech.6p':'Liplop builds a version of your resume in the right language for the role and industry, English included, so you look like the right person the second someone opens your profile.',
+      'diff.label':'Why Liplop','diff.h2':'Not another tips course. <em>It is the system that makes you execute.</em>','diff.p':'Influencers hype you up and vanish. Courses hand you theory and leave you alone when it is time to act. Liplop gives you the daily steps, the ready-to-send messages and the tracking, so you actually do the outbound. Method and discipline, not hope. We will not promise everyone lands a six-figure salary; we give you the system to genuinely raise your odds.',
+      'feat.label':'What is already in Liplop','feat.h2':'The intelligence that positions you<br />as the right person for the role.',
+      'feat.1label':'Fit Analysis','feat.1h':'Understand in seconds why you are, or are not, the right person for the role.','feat.1p':'Before you invest your time, Liplop analyzes the job description and compares it with your profile. You get a fit score, your strengths, the real gaps and concrete next steps to raise your odds. No guessing, no surprises mid-process.',
+      'feat.2label':'Tailored Resume','feat.2h':'Knowing the fit is half of it. <em>The other half is the right resume.</em>','feat.2p':'Most people send the same resume everywhere. Liplop builds a version of your resume with the right words for the role and industry, English included, so you look like the right person the second someone opens your profile.','feat.2p2':'Not a generic template. <strong style="color:var(--text);">It is your real history, repositioned for that specific role</strong>, with the industry language, the metrics that matter and the narrative that raises your chance of landing the interview.',
+      'feat.3label':'Prioritization','feat.3h':'Stop acting on intuition. <em>Act on data.</em>','feat.3p':'Most people go by feeling and waste hours on roles that were never going to work. Liplop cross-checks each role against your profile and shows you where it is worth investing real effort: tailored resume, personalized message, company research.',
+      'feat.4label':'Pipeline View','feat.4h':'You see the whole picture and know where to act.','feat.4p':'Every role stays organized in one place, with a clear next step: reach out, follow up, ask for a referral. You stop improvising and start executing with strategy.',
+      'feat.5label':'Interview Prep','feat.5h':'You got the interview. <em>Now you cannot wing it.</em>','feat.5p':'Liplop studies the role, the company and your history and hands you the conversation plan: what they will likely assess, what to highlight in your narrative and what is better to avoid. You walk in prepared, not lucky.',
+      'faq.label':'FAQ','faq.h2':'You might be wondering...',
+      'faq.q1':'I already have a job. Does it make sense to invest now?','faq.a1':'It is an investment with a clear return: you spend a little each month to land a role that pays much more. Every month stuck in your current role costs more than that.',
+      'faq.q2':'Does Liplop work in English?','faq.a2':'Yes. Liplop builds your resume and your narrative in English and adapts them to each role and industry, so you show up as the right person for the job.',
+      'faq.q3':'Why not just use LinkedIn Premium?','faq.a3':'LinkedIn Premium helps you get seen. Liplop helps you act right: reach the right people, with the right message, at the right time. One solves visibility, the other solves execution.',
+      'faq.q4':'Is it hard to use?','faq.a4':'Setup takes under 10 minutes. You add your roles and Liplop does the rest.',
+      'plans.label':'Plans','plans.h2':'An investment, not an expense.','plans.sub':'You pay a little each month to land a role that pays much more. Start free and see the result before you subscribe.',
+      'plans.freeName':'Free trial','plans.freePer':'to start','plans.freeDesc':'You get 3 Liplop intelligence actions','plans.freeCta':'Start free →','plans.freeTrust':'No card required. Try it before you subscribe.',
+      'plans.best':'Recommended','plans.semName':'6 months','plans.semPer':'/ 6 months','plans.semDesc':'about R$ 41.66/month · you save R$ 332','plans.semCta':'Get 6 months →',
+      'plans.monName':'Monthly','plans.monPer':'/ month','plans.monDesc':'no commitment','plans.monCta':'Get monthly →',
+      'plans.trust':'Instant access as soon as your payment is confirmed','plans.note':'Prices in Brazilian reais (BRL). International cards are accepted at checkout.',
+      'cta.label':'Ready to start?','cta.h':'The talent is already there. <em>What is missing is the method to reach the decision-makers.</em>','cta.p':'Every month applying into the void is a month away from the role that pays what you are worth.','cta.btn':'Start now →'
+    }
+  };
+
+  var typedTimer = null;
+  function startTyped(lang) {
     var el = document.getElementById('heroTyped');
     if (!el) return;
-    var phrases = [
-      'lidera times e não pode perder tempo com candidatura no escuro',
-      'busca vaga remota no exterior e concorre com o mundo todo',
-      'disputa vaga de liderança e quer saber por que está sendo barrado',
-      'busca salário em dólar e precisa passar na triagem lá fora',
-      'está empregado mas quer algo ainda melhor e tem tempo de escolher'
-    ];
+    if (typedTimer) { clearTimeout(typedTimer); typedTimer = null; }
+    var phrases = TYPED[lang] || TYPED.pt;
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce) { el.textContent = phrases[0]; return; }
     var pi = 0, ci = phrases[0].length, deleting = true;
+    el.textContent = phrases[0];
     function tick() {
-      var word = phrases[pi];
+      var w = phrases[pi];
       if (!deleting) {
-        ci++;
-        el.textContent = word.slice(0, ci);
-        if (ci >= word.length) { deleting = true; return setTimeout(tick, 1700); }
-        return setTimeout(tick, 55);
+        ci++; el.textContent = w.slice(0, ci);
+        if (ci >= w.length) { deleting = true; typedTimer = setTimeout(tick, 1700); return; }
+        typedTimer = setTimeout(tick, 55); return;
       }
-      ci--;
-      el.textContent = word.slice(0, ci);
-      if (ci <= 0) { deleting = false; pi = (pi + 1) % phrases.length; return setTimeout(tick, 320); }
-      return setTimeout(tick, 28);
+      ci--; el.textContent = w.slice(0, ci);
+      if (ci <= 0) { deleting = false; pi = (pi + 1) % phrases.length; typedTimer = setTimeout(tick, 320); return; }
+      typedTimer = setTimeout(tick, 28);
     }
-    setTimeout(tick, 1700);
-  })();
+    typedTimer = setTimeout(tick, 1700);
+  }
+
+  function apply(lang) {
+    var dict = I18N[lang] || I18N.pt;
+    document.documentElement.lang = (lang === 'en' ? 'en' : 'pt-BR');
+    document.title = TITLE[lang] || TITLE.pt;
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      var k = el.getAttribute('data-i18n');
+      if (dict[k] != null) el.innerHTML = dict[k];
+    });
+    document.querySelectorAll('.lang-switch button').forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-lang') === lang);
+    });
+    startTyped(lang);
+  }
+
+  function setLang(lang) {
+    try { localStorage.setItem('liplop-lang', lang); } catch (e) {}
+    apply(lang);
+  }
+
+  var saved = null;
+  try { saved = localStorage.getItem('liplop-lang'); } catch (e) {}
+  var nav = (navigator.language || 'pt').toLowerCase();
+  var initial = (saved === 'pt' || saved === 'en') ? saved : (nav.indexOf('en') === 0 ? 'en' : 'pt');
+
+  document.querySelectorAll('.lang-switch button').forEach(function (b) {
+    b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); });
+  });
+
+  apply(initial);
+})();
 </script>
 </body>
 </html>

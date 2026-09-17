@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Preços — Liplop</title>
-  <meta name="description" content="Planos do Liplop. Escolha mensal ou semestral e comece a se candidatar com estratégia." />
+  <meta name="description" content="Planos do Liplop. Um investimento com retorno claro: pague pouco por mês para conquistar um cargo que paga muito mais." />
   <link rel="icon" type="image/png" href="liplop-favicon.png" />
   <!-- Microsoft Clarity -->
   <script type="text/javascript">
@@ -37,50 +37,55 @@
     <span class="beta-tag" style="font-size:10px;font-weight:700;letter-spacing:0.08em;background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.45);border-radius:4px;padding:2px 6px;margin-left:4px">BETA</span>
   </a>
   <div class="nav-links">
-    <a class="nav-link" href="index.html">Início</a>
-    <a class="nav-link" href="https://wa.me/5532988391282" target="_blank" rel="noopener">Fale conosco</a>
-    <a class="nav-link" href="https://app.myliplop.com">Login</a>
-    <a class="nav-cta" href="https://app.myliplop.com">Testar agora</a>
+    <div class="lang-switch" role="group" aria-label="Idioma">
+      <button type="button" data-lang="pt">PT</button>
+      <button type="button" data-lang="en">EN</button>
+    </div>
+    <a class="nav-link" href="index.html" data-i18n="nav.home">Início</a>
+    <a class="nav-link" href="https://wa.me/5532988391282" target="_blank" rel="noopener" data-i18n="nav.contact">Fale conosco</a>
+    <a class="nav-link" href="https://app.myliplop.com" data-i18n="nav.login">Login</a>
+    <a class="nav-cta" href="https://app.myliplop.com" data-i18n="nav.cta">Testar agora</a>
   </div>
 </nav>
 
 <!-- PLANOS -->
 <section class="section plans-section" id="precos" style="padding-top:88px;">
   <div class="section-inner">
-    <div class="label">Planos</div>
-    <h2 class="section-h" style="margin-bottom:16px;">Dois planos. Tudo incluso.</h2>
-    <p class="section-p" style="margin-bottom:48px;">Sem método, você vai continuar aplicando para as vagas erradas, com o currículo errado, sem saber onde está quebrando. Isso não é falta de qualificação; é falta de ferramenta.</p>
+    <div class="label" data-i18n="plans.label">Planos</div>
+    <h2 class="section-h" style="margin-bottom:16px;" data-i18n="plans.h2">Um investimento, não um gasto.</h2>
+    <p class="section-p" style="margin-bottom:48px;" data-i18n="plans.sub">Você paga pouco por mês para conquistar um cargo que paga muito mais. Comece grátis e veja o resultado antes de assinar.</p>
     <div class="plans-grid">
 
       <!-- Teste grátis -->
       <div class="plan-card">
-        <div class="plan-name">Teste grátis</div>
-        <div class="plan-price">R$ 0 <span class="per">pra começar</span></div>
-        <div class="plan-annual">Você tem direito a 3 ações de inteligência do Liplop</div>
-        <a class="btn-plan-outline" href="https://app.myliplop.com">Começar teste →</a>
-        <p class="plan-trust">Sem cartão. Experimente antes de assinar.</p>
+        <div class="plan-name" data-i18n="plans.freeName">Teste grátis</div>
+        <div class="plan-price">R$ 0 <span class="per" data-i18n="plans.freePer">pra começar</span></div>
+        <div class="plan-annual" data-i18n="plans.freeDesc">Você tem direito a 3 ações de inteligência do Liplop</div>
+        <a class="btn-plan-outline" href="https://app.myliplop.com" data-i18n="plans.freeCta">Começar teste →</a>
+        <p class="plan-trust" data-i18n="plans.freeTrust">Sem cartão. Experimente antes de assinar.</p>
       </div>
 
       <!-- Semestral (destaque) -->
       <div class="plan-card featured">
-        <div class="plan-best">Recomendado</div>
-        <div class="plan-name">Semestral</div>
-        <div class="plan-price">R$ 250 <span class="per">/ 6 meses</span></div>
-        <div class="plan-annual">equivale a R$ 41,66/mês · você economiza R$ 332</div>
-        <a class="btn-plan-rose" href="https://buy.stripe.com/eVq7sM4Ky4mJ4cJeG400003">Assinar semestral →</a>
-        <p class="plan-trust">Acesso imediato assim que o pagamento for confirmado</p>
+        <div class="plan-best" data-i18n="plans.best">Recomendado</div>
+        <div class="plan-name" data-i18n="plans.semName">Semestral</div>
+        <div class="plan-price">R$ 250 <span class="per" data-i18n="plans.semPer">/ 6 meses</span></div>
+        <div class="plan-annual" data-i18n="plans.semDesc">equivale a R$ 41,66/mês · você economiza R$ 332</div>
+        <a class="btn-plan-rose" href="https://buy.stripe.com/eVq7sM4Ky4mJ4cJeG400003" data-i18n="plans.semCta">Assinar semestral →</a>
+        <p class="plan-trust" data-i18n="plans.trust">Acesso imediato assim que o pagamento for confirmado</p>
       </div>
 
       <!-- Mensal -->
       <div class="plan-card">
-        <div class="plan-name">Mensal</div>
-        <div class="plan-price">R$ 97 <span class="per">/ mês</span></div>
-        <div class="plan-annual">sem fidelidade</div>
-        <a class="btn-plan-outline" href="https://buy.stripe.com/7sY6oIgtgg5rgZveG400004">Assinar mensal →</a>
-        <p class="plan-trust">Acesso imediato assim que o pagamento for confirmado</p>
+        <div class="plan-name" data-i18n="plans.monName">Mensal</div>
+        <div class="plan-price">R$ 97 <span class="per" data-i18n="plans.monPer">/ mês</span></div>
+        <div class="plan-annual" data-i18n="plans.monDesc">sem fidelidade</div>
+        <a class="btn-plan-outline" href="https://buy.stripe.com/7sY6oIgtgg5rgZveG400004" data-i18n="plans.monCta">Assinar mensal →</a>
+        <p class="plan-trust" data-i18n="plans.trust">Acesso imediato assim que o pagamento for confirmado</p>
       </div>
 
     </div>
+    <p class="section-p" style="margin:34px auto 0;font-size:13px;" data-i18n="plans.note"></p>
   </div>
 </section>
 
@@ -91,12 +96,55 @@
     Liplop
   </a>
   <div class="footer-links">
-    <a href="index.html">Início</a>
-    <a href="https://app.myliplop.com">Login</a>
-    <a href="https://wa.me/5532988391282" target="_blank" rel="noopener">Fale conosco</a>
+    <a href="index.html" data-i18n="nav.home">Início</a>
+    <a href="https://app.myliplop.com" data-i18n="nav.login">Login</a>
+    <a href="https://wa.me/5532988391282" target="_blank" rel="noopener" data-i18n="nav.contact">Fale conosco</a>
   </div>
   <span class="footer-copy">© 2026 Liplop</span>
 </footer>
 
+<script>
+(function () {
+  var TITLE = { pt: 'Preços — Liplop', en: 'Pricing — Liplop' };
+  var I18N = {
+    pt: {
+      'nav.home':'Início','nav.contact':'Fale conosco','nav.login':'Login','nav.cta':'Testar agora',
+      'plans.label':'Planos','plans.h2':'Um investimento, não um gasto.','plans.sub':'Você paga pouco por mês para conquistar um cargo que paga muito mais. Comece grátis e veja o resultado antes de assinar.',
+      'plans.freeName':'Teste grátis','plans.freePer':'pra começar','plans.freeDesc':'Você tem direito a 3 ações de inteligência do Liplop','plans.freeCta':'Começar teste →','plans.freeTrust':'Sem cartão. Experimente antes de assinar.',
+      'plans.best':'Recomendado','plans.semName':'Semestral','plans.semPer':'/ 6 meses','plans.semDesc':'equivale a R$ 41,66/mês · você economiza R$ 332','plans.semCta':'Assinar semestral →',
+      'plans.monName':'Mensal','plans.monPer':'/ mês','plans.monDesc':'sem fidelidade','plans.monCta':'Assinar mensal →',
+      'plans.trust':'Acesso imediato assim que o pagamento for confirmado','plans.note':''
+    },
+    en: {
+      'nav.home':'Home','nav.contact':'Contact','nav.login':'Log in','nav.cta':'Start now',
+      'plans.label':'Plans','plans.h2':'An investment, not an expense.','plans.sub':'You pay a little each month to land a role that pays much more. Start free and see the result before you subscribe.',
+      'plans.freeName':'Free trial','plans.freePer':'to start','plans.freeDesc':'You get 3 Liplop intelligence actions','plans.freeCta':'Start free →','plans.freeTrust':'No card required. Try it before you subscribe.',
+      'plans.best':'Recommended','plans.semName':'6 months','plans.semPer':'/ 6 months','plans.semDesc':'about R$ 41.66/month · you save R$ 332','plans.semCta':'Get 6 months →',
+      'plans.monName':'Monthly','plans.monPer':'/ month','plans.monDesc':'no commitment','plans.monCta':'Get monthly →',
+      'plans.trust':'Instant access as soon as your payment is confirmed','plans.note':'Prices in Brazilian reais (BRL). International cards are accepted at checkout.'
+    }
+  };
+  function apply(lang) {
+    var dict = I18N[lang] || I18N.pt;
+    document.documentElement.lang = (lang === 'en' ? 'en' : 'pt-BR');
+    document.title = TITLE[lang] || TITLE.pt;
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      var k = el.getAttribute('data-i18n');
+      if (dict[k] != null) el.innerHTML = dict[k];
+    });
+    document.querySelectorAll('.lang-switch button').forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-lang') === lang);
+    });
+  }
+  function setLang(lang) { try { localStorage.setItem('liplop-lang', lang); } catch (e) {} apply(lang); }
+  var saved = null; try { saved = localStorage.getItem('liplop-lang'); } catch (e) {}
+  var nav = (navigator.language || 'pt').toLowerCase();
+  var initial = (saved === 'pt' || saved === 'en') ? saved : (nav.indexOf('en') === 0 ? 'en' : 'pt');
+  document.querySelectorAll('.lang-switch button').forEach(function (b) {
+    b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); });
+  });
+  apply(initial);
+})();
+</script>
 </body>
 </html>
