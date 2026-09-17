@@ -2377,6 +2377,9 @@
         <div id="kit-card-status" style="font-size:12px;color:var(--mid);text-align:center;margin-top:8px;display:none"></div>
         <div id="kit-card-result"></div>
       </div>
+      <div class="modal-section" id="m-checklist-section" style="margin-top:12px">
+        <div id="m-checklist"></div>
+      </div>
       <div style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;color:var(--mid);margin-top:12px">
         <span>Idioma do currículo:</span>
         <select id="resume-lang" style="background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.12);border-radius:8px;padding:5px 8px;color:var(--text);font-size:12px;font-family:inherit;outline:none;cursor:pointer">
@@ -2732,6 +2735,17 @@ function buildCard(opp) {
     ? `<a class="card-link-btn" href="${opp.link}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Ver vaga →</a>`
     : '';
 
+  const kitBadge = opp.attackKit
+    ? '<span title="Kit de ataque pronto" style="font-size:10px;font-weight:800;color:var(--rose,#D43A6E);background:rgba(212,58,110,0.12);border-radius:6px;padding:2px 6px">🎯 Kit</span>'
+    : '';
+  const clDone = checklistProgress(opp);
+  const clBadge = clDone
+    ? '<span title="Atividades feitas" style="font-size:10px;font-weight:700;color:var(--mid);background:rgba(var(--ink),0.06);border-radius:6px;padding:2px 6px">' + clDone + '/' + KIT_CHECKLIST.length + '</span>'
+    : '';
+  const badgeRow = (kitBadge || clBadge)
+    ? `<div class="card-row" style="margin-top:6px;gap:6px">${kitBadge}${clBadge}</div>`
+    : '';
+
   card.innerHTML = `
     <button class="card-delete" title="Excluir vaga">✕</button>
     <div class="card-company">${opp.company}
@@ -2743,6 +2757,7 @@ function buildCard(opp) {
       <span class="card-fit ${fitClass(opp.fit ?? 0)}">${opp.fit != null ? opp.fit + '% fit' : '— %'}</span>
       ${linkBtn}
     </div>
+    ${badgeRow}
   `;
 
   card.querySelector(".card-delete").addEventListener("click", e => {
@@ -2984,6 +2999,8 @@ function openModal(opp) {
   var kitCardResult = document.getElementById("kit-card-result");
   if (kitCardStatus) kitCardStatus.style.display = 'none';
   if (kitCardResult) kitCardResult.innerHTML = opp.attackKit ? attackKitHTML(opp.attackKit, 'card' + opp.id) : '';
+  var checklistEl = document.getElementById("m-checklist");
+  if (checklistEl) checklistEl.innerHTML = checklistHTML(opp);
   document.getElementById("modal-overlay").classList.add("active");
 }
 
@@ -7445,6 +7462,39 @@ async function generateAttackKit(source, oppId){
   } finally {
     if (btn){ btn.disabled = false; btn.innerHTML = label; }
   }
+}
+
+// Checklist de atividades de outbound por card (accountability do que realmente move a agulha)
+var KIT_CHECKLIST = [
+  { key: 'applied',      label: 'Apliquei na vaga' },
+  { key: 'foundPerson',  label: 'Achei a pessoa certa no LinkedIn' },
+  { key: 'messageSent',  label: 'Enviei a mensagem' },
+  { key: 'followUpDone', label: 'Fiz o follow-up' }
+];
+function checklistProgress(opp){
+  var cl = (opp && opp.checklist) || {};
+  return KIT_CHECKLIST.filter(function(it){ return cl[it.key]; }).length;
+}
+function checklistHTML(opp){
+  var done = checklistProgress(opp);
+  var items = KIT_CHECKLIST.map(function(it){
+    var checked = (opp.checklist && opp.checklist[it.key]) ? 'checked' : '';
+    return '<label style="display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer;font-size:13px;color:var(--text)">'
+      + '<input type="checkbox" ' + checked + ' onchange="toggleChecklist(' + opp.id + ',\'' + it.key + '\',this.checked)" style="width:17px;height:17px;accent-color:var(--rose,#D43A6E);cursor:pointer;flex-shrink:0">'
+      + '<span>' + it.label + '</span></label>';
+  }).join('');
+  return '<div style="font-weight:700;font-size:11px;letter-spacing:0.05em;color:var(--mid);text-transform:uppercase;margin-bottom:4px">Atividades desta vaga (' + done + '/' + KIT_CHECKLIST.length + ')</div>' + items;
+}
+function toggleChecklist(oppId, key, checked){
+  var opp = opps.find(function(o){ return o.id === oppId; });
+  if (!opp) return;
+  if (!opp.checklist) opp.checklist = {};
+  opp.checklist[key] = !!checked;
+  saveOpps();
+  var el = document.getElementById('m-checklist');
+  if (el) el.innerHTML = checklistHTML(opp);
+  try { renderBoard(); } catch(e){}
+  try { if (_currentTab === 'tarefas' && typeof renderTarefasTab === 'function') renderTarefasTab(); } catch(e){}
 }
 
 function saveAnalysisToKanban() {
