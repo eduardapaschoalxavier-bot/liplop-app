@@ -2281,12 +2281,11 @@
     <div class="form-group">
       <label>Etapa</label>
       <select id="f-stage">
-        <option value="todo">Para Aplicar</option>
+        <option value="todo">A aplicar</option>
         <option value="applied">Aplicada</option>
-        <option value="recruiter">Entrevista Agendada</option>
-        <option value="waiting">Aguardando Retorno</option>
-        <option value="decision">Entrevista c/ Decisor</option>
-        <option value="case">Case</option>
+        <option value="contacted">Contato enviado</option>
+        <option value="followup">Follow-up</option>
+        <option value="interview">Entrevista</option>
         <option value="offer">Oferta</option>
         <option value="lost">Lost</option>
       </select>
@@ -2421,12 +2420,11 @@
       <div class="modal-section">
         <div class="modal-label">Etapa</div>
         <select class="modal-edit-select" id="e-stage">
-          <option value="todo">Para Aplicar</option>
+          <option value="todo">A aplicar</option>
           <option value="applied">Aplicada</option>
-          <option value="recruiter">Entrevista Agendada</option>
-          <option value="waiting">Aguardando Retorno</option>
-          <option value="decision">Entrevista c/ Decisor</option>
-          <option value="case">Case</option>
+          <option value="contacted">Contato enviado</option>
+          <option value="followup">Follow-up</option>
+          <option value="interview">Entrevista</option>
           <option value="offer">Oferta</option>
           <option value="lost">Lost</option>
         </select>
@@ -2551,7 +2549,7 @@ window.liplopReloadFromCache = function () {
     var raw = localStorage.getItem(STORAGE_KEY);
     if (raw != null) {                                   // sem a chave, não mexe (evita zerar à toa)
       var fresh = JSON.parse(raw);
-      if (Array.isArray(fresh)) { opps.length = 0; for (var i = 0; i < fresh.length; i++) opps.push(fresh[i]); }
+      if (Array.isArray(fresh)) { opps.length = 0; for (var i = 0; i < fresh.length; i++) opps.push(fresh[i]); migrateOppStages(opps); }
     }
   } catch (e) {}
   try { if (typeof switchTab === 'function') switchTab(_currentTab || 'analyzer'); } catch (e) {}
@@ -2559,15 +2557,25 @@ window.liplopReloadFromCache = function () {
 
 const COLUMN_ORDER_KEY = 'liplop-column-order';
 const columns = [
-  { id: "todo",       label: "Para Aplicar",           cls: "col-todo" },
-  { id: "applied",    label: "Aplicada",               cls: "col-applied" },
-  { id: "recruiter",  label: "Entrevista Agendada", cls: "col-recruiter" },
-  { id: "waiting",    label: "Aguardando Retorno",      cls: "col-waiting" },
-  { id: "decision",   label: "Entrevista c/ Decisor",  cls: "col-decision" },
-  { id: "case",       label: "Case",                   cls: "col-case" },
-  { id: "offer",      label: "Oferta",                 cls: "col-offer" },
-  { id: "lost",       label: "Lost",                   cls: "col-lost" }
+  { id: "todo",       label: "A aplicar",       cls: "col-todo" },
+  { id: "applied",    label: "Aplicada",        cls: "col-applied" },
+  { id: "contacted",  label: "Contato enviado", cls: "col-waiting" },
+  { id: "followup",   label: "Follow-up",       cls: "col-decision" },
+  { id: "interview",  label: "Entrevista",      cls: "col-recruiter" },
+  { id: "offer",      label: "Oferta",          cls: "col-offer" },
+  { id: "lost",       label: "Lost",            cls: "col-lost" }
 ];
+
+// Migração de etapas antigas -> funil de outbound (preserva os cards existentes)
+const STAGE_MIGRATE = { recruiter: 'interview', decision: 'interview', case: 'interview', waiting: 'followup' };
+function normalizeStage(s) { return STAGE_MIGRATE[s] || s || 'todo'; }
+function migrateOppStages(list) {
+  if (!Array.isArray(list)) return list;
+  list.forEach(function(o){ if (o && STAGE_MIGRATE[o.stage]) o.stage = STAGE_MIGRATE[o.stage]; });
+  return list;
+}
+// migra os cards já carregados (localStorage) para as novas etapas
+migrateOppStages(opps);
 
 // fit % tiers: ≥85 high, ≥70 good, ≥55 mid, <55 low
 
@@ -2580,14 +2588,15 @@ let draggedColId = null;   // id da coluna sendo arrastada (reordenação)
 // ── funnel ───────────────────────────────────────────────────
 // ── Ranking de Compatibilidade ───────────────────────────────
 const stageLabel = {
-  todo:      'Para Aplicar',
+  todo:      'A aplicar',
   applied:   'Aplicada',
-  recruiter: 'Entrevista Agendada',
-  waiting:   'Aguardando Retorno',
-  decision:  'Entrevista Decisor',
-  case:      'Case',
+  contacted: 'Contato enviado',
+  followup:  'Follow-up',
+  interview: 'Entrevista',
   offer:     'Oferta',
-  lost:      'Lost'
+  lost:      'Lost',
+  // labels antigos (compat com dados ainda não migrados em memória)
+  recruiter: 'Entrevista', decision: 'Entrevista', case: 'Entrevista', waiting: 'Follow-up'
 };
 
 function rankingBarColor(fit) {
@@ -2650,14 +2659,13 @@ function renderRanking() {
 
 function renderFunnel() {
   const stages = [
-    { id: "todo",      label: "Para Aplicar",       barCls: "bar-todo" },
-    { id: "applied",   label: "Aplicada",           barCls: "bar-applied" },
-    { id: "recruiter", label: "Entrevista", barCls: "bar-recruiter" },
-    { id: "waiting",   label: "Aguardando",         barCls: "bar-waiting" },
-    { id: "decision",  label: "Entrev. Decisor",    barCls: "bar-decision" },
-    { id: "case",      label: "Case",               barCls: "bar-case" },
-    { id: "offer",     label: "Oferta",             barCls: "bar-offer" },
-    { id: "lost",      label: "Lost",               barCls: "bar-lost" },
+    { id: "todo",      label: "A aplicar",       barCls: "bar-todo" },
+    { id: "applied",   label: "Aplicada",        barCls: "bar-applied" },
+    { id: "contacted", label: "Contato enviado", barCls: "bar-waiting" },
+    { id: "followup",  label: "Follow-up",       barCls: "bar-decision" },
+    { id: "interview", label: "Entrevista",      barCls: "bar-recruiter" },
+    { id: "offer",     label: "Oferta",          barCls: "bar-offer" },
+    { id: "lost",      label: "Lost",            barCls: "bar-lost" },
   ];
 
   const isExtra = o => o.organic || o.referred;
@@ -2667,8 +2675,8 @@ function renderFunnel() {
 
   const funnelEl = document.getElementById("funnel");
   const stageColor = {
-    todo: 'var(--rose)', applied: 'var(--rose-s)', recruiter: 'var(--gold)',
-    waiting: '#a78bfa', decision: 'var(--mid)', case: '#2dd4bf',
+    todo: 'var(--rose)', applied: 'var(--rose-s)', contacted: '#a78bfa',
+    followup: 'var(--gold)', interview: 'var(--gold)',
     offer: 'var(--rose)', lost: 'var(--dim)'
   };
   const prev = window._prevFunnelCounts || counts.map(() => 0);
@@ -2810,7 +2818,7 @@ function moveTo(srcId, targetStage, anchorId, pos) {
   saveOpps();
   renderFunnel();
   renderBoard();
-  if (targetStage === 'recruiter') { try { window.dispatchEvent(new CustomEvent('liplop:card-moved-interview')); } catch(e){} }
+  if (targetStage === 'interview') { try { window.dispatchEvent(new CustomEvent('liplop:card-moved-interview')); } catch(e){} }
 }
 
 // ── reordenação de colunas ───────────────────────────────────
@@ -4519,7 +4527,7 @@ function addCurrentVagaToKanban() {
   const exists = opps.find(x => (x.company || '').trim().toLowerCase() === company.toLowerCase() && (x.role || '').trim().toLowerCase() === role.toLowerCase());
   if (exists) { closeResumeModal(); switchTab('kanban'); return; }
   opps.push({
-    id: nextId++, company: company, role: role, status: 'Para Aplicar', stage: 'todo',
+    id: nextId++, company: company, role: role, status: 'A aplicar', stage: 'todo',
     fit: (o.fit != null ? o.fit : null), link: null, jd_text: _lastJD || null,
     contacts: [], next: '—', notes: '—'
   });
@@ -4994,17 +5002,17 @@ const GUIDE_STEPS = [
     body: 'Aqui é o seu <strong>zoom out</strong>: o % de fit de todas as suas vagas de uma vez. Dá clareza do potencial real de aprovação em cada uma, pra manter a expectativa no chão e focar energia onde a chance é de verdade.' },
   { target: '#board', explain: true,
     title: 'Seu quadro completo 📋',
-    body: 'E aqui o panorama: cada vaga avança de <strong>Para Aplicar</strong> até a <strong>Oferta</strong>. Você acompanha todos os processos num lugar só, sem planilha e sem perder o controle.' },
+    body: 'E aqui o panorama: cada vaga avança de <strong>A aplicar</strong> até a <strong>Oferta</strong>. Você acompanha todos os processos num lugar só, sem planilha e sem perder o controle.' },
   { tab: 'kanban', targetFn: function(){ return '.card[data-id="' + window._guideCardId + '"]'; }, dragHint: true, back: true, event: 'liplop:card-moved-interview',
     onEnter: function(){ try { closeResumeModal(); } catch(e){} },   // garante que o modal não fique por cima do kanban
     title: 'Passo 3 de 4 · Hora da entrevista',
-    body: 'Assim que uma empresa te chamar pra entrevista, você arrasta o card pra cá e o Liplop já monta a sua preparação. Bora ver na prática: arrasta a sua vaga (em destaque) até a coluna <strong>Entrevista Agendada</strong> 👉' },
+    body: 'Assim que uma empresa te chamar pra entrevista, você arrasta o card pra cá e o Liplop já monta a sua preparação. Bora ver na prática: arrasta a sua vaga (em destaque) até a coluna <strong>Entrevista</strong> 👉' },
   { explain: true,
     title: 'Boa! Hora de se preparar 🎉',
     body: 'A <strong>entrevista</strong> é o que separa quem passa de quem fica pelo caminho. O Liplop cruza a <strong>empresa, o cargo e o seu perfil</strong> pra te preparar com estratégia: o que destacar pra <strong>se diferenciar</strong> e o que evitar. É o que aumenta de verdade a sua <strong>chance de aprovação</strong>.' },
   { tab: 'interview', target: '#interview-wrap', explain: true,
     title: 'Sua central de preparação',
-    body: 'Esta é a aba de preparação. Aqui ficam <strong>todas as vagas que chegaram em Entrevista Agendada</strong>, e pra cada uma você gera uma preparação sob medida. Bora ver a sua.' },
+    body: 'Esta é a aba de preparação. Aqui ficam <strong>todas as vagas que chegaram em Entrevista</strong>, e pra cada uma você gera uma preparação sob medida. Bora ver a sua.' },
   { tab: 'interview', target: '.js-gen-prep', event: 'liplop:interview-prep-ready',
     waitEvent: 'liplop:interview-prep-start',
     waitBody: '🔎 <strong>Aguarde uns 40 segundos.</strong> Estamos montando a sua preparação, e vai valer MUITO a pena: é isso que vai te ajudar a mandar bem na entrevista. A gente promete.',
@@ -5606,14 +5614,14 @@ Responda SOMENTE com JSON válido:
 // ── Aba Entrevistas ──────────────────────────────────────────────
 function renderInterviewTab() {
   const wrap = document.getElementById('interview-wrap');
-  // Prepara não só as vagas em Entrevista Agendada, mas também as de fit alto
-  // (>= FIT_PREP_MIN), pra a pessoa já chegar preparada. Ignora as descartadas.
+  // Prepara não só as vagas em Entrevista, mas também as de fit alto
+  // (>= FIT_PREP_MIN), pra a pessoa já chegar sem improviso. Ignora as descartadas.
   const FIT_PREP_MIN = 78;
   const recruiterOpps = opps
-    .filter(o => o.stage !== 'lost' && (o.stage === 'recruiter' || (o.fit != null && o.fit >= FIT_PREP_MIN)))
+    .filter(o => o.stage !== 'lost' && (o.stage === 'interview' || (o.fit != null && o.fit >= FIT_PREP_MIN)))
     .sort((a, b) => {
-      const ar = a.stage === 'recruiter' ? 1 : 0, br = b.stage === 'recruiter' ? 1 : 0;
-      if (ar !== br) return br - ar;              // Entrevista Agendada primeiro
+      const ar = a.stage === 'interview' ? 1 : 0, br = b.stage === 'interview' ? 1 : 0;
+      if (ar !== br) return br - ar;              // Entrevista primeiro
       return (b.fit || 0) - (a.fit || 0);         // depois, maior fit primeiro
     });
 
@@ -5624,7 +5632,7 @@ function renderInterviewTab() {
     wrap.innerHTML = `
       <div style="margin-bottom:22px">
         <h2 style="font-size:1.25rem;font-weight:800;color:var(--text);margin-bottom:4px">Preparação para Entrevista</h2>
-        <p style="font-size:0.85rem;color:var(--mid);line-height:1.6">A IA monta aqui sua preparação para as vagas em <strong style="color:var(--rose)">Entrevista Agendada</strong> no Kanban e também para as de <strong style="color:var(--rose)">fit alto (78%+)</strong>, pra você já chegar preparada: o que a empresa valoriza, o que avaliam no cargo, o que destacar na sua narrativa e o que evitar falar.</p>
+        <p style="font-size:0.85rem;color:var(--mid);line-height:1.6">A IA monta aqui sua preparação para as vagas em <strong style="color:var(--rose)">Entrevista</strong> no Kanban e também para as de <strong style="color:var(--rose)">fit alto (78%+)</strong>, pra você já chegar sem improviso: o que a empresa valoriza, o que avaliam no cargo, o que destacar na sua narrativa e o que evitar falar.</p>
       </div>
 
       <div style="font-size:11px;font-weight:800;color:var(--rose);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Veja um exemplo do que você vai receber</div>
@@ -5659,7 +5667,7 @@ function renderInterviewTab() {
   wrap.innerHTML = `
     <div style="margin-bottom:28px">
       <h2 style="font-size:1.25rem;font-weight:800;color:var(--text);margin-bottom:4px">Preparação para Entrevista</h2>
-      <p style="font-size:0.85rem;color:var(--mid)">Preparação personalizada para as vagas em Entrevista Agendada e as de fit alto (78%+). A IA analisa sua experiência, a vaga e a empresa.</p>
+      <p style="font-size:0.85rem;color:var(--mid)">Preparação personalizada para as vagas em Entrevista e as de fit alto (78%+). A IA analisa sua experiência, a vaga e a empresa.</p>
     </div>
     <div style="position:relative;margin-bottom:20px">
       <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--dim);font-size:14px;pointer-events:none">🔎</span>
@@ -5673,7 +5681,7 @@ function renderInterviewTab() {
           <div>
             <div style="font-size:1rem;font-weight:800;color:var(--text)">${opp.company}</div>
             <div style="font-size:0.85rem;color:#f472b6;margin-top:2px">${opp.role}</div>
-            <div style="font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;margin-top:5px">${opp.stage === 'recruiter' ? '🗓️ Entrevista agendada' : '⭐ Fit alto'}</div>
+            <div style="font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;margin-top:5px">${opp.stage === 'interview' ? '🗓️ Entrevista' : '⭐ Fit alto'}</div>
           </div>
           ${opp.fit != null ? `<span style="font-size:0.8rem;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(244,114,182,0.12);color:#f472b6">${opp.fit}% fit</span>` : ''}
         </div>
@@ -6034,7 +6042,7 @@ function addJobToKanban(idx, stage) {
   // Adiciona ao kanban
   const item = {
     id: nextId++, company: job.company, role: job.role,
-    status: stage === 'applied' ? 'Aplicada' : 'Para Aplicar',
+    status: stage === 'applied' ? 'Aplicada' : 'A aplicar',
     stage, fit: job.fit || null, link: null,
     contacts: '', next: '—', notes: '—', organic: false, referred: false
   };
@@ -6157,13 +6165,13 @@ function buildDailyTasks() {
   }
 
   // Entrevistas agendadas
-  const interviewOpps = opps.filter(o => o.stage === 'recruiter');
+  const interviewOpps = opps.filter(o => o.stage === 'interview');
   if (interviewOpps.length) {
     tasks.push({ title: `Prepare ${interviewOpps.length} entrevista${interviewOpps.length > 1 ? 's' : ''} agendada${interviewOpps.length > 1 ? 's' : ''}`, sub: interviewOpps.map(o => o.company).join(', '), tab: 'interview', color: '#a78bfa' });
   }
 
   // Aguardando retorno
-  const waitingOpps = opps.filter(o => o.stage === 'waiting');
+  const waitingOpps = opps.filter(o => o.stage === 'followup');
   if (waitingOpps.length) {
     tasks.push({ title: `Faça follow-up em ${waitingOpps.length} processo${waitingOpps.length > 1 ? 's' : ''}`, sub: waitingOpps.map(o => o.company).join(', '), tab: 'kanban', color: '#f59e0b' });
   }
