@@ -2077,29 +2077,28 @@
 
   <nav class="tab-nav">
     <div class="nav-stage" data-stage="aplicar" onmouseenter="openStageHover(this)" onmouseleave="scheduleCloseStages()">
-      <button class="tab-btn" data-stage="aplicar" onclick="switchTab('analyzer')">Aplicar <span class="nav-caret">▾</span></button>
+      <button class="tab-btn" data-stage="aplicar" onclick="switchTab('analyzer')">Analisar <span class="nav-caret">▾</span></button>
       <div class="nav-dropdown">
-        <a onclick="switchTab('analyzer')">Análise</a>
+        <a onclick="switchTab('analyzer')">Análise + kit</a>
         <a onclick="switchTab('vagas')">Keywords</a>
         <a onclick="switchTab('documentos')">Documentos</a>
       </div>
     </div>
-    <div class="nav-stage" data-stage="aprovado">
-      <button class="tab-btn" data-stage="aprovado" onclick="switchTab('interview')">Convencer</button>
+    <div class="nav-stage" data-stage="linkedin">
+      <button class="tab-btn" data-stage="linkedin" onclick="switchTab('marca')">LinkedIn</button>
+    </div>
+    <div class="nav-stage" data-stage="plano">
+      <button class="tab-btn" data-stage="plano" onclick="switchTab('tarefas')">Meu plano</button>
     </div>
     <div class="nav-stage" data-stage="acompanhar" onmouseenter="openStageHover(this)" onmouseleave="scheduleCloseStages()">
-      <button class="tab-btn" data-stage="acompanhar" onclick="switchTab('kanban')">Acompanhar <span class="nav-caret">▾</span></button>
+      <button class="tab-btn" data-stage="acompanhar" onclick="switchTab('kanban')">Kanban <span class="nav-caret">▾</span></button>
       <div class="nav-dropdown">
         <a onclick="switchTab('kanban')">Kanban</a>
         <a onclick="switchTab('ranking')">Ranking</a>
       </div>
     </div>
-    <div class="nav-stage" data-stage="servisto" onmouseenter="openStageHover(this)" onmouseleave="scheduleCloseStages()">
-      <button class="tab-btn" data-stage="servisto" onclick="switchTab('marca')">Atrair <span class="nav-caret">▾</span></button>
-      <div class="nav-dropdown">
-        <a onclick="switchTab('marca')">Marca</a>
-        <a onclick="switchTab('tarefas')">Calendário</a>
-      </div>
+    <div class="nav-stage" data-stage="aprovado">
+      <button class="tab-btn" data-stage="aprovado" onclick="switchTab('interview')">Convencer</button>
     </div>
   </nav>
 
@@ -3361,7 +3360,7 @@ function switchTab(tab) {
   }
 
   // Atualiza a etapa ativa do menu, destaca a página no dropdown e fecha os dropdowns
-  const stageOfTab = { perfil:'config', analyzer:'aplicar', vagas:'aplicar', documentos:'aplicar', marca:'servisto', tarefas:'servisto', interview:'aprovado', kanban:'acompanhar', ranking:'acompanhar' };
+  const stageOfTab = { perfil:'config', analyzer:'aplicar', vagas:'aplicar', documentos:'aplicar', marca:'linkedin', tarefas:'plano', interview:'aprovado', kanban:'acompanhar', ranking:'acompanhar' };
   const activeStage = stageOfTab[tab];
   document.querySelectorAll('.tab-btn[data-stage]').forEach(btn => btn.classList.toggle('active', btn.dataset.stage === activeStage));
   document.querySelectorAll('.nav-dropdown a').forEach(a => a.classList.toggle('active', (a.getAttribute('onclick') || '').includes("'" + tab + "'")));
@@ -5002,8 +5001,8 @@ const GUIDE_STEPS = [
     title: 'O que evitar',
     body: 'O que costuma derrubar candidatos nessa vaga. Saber disso antes já te coloca na frente.' },
   { explain: true,
-    title: 'Próxima fase: seja procurado, não só procure 🎯',
-    body: 'Aplicar é só metade do jogo. A outra metade é <strong>ser visto</strong>: presença no LinkedIn faz a vaga vir até você. Na aba <strong>Atrair</strong>, o Liplop te ajuda a se posicionar com estratégia, <strong>sem postagens desesperadas</strong>. Clica em Próximo que eu te mostro.' },
+    title: 'LinkedIn: o respaldo que faz o contato funcionar 🎯',
+    body: 'Aplicar é só metade do jogo. Pra conseguir entrevista de verdade, o caminho é alcançar as pessoas certas com uma boa mensagem, e o seu LinkedIn é o respaldo: quando o recrutador te olha ali, decide se responde. Na aba <strong>LinkedIn</strong>, o Liplop te ajuda a se posicionar com estratégia pra sua abordagem chegar mais forte. Clica em Próximo que eu te mostro.' },
   { tab: 'marca', target: '.hero-chips', explain: true,
     onEnter: function(){ try { if (typeof getMarcaMessage === 'function' && getMarcaMessage()) resetMarcaMessage(); } catch(e){} },
     title: 'O que você vai construir aqui',
