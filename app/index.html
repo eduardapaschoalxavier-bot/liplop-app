@@ -2580,6 +2580,22 @@ function migrateOppStages(list) {
 // migra os cards já carregados (localStorage) para as novas etapas
 migrateOppStages(opps);
 
+// Definidos cedo (antes do primeiro renderBoard) porque buildCard/checklistProgress
+// os usam já no load. Mover pra cá evita "KIT_CHECKLIST is undefined" na inicialização.
+var KIT_CHECKLIST = [
+  { key: 'applied',      label: 'Apliquei na vaga' },
+  { key: 'foundPerson',  label: 'Achei a pessoa certa no LinkedIn' },
+  { key: 'messageSent',  label: 'Enviei a mensagem' },
+  { key: 'followUpDone', label: 'Fiz o follow-up' }
+];
+var OUTBOUND_BUCKETS = [
+  { key: 'apply',    emoji: '📝', label: 'Candidaturas para enviar',  color: '#c9974a' },
+  { key: 'kit',      emoji: '🎯', label: 'Kits de ataque para gerar', color: '#D43A6E' },
+  { key: 'find',     emoji: '🔎', label: 'Pessoas para encontrar',    color: '#63b3ed' },
+  { key: 'message',  emoji: '✉️', label: 'Mensagens para enviar',     color: '#a78bfa' },
+  { key: 'followup', emoji: '🔁', label: 'Follow-ups pendentes',      color: '#f59e0b' }
+];
+
 // fit % tiers: ≥85 high, ≥70 good, ≥55 mid, <55 low
 
 // ── drag state ──────────────────────────────────────────────
@@ -6212,13 +6228,7 @@ function nextOutboundStep(o){
   if (!o.attackKit)     return 'kit';         // sem kit ainda, gerar o kit
   return 'find';                              // tem kit, falta achar a pessoa
 }
-var OUTBOUND_BUCKETS = [
-  { key: 'apply',    emoji: '📝', label: 'Candidaturas para enviar',        color: '#c9974a' },
-  { key: 'kit',      emoji: '🎯', label: 'Kits de ataque para gerar',       color: '#D43A6E' },
-  { key: 'find',     emoji: '🔎', label: 'Pessoas para encontrar',          color: '#63b3ed' },
-  { key: 'message',  emoji: '✉️', label: 'Mensagens para enviar',           color: '#a78bfa' },
-  { key: 'followup', emoji: '🔁', label: 'Follow-ups pendentes',            color: '#f59e0b' }
-];
+// OUTBOUND_BUCKETS é definido cedo, logo após a migração de etapas.
 function buildOutboundPlan(){
   var active = opps.filter(function(o){ return o.stage !== 'lost' && o.stage !== 'offer'; });
   var byKey = {}; OUTBOUND_BUCKETS.forEach(function(b){ byKey[b.key] = []; });
@@ -7575,13 +7585,8 @@ async function generateAttackKit(source, oppId){
   }
 }
 
-// Checklist de atividades de outbound por card (accountability do que realmente move a agulha)
-var KIT_CHECKLIST = [
-  { key: 'applied',      label: 'Apliquei na vaga' },
-  { key: 'foundPerson',  label: 'Achei a pessoa certa no LinkedIn' },
-  { key: 'messageSent',  label: 'Enviei a mensagem' },
-  { key: 'followUpDone', label: 'Fiz o follow-up' }
-];
+// Checklist de atividades de outbound por card (accountability do que realmente move a agulha).
+// KIT_CHECKLIST é definido cedo, logo após a migração de etapas (usado já no primeiro render).
 function checklistProgress(opp){
   var cl = (opp && opp.checklist) || {};
   return KIT_CHECKLIST.filter(function(it){ return cl[it.key]; }).length;
