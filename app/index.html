@@ -2077,29 +2077,28 @@
 
   <nav class="tab-nav">
     <div class="nav-stage" data-stage="aplicar" onmouseenter="openStageHover(this)" onmouseleave="scheduleCloseStages()">
-      <button class="tab-btn" data-stage="aplicar" onclick="switchTab('analyzer')">Aplicar <span class="nav-caret">▾</span></button>
+      <button class="tab-btn" data-stage="aplicar" onclick="switchTab('analyzer')">Analisar <span class="nav-caret">▾</span></button>
       <div class="nav-dropdown">
-        <a onclick="switchTab('analyzer')">Análise</a>
+        <a onclick="switchTab('analyzer')">Análise + kit</a>
         <a onclick="switchTab('vagas')">Keywords</a>
         <a onclick="switchTab('documentos')">Documentos</a>
       </div>
     </div>
-    <div class="nav-stage" data-stage="aprovado">
-      <button class="tab-btn" data-stage="aprovado" onclick="switchTab('interview')">Convencer</button>
+    <div class="nav-stage" data-stage="linkedin">
+      <button class="tab-btn" data-stage="linkedin" onclick="switchTab('marca')">LinkedIn</button>
+    </div>
+    <div class="nav-stage" data-stage="plano">
+      <button class="tab-btn" data-stage="plano" onclick="switchTab('tarefas')">Meu plano</button>
     </div>
     <div class="nav-stage" data-stage="acompanhar" onmouseenter="openStageHover(this)" onmouseleave="scheduleCloseStages()">
-      <button class="tab-btn" data-stage="acompanhar" onclick="switchTab('kanban')">Acompanhar <span class="nav-caret">▾</span></button>
+      <button class="tab-btn" data-stage="acompanhar" onclick="switchTab('kanban')">Kanban <span class="nav-caret">▾</span></button>
       <div class="nav-dropdown">
         <a onclick="switchTab('kanban')">Kanban</a>
         <a onclick="switchTab('ranking')">Ranking</a>
       </div>
     </div>
-    <div class="nav-stage" data-stage="servisto" onmouseenter="openStageHover(this)" onmouseleave="scheduleCloseStages()">
-      <button class="tab-btn" data-stage="servisto" onclick="switchTab('marca')">Atrair <span class="nav-caret">▾</span></button>
-      <div class="nav-dropdown">
-        <a onclick="switchTab('marca')">Marca</a>
-        <a onclick="switchTab('tarefas')">Calendário</a>
-      </div>
+    <div class="nav-stage" data-stage="aprovado">
+      <button class="tab-btn" data-stage="aprovado" onclick="switchTab('interview')">Convencer</button>
     </div>
   </nav>
 
@@ -2209,6 +2208,12 @@
             <option value="en">Inglês (padrão internacional)</option>
           </select>
         </div>
+        <button class="btn-fit-save" id="btn-gen-kit-from-analysis" onclick="generateAttackKit('analysis')"
+          style="background:var(--rose,#D43A6E);border:none;color:#fff;font-weight:800">
+          🎯 Gerar kit de ataque para conseguir a entrevista
+        </button>
+        <div id="kit-analysis-status" style="font-size:12px;color:var(--mid);text-align:center;display:none"></div>
+        <div id="kit-analysis-result"></div>
         <button class="btn-fit-save" id="btn-gen-resume-from-analysis" onclick="generateResumeFromAnalysis()"
           style="background:transparent;border:2px solid #f472b6;color:#f472b6"
           onmouseover="this.style.background='rgba(244,114,182,0.1)'" onmouseout="this.style.background='transparent'">
@@ -2276,12 +2281,11 @@
     <div class="form-group">
       <label>Etapa</label>
       <select id="f-stage">
-        <option value="todo">Para Aplicar</option>
+        <option value="todo">A aplicar</option>
         <option value="applied">Aplicada</option>
-        <option value="recruiter">Entrevista Agendada</option>
-        <option value="waiting">Aguardando Retorno</option>
-        <option value="decision">Entrevista c/ Decisor</option>
-        <option value="case">Case</option>
+        <option value="contacted">Contato enviado</option>
+        <option value="followup">Follow-up</option>
+        <option value="interview">Entrevista</option>
         <option value="offer">Oferta</option>
         <option value="lost">Lost</option>
       </select>
@@ -2364,6 +2368,18 @@
         <div class="modal-label" style="margin-bottom:6px">Descrição da vaga <span style="font-weight:400;color:var(--dim);font-size:10px">(usada para gerar currículo adaptado)</span></div>
         <textarea id="m-jd-text" rows="4" placeholder="Cole aqui o texto da vaga..." style="width:100%;background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.1);border-radius:10px;padding:10px 12px;color:var(--text);font-size:13px;resize:vertical;outline:none;font-family:inherit;box-sizing:border-box" onchange="saveInlineField('jd_text',this.value)"></textarea>
       </div>
+      <div class="modal-section" style="margin-top:12px">
+        <button id="btn-gen-kit-card" onclick="generateAttackKit('card', _modalOpp && _modalOpp.id)"
+          style="width:100%;padding:16px 12px;background:var(--rose,#D43A6E);border:none;border-radius:14px;color:#fff;font-size:14px;font-weight:800;cursor:pointer;line-height:1.3;box-shadow:0 4px 14px rgba(233,30,140,0.3)"
+          onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+          🎯 Gerar kit de ataque<br><span style="font-weight:400;font-size:11px;opacity:.9">quem procurar, mensagem e follow-up</span>
+        </button>
+        <div id="kit-card-status" style="font-size:12px;color:var(--mid);text-align:center;margin-top:8px;display:none"></div>
+        <div id="kit-card-result"></div>
+      </div>
+      <div class="modal-section" id="m-checklist-section" style="margin-top:12px">
+        <div id="m-checklist"></div>
+      </div>
       <div style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;color:var(--mid);margin-top:12px">
         <span>Idioma do currículo:</span>
         <select id="resume-lang" style="background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.12);border-radius:8px;padding:5px 8px;color:var(--text);font-size:12px;font-family:inherit;outline:none;cursor:pointer">
@@ -2407,12 +2423,11 @@
       <div class="modal-section">
         <div class="modal-label">Etapa</div>
         <select class="modal-edit-select" id="e-stage">
-          <option value="todo">Para Aplicar</option>
+          <option value="todo">A aplicar</option>
           <option value="applied">Aplicada</option>
-          <option value="recruiter">Entrevista Agendada</option>
-          <option value="waiting">Aguardando Retorno</option>
-          <option value="decision">Entrevista c/ Decisor</option>
-          <option value="case">Case</option>
+          <option value="contacted">Contato enviado</option>
+          <option value="followup">Follow-up</option>
+          <option value="interview">Entrevista</option>
           <option value="offer">Oferta</option>
           <option value="lost">Lost</option>
         </select>
@@ -2537,7 +2552,7 @@ window.liplopReloadFromCache = function () {
     var raw = localStorage.getItem(STORAGE_KEY);
     if (raw != null) {                                   // sem a chave, não mexe (evita zerar à toa)
       var fresh = JSON.parse(raw);
-      if (Array.isArray(fresh)) { opps.length = 0; for (var i = 0; i < fresh.length; i++) opps.push(fresh[i]); }
+      if (Array.isArray(fresh)) { opps.length = 0; for (var i = 0; i < fresh.length; i++) opps.push(fresh[i]); migrateOppStages(opps); }
     }
   } catch (e) {}
   try { if (typeof switchTab === 'function') switchTab(_currentTab || 'analyzer'); } catch (e) {}
@@ -2545,14 +2560,40 @@ window.liplopReloadFromCache = function () {
 
 const COLUMN_ORDER_KEY = 'liplop-column-order';
 const columns = [
-  { id: "todo",       label: "Para Aplicar",           cls: "col-todo" },
-  { id: "applied",    label: "Aplicada",               cls: "col-applied" },
-  { id: "recruiter",  label: "Entrevista Agendada", cls: "col-recruiter" },
-  { id: "waiting",    label: "Aguardando Retorno",      cls: "col-waiting" },
-  { id: "decision",   label: "Entrevista c/ Decisor",  cls: "col-decision" },
-  { id: "case",       label: "Case",                   cls: "col-case" },
-  { id: "offer",      label: "Oferta",                 cls: "col-offer" },
-  { id: "lost",       label: "Lost",                   cls: "col-lost" }
+  { id: "todo",       label: "A aplicar",       cls: "col-todo" },
+  { id: "applied",    label: "Aplicada",        cls: "col-applied" },
+  { id: "contacted",  label: "Contato enviado", cls: "col-waiting" },
+  { id: "followup",   label: "Follow-up",       cls: "col-decision" },
+  { id: "interview",  label: "Entrevista",      cls: "col-recruiter" },
+  { id: "offer",      label: "Oferta",          cls: "col-offer" },
+  { id: "lost",       label: "Lost",            cls: "col-lost" }
+];
+
+// Migração de etapas antigas -> funil de outbound (preserva os cards existentes)
+const STAGE_MIGRATE = { recruiter: 'interview', decision: 'interview', case: 'interview', waiting: 'followup' };
+function normalizeStage(s) { return STAGE_MIGRATE[s] || s || 'todo'; }
+function migrateOppStages(list) {
+  if (!Array.isArray(list)) return list;
+  list.forEach(function(o){ if (o && STAGE_MIGRATE[o.stage]) o.stage = STAGE_MIGRATE[o.stage]; });
+  return list;
+}
+// migra os cards já carregados (localStorage) para as novas etapas
+migrateOppStages(opps);
+
+// Definidos cedo (antes do primeiro renderBoard) porque buildCard/checklistProgress
+// os usam já no load. Mover pra cá evita "KIT_CHECKLIST is undefined" na inicialização.
+var KIT_CHECKLIST = [
+  { key: 'applied',      label: 'Apliquei na vaga' },
+  { key: 'foundPerson',  label: 'Achei a pessoa certa no LinkedIn' },
+  { key: 'messageSent',  label: 'Enviei a mensagem' },
+  { key: 'followUpDone', label: 'Fiz o follow-up' }
+];
+var OUTBOUND_BUCKETS = [
+  { key: 'apply',    emoji: '📝', label: 'Candidaturas para enviar',  color: '#c9974a' },
+  { key: 'kit',      emoji: '🎯', label: 'Kits de ataque para gerar', color: '#D43A6E' },
+  { key: 'find',     emoji: '🔎', label: 'Pessoas para encontrar',    color: '#63b3ed' },
+  { key: 'message',  emoji: '✉️', label: 'Mensagens para enviar',     color: '#a78bfa' },
+  { key: 'followup', emoji: '🔁', label: 'Follow-ups pendentes',      color: '#f59e0b' }
 ];
 
 // fit % tiers: ≥85 high, ≥70 good, ≥55 mid, <55 low
@@ -2566,14 +2607,15 @@ let draggedColId = null;   // id da coluna sendo arrastada (reordenação)
 // ── funnel ───────────────────────────────────────────────────
 // ── Ranking de Compatibilidade ───────────────────────────────
 const stageLabel = {
-  todo:      'Para Aplicar',
+  todo:      'A aplicar',
   applied:   'Aplicada',
-  recruiter: 'Entrevista Agendada',
-  waiting:   'Aguardando Retorno',
-  decision:  'Entrevista Decisor',
-  case:      'Case',
+  contacted: 'Contato enviado',
+  followup:  'Follow-up',
+  interview: 'Entrevista',
   offer:     'Oferta',
-  lost:      'Lost'
+  lost:      'Lost',
+  // labels antigos (compat com dados ainda não migrados em memória)
+  recruiter: 'Entrevista', decision: 'Entrevista', case: 'Entrevista', waiting: 'Follow-up'
 };
 
 function rankingBarColor(fit) {
@@ -2636,14 +2678,13 @@ function renderRanking() {
 
 function renderFunnel() {
   const stages = [
-    { id: "todo",      label: "Para Aplicar",       barCls: "bar-todo" },
-    { id: "applied",   label: "Aplicada",           barCls: "bar-applied" },
-    { id: "recruiter", label: "Entrevista", barCls: "bar-recruiter" },
-    { id: "waiting",   label: "Aguardando",         barCls: "bar-waiting" },
-    { id: "decision",  label: "Entrev. Decisor",    barCls: "bar-decision" },
-    { id: "case",      label: "Case",               barCls: "bar-case" },
-    { id: "offer",     label: "Oferta",             barCls: "bar-offer" },
-    { id: "lost",      label: "Lost",               barCls: "bar-lost" },
+    { id: "todo",      label: "A aplicar",       barCls: "bar-todo" },
+    { id: "applied",   label: "Aplicada",        barCls: "bar-applied" },
+    { id: "contacted", label: "Contato enviado", barCls: "bar-waiting" },
+    { id: "followup",  label: "Follow-up",       barCls: "bar-decision" },
+    { id: "interview", label: "Entrevista",      barCls: "bar-recruiter" },
+    { id: "offer",     label: "Oferta",          barCls: "bar-offer" },
+    { id: "lost",      label: "Lost",            barCls: "bar-lost" },
   ];
 
   const isExtra = o => o.organic || o.referred;
@@ -2653,8 +2694,8 @@ function renderFunnel() {
 
   const funnelEl = document.getElementById("funnel");
   const stageColor = {
-    todo: 'var(--rose)', applied: 'var(--rose-s)', recruiter: 'var(--gold)',
-    waiting: '#a78bfa', decision: 'var(--mid)', case: '#2dd4bf',
+    todo: 'var(--rose)', applied: 'var(--rose-s)', contacted: '#a78bfa',
+    followup: 'var(--gold)', interview: 'var(--gold)',
     offer: 'var(--rose)', lost: 'var(--dim)'
   };
   const prev = window._prevFunnelCounts || counts.map(() => 0);
@@ -2710,6 +2751,17 @@ function buildCard(opp) {
     ? `<a class="card-link-btn" href="${opp.link}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Ver vaga →</a>`
     : '';
 
+  const kitBadge = opp.attackKit
+    ? '<span title="Kit de ataque pronto" style="font-size:10px;font-weight:800;color:var(--rose,#D43A6E);background:rgba(212,58,110,0.12);border-radius:6px;padding:2px 6px">🎯 Kit</span>'
+    : '';
+  const clDone = checklistProgress(opp);
+  const clBadge = clDone
+    ? '<span title="Atividades feitas" style="font-size:10px;font-weight:700;color:var(--mid);background:rgba(var(--ink),0.06);border-radius:6px;padding:2px 6px">' + clDone + '/' + KIT_CHECKLIST.length + '</span>'
+    : '';
+  const badgeRow = (kitBadge || clBadge)
+    ? `<div class="card-row" style="margin-top:6px;gap:6px">${kitBadge}${clBadge}</div>`
+    : '';
+
   card.innerHTML = `
     <button class="card-delete" title="Excluir vaga">✕</button>
     <div class="card-company">${opp.company}
@@ -2721,6 +2773,7 @@ function buildCard(opp) {
       <span class="card-fit ${fitClass(opp.fit ?? 0)}">${opp.fit != null ? opp.fit + '% fit' : '— %'}</span>
       ${linkBtn}
     </div>
+    ${badgeRow}
   `;
 
   card.querySelector(".card-delete").addEventListener("click", e => {
@@ -2796,7 +2849,7 @@ function moveTo(srcId, targetStage, anchorId, pos) {
   saveOpps();
   renderFunnel();
   renderBoard();
-  if (targetStage === 'recruiter') { try { window.dispatchEvent(new CustomEvent('liplop:card-moved-interview')); } catch(e){} }
+  if (targetStage === 'interview') { try { window.dispatchEvent(new CustomEvent('liplop:card-moved-interview')); } catch(e){} }
 }
 
 // ── reordenação de colunas ───────────────────────────────────
@@ -2957,6 +3010,13 @@ function openModal(opp) {
   }
   renderModalContacts(opp);
   document.getElementById("network-section").innerHTML = '';
+  // Kit de ataque salvo neste card (se houver)
+  var kitCardStatus = document.getElementById("kit-card-status");
+  var kitCardResult = document.getElementById("kit-card-result");
+  if (kitCardStatus) kitCardStatus.style.display = 'none';
+  if (kitCardResult) kitCardResult.innerHTML = opp.attackKit ? attackKitHTML(opp.attackKit, 'card' + opp.id) : '';
+  var checklistEl = document.getElementById("m-checklist");
+  if (checklistEl) checklistEl.innerHTML = checklistHTML(opp);
   document.getElementById("modal-overlay").classList.add("active");
 }
 
@@ -3311,6 +3371,11 @@ function saveCard() {
     organic:  document.getElementById("f-organic").checked  || undefined,
     referred: document.getElementById("f-referred").checked || undefined,
   });
+  // Anexa o kit de ataque gerado na análise (se houver) ao card recém-criado
+  if (window._pendingAttackKit) {
+    opps[opps.length - 1].attackKit = window._pendingAttackKit;
+    window._pendingAttackKit = null;
+  }
   document.getElementById("form-overlay").classList.remove("active");
   saveOpps();
   renderFunnel();
@@ -3361,7 +3426,7 @@ function switchTab(tab) {
   }
 
   // Atualiza a etapa ativa do menu, destaca a página no dropdown e fecha os dropdowns
-  const stageOfTab = { perfil:'config', analyzer:'aplicar', vagas:'aplicar', documentos:'aplicar', marca:'servisto', tarefas:'servisto', interview:'aprovado', kanban:'acompanhar', ranking:'acompanhar' };
+  const stageOfTab = { perfil:'config', analyzer:'aplicar', vagas:'aplicar', documentos:'aplicar', marca:'linkedin', tarefas:'plano', interview:'aprovado', kanban:'acompanhar', ranking:'acompanhar' };
   const activeStage = stageOfTab[tab];
   document.querySelectorAll('.tab-btn[data-stage]').forEach(btn => btn.classList.toggle('active', btn.dataset.stage === activeStage));
   document.querySelectorAll('.nav-dropdown a').forEach(a => a.classList.toggle('active', (a.getAttribute('onclick') || '').includes("'" + tab + "'")));
@@ -4495,7 +4560,7 @@ function addCurrentVagaToKanban() {
   const exists = opps.find(x => (x.company || '').trim().toLowerCase() === company.toLowerCase() && (x.role || '').trim().toLowerCase() === role.toLowerCase());
   if (exists) { closeResumeModal(); switchTab('kanban'); return; }
   opps.push({
-    id: nextId++, company: company, role: role, status: 'Para Aplicar', stage: 'todo',
+    id: nextId++, company: company, role: role, status: 'A aplicar', stage: 'todo',
     fit: (o.fit != null ? o.fit : null), link: null, jd_text: _lastJD || null,
     contacts: [], next: '—', notes: '—'
   });
@@ -4970,17 +5035,17 @@ const GUIDE_STEPS = [
     body: 'Aqui é o seu <strong>zoom out</strong>: o % de fit de todas as suas vagas de uma vez. Dá clareza do potencial real de aprovação em cada uma, pra manter a expectativa no chão e focar energia onde a chance é de verdade.' },
   { target: '#board', explain: true,
     title: 'Seu quadro completo 📋',
-    body: 'E aqui o panorama: cada vaga avança de <strong>Para Aplicar</strong> até a <strong>Oferta</strong>. Você acompanha todos os processos num lugar só, sem planilha e sem perder o controle.' },
+    body: 'E aqui o panorama: cada vaga avança de <strong>A aplicar</strong> até a <strong>Oferta</strong>. Você acompanha todos os processos num lugar só, sem planilha e sem perder o controle.' },
   { tab: 'kanban', targetFn: function(){ return '.card[data-id="' + window._guideCardId + '"]'; }, dragHint: true, back: true, event: 'liplop:card-moved-interview',
     onEnter: function(){ try { closeResumeModal(); } catch(e){} },   // garante que o modal não fique por cima do kanban
     title: 'Passo 3 de 4 · Hora da entrevista',
-    body: 'Assim que uma empresa te chamar pra entrevista, você arrasta o card pra cá e o Liplop já monta a sua preparação. Bora ver na prática: arrasta a sua vaga (em destaque) até a coluna <strong>Entrevista Agendada</strong> 👉' },
+    body: 'Assim que uma empresa te chamar pra entrevista, você arrasta o card pra cá e o Liplop já monta a sua preparação. Bora ver na prática: arrasta a sua vaga (em destaque) até a coluna <strong>Entrevista</strong> 👉' },
   { explain: true,
     title: 'Boa! Hora de se preparar 🎉',
     body: 'A <strong>entrevista</strong> é o que separa quem passa de quem fica pelo caminho. O Liplop cruza a <strong>empresa, o cargo e o seu perfil</strong> pra te preparar com estratégia: o que destacar pra <strong>se diferenciar</strong> e o que evitar. É o que aumenta de verdade a sua <strong>chance de aprovação</strong>.' },
   { tab: 'interview', target: '#interview-wrap', explain: true,
     title: 'Sua central de preparação',
-    body: 'Esta é a aba de preparação. Aqui ficam <strong>todas as vagas que chegaram em Entrevista Agendada</strong>, e pra cada uma você gera uma preparação sob medida. Bora ver a sua.' },
+    body: 'Esta é a aba de preparação. Aqui ficam <strong>todas as vagas que chegaram em Entrevista</strong>, e pra cada uma você gera uma preparação sob medida. Bora ver a sua.' },
   { tab: 'interview', target: '.js-gen-prep', event: 'liplop:interview-prep-ready',
     waitEvent: 'liplop:interview-prep-start',
     waitBody: '🔎 <strong>Aguarde uns 40 segundos.</strong> Estamos montando a sua preparação, e vai valer MUITO a pena: é isso que vai te ajudar a mandar bem na entrevista. A gente promete.',
@@ -5002,8 +5067,8 @@ const GUIDE_STEPS = [
     title: 'O que evitar',
     body: 'O que costuma derrubar candidatos nessa vaga. Saber disso antes já te coloca na frente.' },
   { explain: true,
-    title: 'Próxima fase: seja procurado, não só procure 🎯',
-    body: 'Aplicar é só metade do jogo. A outra metade é <strong>ser visto</strong>: presença no LinkedIn faz a vaga vir até você. Na aba <strong>Atrair</strong>, o Liplop te ajuda a se posicionar com estratégia, <strong>sem postagens desesperadas</strong>. Clica em Próximo que eu te mostro.' },
+    title: 'LinkedIn: o respaldo que faz o contato funcionar 🎯',
+    body: 'Aplicar é só metade do jogo. Pra conseguir entrevista de verdade, o caminho é alcançar as pessoas certas com uma boa mensagem, e o seu LinkedIn é o respaldo: quando o recrutador te olha ali, decide se responde. Na aba <strong>LinkedIn</strong>, o Liplop te ajuda a se posicionar com estratégia pra sua abordagem chegar mais forte. Clica em Próximo que eu te mostro.' },
   { tab: 'marca', target: '.hero-chips', explain: true,
     onEnter: function(){ try { if (typeof getMarcaMessage === 'function' && getMarcaMessage()) resetMarcaMessage(); } catch(e){} },
     title: 'O que você vai construir aqui',
@@ -5582,14 +5647,14 @@ Responda SOMENTE com JSON válido:
 // ── Aba Entrevistas ──────────────────────────────────────────────
 function renderInterviewTab() {
   const wrap = document.getElementById('interview-wrap');
-  // Prepara não só as vagas em Entrevista Agendada, mas também as de fit alto
-  // (>= FIT_PREP_MIN), pra a pessoa já chegar preparada. Ignora as descartadas.
+  // Prepara não só as vagas em Entrevista, mas também as de fit alto
+  // (>= FIT_PREP_MIN), pra a pessoa já chegar sem improviso. Ignora as descartadas.
   const FIT_PREP_MIN = 78;
   const recruiterOpps = opps
-    .filter(o => o.stage !== 'lost' && (o.stage === 'recruiter' || (o.fit != null && o.fit >= FIT_PREP_MIN)))
+    .filter(o => o.stage !== 'lost' && (o.stage === 'interview' || (o.fit != null && o.fit >= FIT_PREP_MIN)))
     .sort((a, b) => {
-      const ar = a.stage === 'recruiter' ? 1 : 0, br = b.stage === 'recruiter' ? 1 : 0;
-      if (ar !== br) return br - ar;              // Entrevista Agendada primeiro
+      const ar = a.stage === 'interview' ? 1 : 0, br = b.stage === 'interview' ? 1 : 0;
+      if (ar !== br) return br - ar;              // Entrevista primeiro
       return (b.fit || 0) - (a.fit || 0);         // depois, maior fit primeiro
     });
 
@@ -5600,7 +5665,7 @@ function renderInterviewTab() {
     wrap.innerHTML = `
       <div style="margin-bottom:22px">
         <h2 style="font-size:1.25rem;font-weight:800;color:var(--text);margin-bottom:4px">Preparação para Entrevista</h2>
-        <p style="font-size:0.85rem;color:var(--mid);line-height:1.6">A IA monta aqui sua preparação para as vagas em <strong style="color:var(--rose)">Entrevista Agendada</strong> no Kanban e também para as de <strong style="color:var(--rose)">fit alto (78%+)</strong>, pra você já chegar preparada: o que a empresa valoriza, o que avaliam no cargo, o que destacar na sua narrativa e o que evitar falar.</p>
+        <p style="font-size:0.85rem;color:var(--mid);line-height:1.6">A IA monta aqui sua preparação para as vagas em <strong style="color:var(--rose)">Entrevista</strong> no Kanban e também para as de <strong style="color:var(--rose)">fit alto (78%+)</strong>, pra você já chegar sem improviso: o que a empresa valoriza, o que avaliam no cargo, o que destacar na sua narrativa e o que evitar falar.</p>
       </div>
 
       <div style="font-size:11px;font-weight:800;color:var(--rose);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Veja um exemplo do que você vai receber</div>
@@ -5635,7 +5700,7 @@ function renderInterviewTab() {
   wrap.innerHTML = `
     <div style="margin-bottom:28px">
       <h2 style="font-size:1.25rem;font-weight:800;color:var(--text);margin-bottom:4px">Preparação para Entrevista</h2>
-      <p style="font-size:0.85rem;color:var(--mid)">Preparação personalizada para as vagas em Entrevista Agendada e as de fit alto (78%+). A IA analisa sua experiência, a vaga e a empresa.</p>
+      <p style="font-size:0.85rem;color:var(--mid)">Preparação personalizada para as vagas em Entrevista e as de fit alto (78%+). A IA analisa sua experiência, a vaga e a empresa.</p>
     </div>
     <div style="position:relative;margin-bottom:20px">
       <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--dim);font-size:14px;pointer-events:none">🔎</span>
@@ -5649,7 +5714,7 @@ function renderInterviewTab() {
           <div>
             <div style="font-size:1rem;font-weight:800;color:var(--text)">${opp.company}</div>
             <div style="font-size:0.85rem;color:#f472b6;margin-top:2px">${opp.role}</div>
-            <div style="font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;margin-top:5px">${opp.stage === 'recruiter' ? '🗓️ Entrevista agendada' : '⭐ Fit alto'}</div>
+            <div style="font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;margin-top:5px">${opp.stage === 'interview' ? '🗓️ Entrevista' : '⭐ Fit alto'}</div>
           </div>
           ${opp.fit != null ? `<span style="font-size:0.8rem;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(244,114,182,0.12);color:#f472b6">${opp.fit}% fit</span>` : ''}
         </div>
@@ -6010,7 +6075,7 @@ function addJobToKanban(idx, stage) {
   // Adiciona ao kanban
   const item = {
     id: nextId++, company: job.company, role: job.role,
-    status: stage === 'applied' ? 'Aplicada' : 'Para Aplicar',
+    status: stage === 'applied' ? 'Aplicada' : 'A aplicar',
     stage, fit: job.fit || null, link: null,
     contacts: '', next: '—', notes: '—', organic: false, referred: false
   };
@@ -6061,10 +6126,11 @@ function renderTarefasTab() {
   const project  = getMarcaProject();
 
   wrap.innerHTML = `
-    <div style="margin-bottom:28px">
-      <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">✦ Marca Pessoal</div>
-      <h2 style="font-size:1.6rem;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.2">Calendário de postagens</h2>
-      <p style="font-size:13px;color:var(--mid);line-height:1.6">Seus 30 dias de conteúdo para o LinkedIn. Escreva, peça feedback da IA ou gere o post completo.</p>
+    <div id="daily-plan-body">${renderDailyPlanHTML()}</div>
+    <div style="margin:40px 0 24px;border-top:1px solid rgba(var(--ink),0.08);padding-top:28px">
+      <div style="font-size:11px;font-weight:700;color:#f472b6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">✦ LinkedIn: presença que dá respaldo</div>
+      <h2 style="font-size:1.4rem;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.2">Calendário de postagens</h2>
+      <p style="font-size:13px;color:var(--mid);line-height:1.6">Seus 30 dias de conteúdo para o LinkedIn. Postar dá o respaldo que faz a sua abordagem de outbound chegar mais forte.</p>
     </div>
     <div id="cal-tab-body">${renderCalendarBody(calendar, tone, project)}</div>`;
 }
@@ -6133,18 +6199,122 @@ function buildDailyTasks() {
   }
 
   // Entrevistas agendadas
-  const interviewOpps = opps.filter(o => o.stage === 'recruiter');
+  const interviewOpps = opps.filter(o => o.stage === 'interview');
   if (interviewOpps.length) {
     tasks.push({ title: `Prepare ${interviewOpps.length} entrevista${interviewOpps.length > 1 ? 's' : ''} agendada${interviewOpps.length > 1 ? 's' : ''}`, sub: interviewOpps.map(o => o.company).join(', '), tab: 'interview', color: '#a78bfa' });
   }
 
   // Aguardando retorno
-  const waitingOpps = opps.filter(o => o.stage === 'waiting');
+  const waitingOpps = opps.filter(o => o.stage === 'followup');
   if (waitingOpps.length) {
     tasks.push({ title: `Faça follow-up em ${waitingOpps.length} processo${waitingOpps.length > 1 ? 's' : ''}`, sub: waitingOpps.map(o => o.company).join(', '), tab: 'kanban', color: '#f59e0b' });
   }
 
   return tasks;
+}
+
+// ── Seu plano de hoje (motor de accountability do outbound) ────────────────
+// Puxa as tarefas reais dos cards do kanban (não inventa): para cada vaga ativa,
+// mostra o próximo passo que ainda falta, na ordem que conquista entrevista.
+function nextOutboundStep(o){
+  if (!o || o.stage === 'lost' || o.stage === 'offer') return null;
+  var cl = o.checklist || {};
+  // olha do passo mais avançado pro mais básico, pra ficar consistente mesmo
+  // se a pessoa marcar as atividades fora de ordem
+  if (!cl.applied)      return 'apply';       // ainda não aplicou
+  if (cl.followUpDone)  return null;          // tudo essencial feito
+  if (cl.messageSent)   return 'followup';    // já enviou a mensagem, falta follow-up
+  if (cl.foundPerson)   return 'message';     // achou a pessoa, falta enviar
+  if (!o.attackKit)     return 'kit';         // sem kit ainda, gerar o kit
+  return 'find';                              // tem kit, falta achar a pessoa
+}
+// OUTBOUND_BUCKETS é definido cedo, logo após a migração de etapas.
+function buildOutboundPlan(){
+  var active = opps.filter(function(o){ return o.stage !== 'lost' && o.stage !== 'offer'; });
+  var byKey = {}; OUTBOUND_BUCKETS.forEach(function(b){ byKey[b.key] = []; });
+  active.forEach(function(o){ var s = nextOutboundStep(o); if (s && byKey[s]) byKey[s].push(o); });
+  var buckets = OUTBOUND_BUCKETS.map(function(b){ return { key: b.key, emoji: b.emoji, label: b.label, color: b.color, opps: byKey[b.key] }; }).filter(function(b){ return b.opps.length; });
+  var pendingCount = buckets.reduce(function(n, b){ return n + b.opps.length; }, 0);
+  // progresso: atividades marcadas / total possível (4 por vaga ativa)
+  var doneSteps = active.reduce(function(n, o){ return n + checklistProgress(o); }, 0);
+  var totalSteps = active.length * KIT_CHECKLIST.length;
+  // métricas orientadas a resultado (entrevista), nunca "CVs gerados"
+  var interviews = opps.filter(function(o){ return o.stage === 'interview' || o.stage === 'offer'; }).length;
+  var contactsSent = opps.filter(function(o){ return o.checklist && o.checklist.messageSent; }).length;
+  return { active: active, buckets: buckets, pendingCount: pendingCount, doneSteps: doneSteps, totalSteps: totalSteps, interviews: interviews, contactsSent: contactsSent };
+}
+function openCardById(id){
+  var o = opps.find(function(x){ return x.id === id; });
+  if (!o) return;
+  switchTab('kanban');
+  try { openModal(o); } catch(e){}
+}
+window.openCardById = openCardById;
+
+function renderDailyPlanHTML(){
+  var plan = buildOutboundPlan();
+  var head = ''
+    + '<div style="margin-bottom:20px">'
+    +   '<div style="font-size:11px;font-weight:700;color:var(--rose,#D43A6E);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">✦ Seu plano de hoje</div>'
+    +   '<h2 style="font-size:1.6rem;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.2">O que conquista entrevista hoje</h2>'
+    +   '<p style="font-size:13px;color:var(--mid);line-height:1.6">Aplicar é só o começo. Quem consegue entrevista alcança as pessoas certas todo dia. Estas são as suas ações de hoje, puxadas direto das suas vagas.</p>'
+    + '</div>';
+
+  if (!plan.active.length){
+    return head + '<div style="text-align:center;padding:48px 32px;border:1px dashed rgba(var(--ink),0.15);border-radius:14px">'
+      + '<div style="font-size:32px;margin-bottom:12px">🚀</div>'
+      + '<div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px">Comece adicionando vagas</div>'
+      + '<div style="font-size:13px;color:var(--mid);margin-bottom:20px">Analise uma vaga e salve no kanban. Aqui vai aparecer, todo dia, o que fazer pra conseguir a entrevista.</div>'
+      + '<button onclick="switchTab(\'analyzer\')" style="padding:10px 24px;background:var(--topbar-bg);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Analisar uma vaga →</button>'
+      + '</div>';
+  }
+
+  var metric = function(value, label, color){
+    return '<div style="flex:1;min-width:96px;border:1px solid rgba(var(--ink),0.1);border-radius:12px;padding:12px 14px;background:rgba(var(--ink),0.02)">'
+      + '<div style="font-size:22px;font-weight:800;color:' + color + ';line-height:1">' + value + '</div>'
+      + '<div style="font-size:11.5px;color:var(--mid);margin-top:4px">' + label + '</div></div>';
+  };
+  var metrics = '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">'
+    + metric(plan.interviews, 'Entrevistas conquistadas', 'var(--rose,#D43A6E)')
+    + metric(plan.contactsSent, 'Contatos enviados', '#a78bfa')
+    + metric(plan.doneSteps, 'Atividades feitas', '#c9974a')
+    + '</div>';
+
+  var pct = plan.totalSteps ? Math.round((plan.doneSteps / plan.totalSteps) * 100) : 0;
+  var progress = ''
+    + '<div style="border:1px solid rgba(var(--ink),0.1);border-radius:14px;padding:16px;margin-bottom:16px;background:rgba(var(--ink),0.02)">'
+    +   '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+    +     '<span style="font-size:13px;font-weight:700;color:var(--text)">Seu progresso de outbound</span>'
+    +     '<span style="font-size:13px;font-weight:800;color:var(--rose,#D43A6E)">' + plan.doneSteps + ' de ' + plan.totalSteps + ' atividades</span>'
+    +   '</div>'
+    +   '<div style="height:10px;border-radius:999px;background:rgba(var(--ink),0.08);overflow:hidden"><div style="height:100%;width:' + pct + '%;background:var(--rose,#D43A6E);border-radius:999px;transition:width .4s"></div></div>'
+    + '</div>';
+
+  var body;
+  if (!plan.buckets.length){
+    body = '<div style="text-align:center;padding:40px 28px;border:1px solid rgba(var(--ink),0.1);border-radius:14px;background:rgba(var(--ink),0.02)">'
+      + '<div style="font-size:34px;margin-bottom:10px">🎉</div>'
+      + '<div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:6px">Você fez o que tinha que fazer hoje</div>'
+      + '<div style="font-size:13px;color:var(--mid)">Todas as suas vagas ativas estão em dia. É assim que se conquista entrevista: consistência. Volte amanhã ou adicione novas vagas.</div>'
+      + '</div>';
+  } else {
+    body = plan.buckets.map(function(b){
+      var chips = b.opps.map(function(o){
+        return '<button onclick="openCardById(' + o.id + ')" style="text-align:left;background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.1);border-radius:10px;padding:8px 12px;font-size:12.5px;color:var(--text);cursor:pointer;font-family:inherit;display:flex;flex-direction:column;gap:2px">'
+          + '<span style="font-weight:700">' + _kitEsc(o.company) + '</span>'
+          + '<span style="color:var(--mid);font-size:11.5px">' + _kitEsc(o.role) + '</span></button>';
+      }).join('');
+      return '<div style="border:1px solid rgba(var(--ink),0.1);border-radius:14px;padding:16px;margin-bottom:12px">'
+        + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">'
+        +   '<span style="font-size:20px">' + b.emoji + '</span>'
+        +   '<span style="font-size:15px;font-weight:800;color:var(--text)">' + b.opps.length + ' ' + _kitEsc(b.label.toLowerCase()) + '</span>'
+        + '</div>'
+        + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px">' + chips + '</div>'
+        + '</div>';
+    }).join('');
+  }
+
+  return head + metrics + progress + body;
 }
 
 function renderProjectCase(text) {
@@ -7219,6 +7389,10 @@ async function analyzeFit() {
     const json = JSON.parse(raw.replace(/^```json?\n?/, '').replace(/\n?```$/, ''));
     _lastAnalysis = json;
     _resumeGenerated = false; // reset ao fazer nova análise
+    _lastAttackKit = null;    // zera o kit da análise anterior
+    window._pendingAttackKit = null;
+    var _kitPrev = document.getElementById('kit-analysis-result'); if (_kitPrev) _kitPrev.innerHTML = '';
+    var _kitPrevSt = document.getElementById('kit-analysis-status'); if (_kitPrevSt) _kitPrevSt.style.display = 'none';
     renderAnalysisResult(json);
   } catch(e) {
     if (e && e.paywall) { btn.disabled = false; btn.innerHTML = '✨ Analisar compatibilidade com IA'; return; }
@@ -7286,6 +7460,159 @@ function renderAnalysisResult(r) {
   try { window.dispatchEvent(new CustomEvent('liplop:analysis-complete')); } catch(e){}
 }
 
+// ── Kit de ataque (outbound) ──────────────────────────────────────────────
+// A IA diz QUEM procurar e COMO buscar no LinkedIn, e rascunha a mensagem e o
+// follow-up. O Liplop NUNCA acessa o LinkedIn nem envia nada: a pessoa acha o
+// contato, envia manualmente e marca como enviado. Isso fica explícito na tela.
+var _lastAttackKit = null;
+
+function _kitEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function _kitCopy(btn, text){
+  var restore = function(ok){
+    if (!btn) return;
+    var prev = btn.getAttribute('data-label') || btn.textContent;
+    btn.setAttribute('data-label', prev);
+    btn.textContent = ok ? '✓ Copiado' : 'Copie manualmente';
+    setTimeout(function(){ btn.textContent = btn.getAttribute('data-label') || prev; }, 1600);
+  };
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function(){ restore(true); }, function(){ restore(false); });
+      return;
+    }
+  } catch(e){}
+  try {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta); restore(true);
+  } catch(e){ restore(false); }
+}
+window._kitCopy = _kitCopy;
+
+function attackKitHTML(kit, uid){
+  if (!kit) return '';
+  uid = uid || String(Date.now());
+  var who = (kit.who || []).map(function(w){
+    return '<div style="margin-bottom:10px">'
+      + '<div style="font-weight:700;font-size:13px;color:var(--text)">' + _kitEsc(w.title) + '</div>'
+      + '<div style="font-size:12.5px;color:var(--mid);margin-top:2px;line-height:1.5">' + _kitEsc(w.howToSearch) + '</div>'
+      + '</div>';
+  }).join('');
+  var msgId = 'kit-msg-' + uid;
+  var fuId  = 'kit-fu-' + uid;
+  var fu = kit.followUp || {};
+  var fuText = fu.text || '';
+  var fuWhen = (fu.whenDays != null && fu.whenDays !== '') ? ('Envie em cerca de ' + _kitEsc(fu.whenDays) + ' dia(s) se não houver resposta.') : '';
+  var boxStyle = 'white-space:pre-wrap;font-size:13px;color:var(--text);background:rgba(var(--ink),0.05);border-radius:10px;padding:12px;line-height:1.55';
+  var copyBtn = function(targetId){
+    return '<button data-label="Copiar" onclick="_kitCopy(this, (document.getElementById(\'' + targetId + '\')||{}).textContent||\'\')" '
+      + 'style="margin-top:8px;background:rgba(var(--ink),0.06);border:1px solid rgba(var(--ink),0.14);color:var(--text);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Copiar</button>';
+  };
+  return ''
+    + '<div style="border:1px solid rgba(var(--ink),0.12);border-radius:14px;padding:16px;margin-top:12px;text-align:left;background:rgba(var(--ink),0.02)">'
+    +   '<div style="font-weight:800;font-size:14px;color:var(--text);margin-bottom:4px">🎯 Kit de ataque</div>'
+    +   '<div style="font-size:12px;color:var(--mid);margin-bottom:14px;line-height:1.5">O Liplop não acessa o LinkedIn nem envia mensagens por você. Ele diz quem procurar e escreve a mensagem: você encontra a pessoa, envia e marca como enviado. É assim que funciona de verdade, sem parecer spam.</div>'
+    +   '<div style="font-weight:700;font-size:11px;letter-spacing:0.05em;color:var(--mid);text-transform:uppercase;margin-bottom:8px">Quem procurar e como</div>'
+    +   (who || '<div style="font-size:12.5px;color:var(--mid)">Sem sugestões desta vez.</div>')
+    +   '<div style="font-weight:700;font-size:11px;letter-spacing:0.05em;color:var(--mid);text-transform:uppercase;margin:16px 0 6px">Mensagem para enviar</div>'
+    +   '<div id="' + msgId + '" style="' + boxStyle + '">' + _kitEsc(kit.message || '') + '</div>'
+    +   copyBtn(msgId)
+    +   (fuText ? (''
+    +     '<div style="font-weight:700;font-size:11px;letter-spacing:0.05em;color:var(--mid);text-transform:uppercase;margin:16px 0 6px">Follow-up</div>'
+    +     '<div id="' + fuId + '" style="' + boxStyle + '">' + _kitEsc(fuText) + '</div>'
+    +     (fuWhen ? '<div style="font-size:12px;color:var(--mid);margin-top:6px">' + fuWhen + '</div>' : '')
+    +     copyBtn(fuId)
+        ) : '')
+    + '</div>';
+}
+
+async function generateAttackKit(source, oppId){
+  var isCard = source === 'card';
+  var profile = localStorage.getItem(PROFILE_KEY) || (document.getElementById('fit-profile') ? document.getElementById('fit-profile').value.trim() : '');
+  var jd, company, role, statusEl, resultEl, btn, opp = null;
+
+  if (isCard){
+    opp = opps.find(function(o){ return o.id === oppId; });
+    if (!opp) return;
+    jd = (opp.jd_text || (opp.notes && opp.notes !== '—' ? opp.notes : '') || '').trim();
+    company = opp.company || '';
+    role = opp.role || '';
+    statusEl = document.getElementById('kit-card-status');
+    resultEl = document.getElementById('kit-card-result');
+    btn = document.getElementById('btn-gen-kit-card');
+  } else {
+    jd = (document.getElementById('fit-jd-manual').value.trim() || _lastJD || '').trim();
+    company = (_lastAnalysis && _lastAnalysis.company) || '';
+    role = (_lastAnalysis && _lastAnalysis.role) || '';
+    statusEl = document.getElementById('kit-analysis-status');
+    resultEl = document.getElementById('kit-analysis-result');
+    btn = document.getElementById('btn-gen-kit-from-analysis');
+  }
+
+  if (!profile || (typeof profileTooThin === 'function' && profileTooThin(profile))){
+    if (statusEl){ statusEl.style.display = 'block'; statusEl.innerHTML = (typeof PROFILE_THIN_MSG !== 'undefined') ? PROFILE_THIN_MSG : 'Configure seu perfil profissional primeiro.'; }
+    return;
+  }
+  if (!jd){
+    if (statusEl){ statusEl.style.display = 'block'; statusEl.textContent = '⚠ Cole ou salve a descrição da vaga para gerar o kit.'; }
+    return;
+  }
+
+  var label = btn ? btn.innerHTML : '';
+  if (btn){ btn.disabled = true; btn.textContent = '⏳ Montando seu kit de ataque...'; }
+  if (statusEl) statusEl.style.display = 'none';
+
+  try {
+    var raw = await callAI({ task: 'attack_kit', data: { profile: profile, jd: jd, company: company, role: role }, kind: 'analysis' });
+    var kit = JSON.parse(raw.replace(/^```json?\n?/, '').replace(/\n?```$/, ''));
+    _lastAttackKit = kit;
+    if (isCard && opp){ opp.attackKit = kit; saveOpps(); }
+    else { window._pendingAttackKit = kit; }
+    if (resultEl) resultEl.innerHTML = attackKitHTML(kit, isCard ? ('card' + oppId) : String(Date.now()));
+  } catch(e){
+    if (e && e.paywall){ if (btn){ btn.disabled = false; btn.innerHTML = label; } return; }
+    if (statusEl){
+      statusEl.style.display = 'block';
+      var m = (e.message || '').toLowerCase();
+      if (m.includes('quota') || m.includes('billing') || m.includes('credit')) statusEl.textContent = 'A IA está temporariamente indisponível. Tenta de novo em alguns minutos.';
+      else if (e.status === 401 || m.includes('autenticado')) statusEl.textContent = 'Sua sessão expirou. Saia e entre de novo para continuar. 🔑';
+      else statusEl.textContent = 'A IA demorou ou veio incompleta. Tenta de novo, costuma funcionar na segunda. 🙏';
+    }
+  } finally {
+    if (btn){ btn.disabled = false; btn.innerHTML = label; }
+  }
+}
+
+// Checklist de atividades de outbound por card (accountability do que realmente move a agulha).
+// KIT_CHECKLIST é definido cedo, logo após a migração de etapas (usado já no primeiro render).
+function checklistProgress(opp){
+  var cl = (opp && opp.checklist) || {};
+  return KIT_CHECKLIST.filter(function(it){ return cl[it.key]; }).length;
+}
+function checklistHTML(opp){
+  var done = checklistProgress(opp);
+  var items = KIT_CHECKLIST.map(function(it){
+    var checked = (opp.checklist && opp.checklist[it.key]) ? 'checked' : '';
+    return '<label style="display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer;font-size:13px;color:var(--text)">'
+      + '<input type="checkbox" ' + checked + ' onchange="toggleChecklist(' + opp.id + ',\'' + it.key + '\',this.checked)" style="width:17px;height:17px;accent-color:var(--rose,#D43A6E);cursor:pointer;flex-shrink:0">'
+      + '<span>' + it.label + '</span></label>';
+  }).join('');
+  return '<div style="font-weight:700;font-size:11px;letter-spacing:0.05em;color:var(--mid);text-transform:uppercase;margin-bottom:4px">Atividades desta vaga (' + done + '/' + KIT_CHECKLIST.length + ')</div>' + items;
+}
+function toggleChecklist(oppId, key, checked){
+  var opp = opps.find(function(o){ return o.id === oppId; });
+  if (!opp) return;
+  if (!opp.checklist) opp.checklist = {};
+  opp.checklist[key] = !!checked;
+  saveOpps();
+  var el = document.getElementById('m-checklist');
+  if (el) el.innerHTML = checklistHTML(opp);
+  try { renderBoard(); } catch(e){}
+  try { if (_currentTab === 'tarefas' && typeof renderTarefasTab === 'function') renderTarefasTab(); } catch(e){}
+}
+
 function saveAnalysisToKanban() {
   if (!_lastAnalysis) return;
 
@@ -7305,6 +7632,13 @@ function saveAnalysisToKanban() {
 
   // Resumo como nota
   document.getElementById('f-notes').value = _lastAnalysis.summary || '';
+
+  // Leva a descrição da vaga analisada pro card (habilita regenerar o kit depois)
+  var jdAnalyzed = (document.getElementById('fit-jd-manual').value.trim() || _lastJD || '').trim();
+  if (jdAnalyzed) document.getElementById('f-jd-text').value = jdAnalyzed;
+
+  // Se o kit de ataque já foi gerado na análise, carrega no card ao salvar
+  window._pendingAttackKit = _lastAttackKit || window._pendingAttackKit || null;
 
   switchTab('kanban');
 }

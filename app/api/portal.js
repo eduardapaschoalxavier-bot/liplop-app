@@ -1,9 +1,11 @@
 // Abre o Customer Portal da Stripe para o usuário logado.
-// Localiza o cliente Stripe pelo E-MAIL do usuário, então funciona inclusive
-// pra quem pagou pelo Payment Link da landing (sem conta vinculada nem webhook).
+// Primeiro tenta o stripe_customer_id amarrado pelo webhook (tabela subscriptions),
+// então funciona mesmo quando o e-mail do pagamento é diferente do e-mail do login.
+// Se não achar, cai no lookup por e-mail (cobre quem pagou pelo Payment Link).
 //
-// Env necessárias: STRIPE_SECRET_KEY (sk_test_... primeiro), e as já existentes
-// SUPABASE_URL e SUPABASE_ANON_KEY (pra validar o token do usuário).
+// Env necessárias: STRIPE_SECRET_KEY (sk_test_... primeiro), SUPABASE_URL e
+// SUPABASE_ANON_KEY (pra validar o token), e SUPABASE_SERVICE_ROLE_KEY (pra ler
+// a tabela subscriptions ignorando RLS).
 
 async function getUser(token) {
   if (!token) return null;
@@ -13,6 +15,21 @@ async function getUser(token) {
     });
     if (!r.ok) return null;
     return await r.json();
+  } catch (e) { return null; }
+}
+
+// Lê o stripe_customer_id salvo pelo webhook na tabela subscriptions (service role).
+async function customerIdFromDB(userId) {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!userId || !key) return null;
+  try {
+    const r = await fetch(process.env.SUPABASE_URL + '/rest/v1/subscriptions?user_id=eq.' + encodeURIComponent(userId) + '&select=stripe_customer_id&limit=1', {
+      headers: { apikey: key, Authorization: 'Bearer ' + key }
+    });
+    if (!r.ok) return null;
+    const d = await r.json();
+    const row = Array.isArray(d) && d[0];
+    return (row && row.stripe_customer_id) || null;
   } catch (e) { return null; }
 }
 
@@ -30,13 +47,17 @@ export default async function handler(req, res) {
 
   const sk = process.env.STRIPE_SECRET_KEY;
   try {
-    // acha o cliente Stripe pelo e-mail do usuário
-    const cr = await fetch('https://api.stripe.com/v1/customers?limit=1&email=' + encodeURIComponent(user.email), {
-      headers: { Authorization: 'Bearer ' + sk }
-    });
-    const cd = await cr.json();
-    if (!cr.ok) return res.status(400).json({ error: (cd.error && cd.error.message) || 'Erro Stripe' });
-    const customer = cd.data && cd.data[0] && cd.data[0].id;
+    // 1) tenta o cliente amarrado pelo webhook (funciona com e-mail diferente)
+    let customer = await customerIdFromDB(user.id);
+    // 2) fallback: acha o cliente Stripe pelo e-mail do usuário
+    if (!customer) {
+      const cr = await fetch('https://api.stripe.com/v1/customers?limit=1&email=' + encodeURIComponent(user.email), {
+        headers: { Authorization: 'Bearer ' + sk }
+      });
+      const cd = await cr.json();
+      if (!cr.ok) return res.status(400).json({ error: (cd.error && cd.error.message) || 'Erro Stripe' });
+      customer = cd.data && cd.data[0] && cd.data[0].id;
+    }
     if (!customer) return res.status(404).json({ error: 'no_customer' });
 
     const origin = req.headers.origin || ('https://' + req.headers.host);
