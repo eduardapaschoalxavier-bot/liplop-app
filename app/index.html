@@ -2208,6 +2208,12 @@
             <option value="en">Inglês (padrão internacional)</option>
           </select>
         </div>
+        <button class="btn-fit-save" id="btn-gen-kit-from-analysis" onclick="generateAttackKit('analysis')"
+          style="background:var(--rose,#D43A6E);border:none;color:#fff;font-weight:800">
+          🎯 Gerar kit de ataque para conseguir a entrevista
+        </button>
+        <div id="kit-analysis-status" style="font-size:12px;color:var(--mid);text-align:center;display:none"></div>
+        <div id="kit-analysis-result"></div>
         <button class="btn-fit-save" id="btn-gen-resume-from-analysis" onclick="generateResumeFromAnalysis()"
           style="background:transparent;border:2px solid #f472b6;color:#f472b6"
           onmouseover="this.style.background='rgba(244,114,182,0.1)'" onmouseout="this.style.background='transparent'">
@@ -2362,6 +2368,15 @@
       <div class="modal-section">
         <div class="modal-label" style="margin-bottom:6px">Descrição da vaga <span style="font-weight:400;color:var(--dim);font-size:10px">(usada para gerar currículo adaptado)</span></div>
         <textarea id="m-jd-text" rows="4" placeholder="Cole aqui o texto da vaga..." style="width:100%;background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.1);border-radius:10px;padding:10px 12px;color:var(--text);font-size:13px;resize:vertical;outline:none;font-family:inherit;box-sizing:border-box" onchange="saveInlineField('jd_text',this.value)"></textarea>
+      </div>
+      <div class="modal-section" style="margin-top:12px">
+        <button id="btn-gen-kit-card" onclick="generateAttackKit('card', _modalOpp && _modalOpp.id)"
+          style="width:100%;padding:16px 12px;background:var(--rose,#D43A6E);border:none;border-radius:14px;color:#fff;font-size:14px;font-weight:800;cursor:pointer;line-height:1.3;box-shadow:0 4px 14px rgba(233,30,140,0.3)"
+          onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+          🎯 Gerar kit de ataque<br><span style="font-weight:400;font-size:11px;opacity:.9">quem procurar, mensagem e follow-up</span>
+        </button>
+        <div id="kit-card-status" style="font-size:12px;color:var(--mid);text-align:center;margin-top:8px;display:none"></div>
+        <div id="kit-card-result"></div>
       </div>
       <div style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;color:var(--mid);margin-top:12px">
         <span>Idioma do currículo:</span>
@@ -2956,6 +2971,11 @@ function openModal(opp) {
   }
   renderModalContacts(opp);
   document.getElementById("network-section").innerHTML = '';
+  // Kit de ataque salvo neste card (se houver)
+  var kitCardStatus = document.getElementById("kit-card-status");
+  var kitCardResult = document.getElementById("kit-card-result");
+  if (kitCardStatus) kitCardStatus.style.display = 'none';
+  if (kitCardResult) kitCardResult.innerHTML = opp.attackKit ? attackKitHTML(opp.attackKit, 'card' + opp.id) : '';
   document.getElementById("modal-overlay").classList.add("active");
 }
 
@@ -3310,6 +3330,11 @@ function saveCard() {
     organic:  document.getElementById("f-organic").checked  || undefined,
     referred: document.getElementById("f-referred").checked || undefined,
   });
+  // Anexa o kit de ataque gerado na análise (se houver) ao card recém-criado
+  if (window._pendingAttackKit) {
+    opps[opps.length - 1].attackKit = window._pendingAttackKit;
+    window._pendingAttackKit = null;
+  }
   document.getElementById("form-overlay").classList.remove("active");
   saveOpps();
   renderFunnel();
@@ -7218,6 +7243,10 @@ async function analyzeFit() {
     const json = JSON.parse(raw.replace(/^```json?\n?/, '').replace(/\n?```$/, ''));
     _lastAnalysis = json;
     _resumeGenerated = false; // reset ao fazer nova análise
+    _lastAttackKit = null;    // zera o kit da análise anterior
+    window._pendingAttackKit = null;
+    var _kitPrev = document.getElementById('kit-analysis-result'); if (_kitPrev) _kitPrev.innerHTML = '';
+    var _kitPrevSt = document.getElementById('kit-analysis-status'); if (_kitPrevSt) _kitPrevSt.style.display = 'none';
     renderAnalysisResult(json);
   } catch(e) {
     if (e && e.paywall) { btn.disabled = false; btn.innerHTML = '✨ Analisar compatibilidade com IA'; return; }
@@ -7285,6 +7314,131 @@ function renderAnalysisResult(r) {
   try { window.dispatchEvent(new CustomEvent('liplop:analysis-complete')); } catch(e){}
 }
 
+// ── Kit de ataque (outbound) ──────────────────────────────────────────────
+// A IA diz QUEM procurar e COMO buscar no LinkedIn, e rascunha a mensagem e o
+// follow-up. O Liplop NUNCA acessa o LinkedIn nem envia nada: a pessoa acha o
+// contato, envia manualmente e marca como enviado. Isso fica explícito na tela.
+var _lastAttackKit = null;
+
+function _kitEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function _kitCopy(btn, text){
+  var restore = function(ok){
+    if (!btn) return;
+    var prev = btn.getAttribute('data-label') || btn.textContent;
+    btn.setAttribute('data-label', prev);
+    btn.textContent = ok ? '✓ Copiado' : 'Copie manualmente';
+    setTimeout(function(){ btn.textContent = btn.getAttribute('data-label') || prev; }, 1600);
+  };
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function(){ restore(true); }, function(){ restore(false); });
+      return;
+    }
+  } catch(e){}
+  try {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta); restore(true);
+  } catch(e){ restore(false); }
+}
+window._kitCopy = _kitCopy;
+
+function attackKitHTML(kit, uid){
+  if (!kit) return '';
+  uid = uid || String(Date.now());
+  var who = (kit.who || []).map(function(w){
+    return '<div style="margin-bottom:10px">'
+      + '<div style="font-weight:700;font-size:13px;color:var(--text)">' + _kitEsc(w.title) + '</div>'
+      + '<div style="font-size:12.5px;color:var(--mid);margin-top:2px;line-height:1.5">' + _kitEsc(w.howToSearch) + '</div>'
+      + '</div>';
+  }).join('');
+  var msgId = 'kit-msg-' + uid;
+  var fuId  = 'kit-fu-' + uid;
+  var fu = kit.followUp || {};
+  var fuText = fu.text || '';
+  var fuWhen = (fu.whenDays != null && fu.whenDays !== '') ? ('Envie em cerca de ' + _kitEsc(fu.whenDays) + ' dia(s) se não houver resposta.') : '';
+  var boxStyle = 'white-space:pre-wrap;font-size:13px;color:var(--text);background:rgba(var(--ink),0.05);border-radius:10px;padding:12px;line-height:1.55';
+  var copyBtn = function(targetId){
+    return '<button data-label="Copiar" onclick="_kitCopy(this, (document.getElementById(\'' + targetId + '\')||{}).textContent||\'\')" '
+      + 'style="margin-top:8px;background:rgba(var(--ink),0.06);border:1px solid rgba(var(--ink),0.14);color:var(--text);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Copiar</button>';
+  };
+  return ''
+    + '<div style="border:1px solid rgba(var(--ink),0.12);border-radius:14px;padding:16px;margin-top:12px;text-align:left;background:rgba(var(--ink),0.02)">'
+    +   '<div style="font-weight:800;font-size:14px;color:var(--text);margin-bottom:4px">🎯 Kit de ataque</div>'
+    +   '<div style="font-size:12px;color:var(--mid);margin-bottom:14px;line-height:1.5">O Liplop não acessa o LinkedIn nem envia mensagens por você. Ele diz quem procurar e escreve a mensagem: você encontra a pessoa, envia e marca como enviado. É assim que funciona de verdade, sem parecer spam.</div>'
+    +   '<div style="font-weight:700;font-size:11px;letter-spacing:0.05em;color:var(--mid);text-transform:uppercase;margin-bottom:8px">Quem procurar e como</div>'
+    +   (who || '<div style="font-size:12.5px;color:var(--mid)">Sem sugestões desta vez.</div>')
+    +   '<div style="font-weight:700;font-size:11px;letter-spacing:0.05em;color:var(--mid);text-transform:uppercase;margin:16px 0 6px">Mensagem para enviar</div>'
+    +   '<div id="' + msgId + '" style="' + boxStyle + '">' + _kitEsc(kit.message || '') + '</div>'
+    +   copyBtn(msgId)
+    +   (fuText ? (''
+    +     '<div style="font-weight:700;font-size:11px;letter-spacing:0.05em;color:var(--mid);text-transform:uppercase;margin:16px 0 6px">Follow-up</div>'
+    +     '<div id="' + fuId + '" style="' + boxStyle + '">' + _kitEsc(fuText) + '</div>'
+    +     (fuWhen ? '<div style="font-size:12px;color:var(--mid);margin-top:6px">' + fuWhen + '</div>' : '')
+    +     copyBtn(fuId)
+        ) : '')
+    + '</div>';
+}
+
+async function generateAttackKit(source, oppId){
+  var isCard = source === 'card';
+  var profile = localStorage.getItem(PROFILE_KEY) || (document.getElementById('fit-profile') ? document.getElementById('fit-profile').value.trim() : '');
+  var jd, company, role, statusEl, resultEl, btn, opp = null;
+
+  if (isCard){
+    opp = opps.find(function(o){ return o.id === oppId; });
+    if (!opp) return;
+    jd = (opp.jd_text || (opp.notes && opp.notes !== '—' ? opp.notes : '') || '').trim();
+    company = opp.company || '';
+    role = opp.role || '';
+    statusEl = document.getElementById('kit-card-status');
+    resultEl = document.getElementById('kit-card-result');
+    btn = document.getElementById('btn-gen-kit-card');
+  } else {
+    jd = (document.getElementById('fit-jd-manual').value.trim() || _lastJD || '').trim();
+    company = (_lastAnalysis && _lastAnalysis.company) || '';
+    role = (_lastAnalysis && _lastAnalysis.role) || '';
+    statusEl = document.getElementById('kit-analysis-status');
+    resultEl = document.getElementById('kit-analysis-result');
+    btn = document.getElementById('btn-gen-kit-from-analysis');
+  }
+
+  if (!profile || (typeof profileTooThin === 'function' && profileTooThin(profile))){
+    if (statusEl){ statusEl.style.display = 'block'; statusEl.innerHTML = (typeof PROFILE_THIN_MSG !== 'undefined') ? PROFILE_THIN_MSG : 'Configure seu perfil profissional primeiro.'; }
+    return;
+  }
+  if (!jd){
+    if (statusEl){ statusEl.style.display = 'block'; statusEl.textContent = '⚠ Cole ou salve a descrição da vaga para gerar o kit.'; }
+    return;
+  }
+
+  var label = btn ? btn.innerHTML : '';
+  if (btn){ btn.disabled = true; btn.textContent = '⏳ Montando seu kit de ataque...'; }
+  if (statusEl) statusEl.style.display = 'none';
+
+  try {
+    var raw = await callAI({ task: 'attack_kit', data: { profile: profile, jd: jd, company: company, role: role }, kind: 'analysis' });
+    var kit = JSON.parse(raw.replace(/^```json?\n?/, '').replace(/\n?```$/, ''));
+    _lastAttackKit = kit;
+    if (isCard && opp){ opp.attackKit = kit; saveOpps(); }
+    else { window._pendingAttackKit = kit; }
+    if (resultEl) resultEl.innerHTML = attackKitHTML(kit, isCard ? ('card' + oppId) : String(Date.now()));
+  } catch(e){
+    if (e && e.paywall){ if (btn){ btn.disabled = false; btn.innerHTML = label; } return; }
+    if (statusEl){
+      statusEl.style.display = 'block';
+      var m = (e.message || '').toLowerCase();
+      if (m.includes('quota') || m.includes('billing') || m.includes('credit')) statusEl.textContent = 'A IA está temporariamente indisponível. Tenta de novo em alguns minutos.';
+      else if (e.status === 401 || m.includes('autenticado')) statusEl.textContent = 'Sua sessão expirou. Saia e entre de novo para continuar. 🔑';
+      else statusEl.textContent = 'A IA demorou ou veio incompleta. Tenta de novo, costuma funcionar na segunda. 🙏';
+    }
+  } finally {
+    if (btn){ btn.disabled = false; btn.innerHTML = label; }
+  }
+}
+
 function saveAnalysisToKanban() {
   if (!_lastAnalysis) return;
 
@@ -7304,6 +7458,13 @@ function saveAnalysisToKanban() {
 
   // Resumo como nota
   document.getElementById('f-notes').value = _lastAnalysis.summary || '';
+
+  // Leva a descrição da vaga analisada pro card (habilita regenerar o kit depois)
+  var jdAnalyzed = (document.getElementById('fit-jd-manual').value.trim() || _lastJD || '').trim();
+  if (jdAnalyzed) document.getElementById('f-jd-text').value = jdAnalyzed;
+
+  // Se o kit de ataque já foi gerado na análise, carrega no card ao salvar
+  window._pendingAttackKit = _lastAttackKit || window._pendingAttackKit || null;
 
   switchTab('kanban');
 }

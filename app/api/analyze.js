@@ -143,8 +143,49 @@ Responda SOMENTE com um JSON válido neste formato exato (sem markdown, sem text
 Nos textos (summary, has, lacks, tips), NÃO use travessão nem meia-risca; use vírgula, ponto ou dois-pontos. Português brasileiro correto com todos os acentos.`;
 }
 
+// Kit de ataque (outbound): a IA diz QUEM procurar e COMO buscar no LinkedIn,
+// rascunha a mensagem personalizada e o follow-up. O produto NUNCA acessa o
+// LinkedIn nem envia nada; a pessoa encontra o contato e envia manualmente.
+function buildAttackKitPrompt(d) {
+  const profile = (d && d.profile) || '';
+  const jd = (d && d.jd) || '';
+  const company = (d && d.company) || '';
+  const role = (d && d.role) || '';
+  return `Você é um especialista em recrutamento e em conseguir entrevistas por outbound (alcançar as pessoas certas com uma mensagem personalizada, em vez de só aplicar e esperar).
+
+Monte um "kit de ataque" para a pessoa conseguir uma entrevista NESTA vaga alcançando humanos no LinkedIn ou por e-mail. Você NÃO acessa o LinkedIn nem envia mensagens: sua função é dizer QUEM a pessoa deve procurar e COMO buscar, e rascunhar as mensagens para ela mesma enviar.
+
+## PERFIL PROFISSIONAL
+${profile}
+
+## VAGA
+Empresa: ${company || '(extraia da descrição)'}
+Cargo: ${role || '(extraia da descrição)'}
+
+## DESCRIÇÃO DA VAGA
+${jd}
+
+Responda SOMENTE com um JSON válido neste formato exato (sem markdown, sem texto extra):
+{
+  "company": "<nome da empresa>",
+  "role": "<título do cargo>",
+  "who": [
+    {"title": "<tipo de pessoa a procurar, ex: Recrutador(a) ou Talent Acquisition da empresa>", "howToSearch": "<como achar no LinkedIn: termos de busca e filtros concretos usando o nome da empresa>"},
+    {"title": "<hiring manager, ex: liderança da área da vaga>", "howToSearch": "<como achar: título provável a buscar na empresa e filtros>"}
+  ],
+  "message": "<mensagem curta (3 a 5 frases), humana e personalizada, para enviar ao contato no LinkedIn ou e-mail. Conecta o perfil da pessoa com a vaga e a empresa. Tom genuíno e respeitoso, nada de robô nem de spam. Sem elogio vazio. Fecha pedindo um papo rápido ou orientação sobre o processo. Use [colchetes] só se precisar de um dado que a pessoa deve preencher.>",
+  "followUp": {
+    "text": "<mensagem curta de follow-up para reenviar caso não haja resposta, retomando o contato sem cobrar>",
+    "whenDays": <número de dias para enviar o follow-up depois da primeira mensagem, ex: 4>
+  }
+}
+
+Regras de texto: escreva em português brasileiro correto com todos os acentos. NÃO use travessão nem meia-risca (— ou –); use vírgula, ponto ou dois-pontos. Não use marcas de gênero: prefira formas neutras. Tom aspiracional (a pessoa está subindo de carreira), nunca de desespero.`;
+}
+
 function buildPromptForTask(task, data) {
   if (task === 'analysis') return buildAnalysisPrompt(data);
+  if (task === 'attack_kit') return buildAttackKitPrompt(data);
   return null;
 }
 
