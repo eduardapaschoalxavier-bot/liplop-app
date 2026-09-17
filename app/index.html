@@ -6203,12 +6203,14 @@ function buildDailyTasks() {
 function nextOutboundStep(o){
   if (!o || o.stage === 'lost' || o.stage === 'offer') return null;
   var cl = o.checklist || {};
-  if (!cl.applied)      return 'apply';
-  if (!o.attackKit)     return 'kit';
-  if (!cl.foundPerson)  return 'find';
-  if (!cl.messageSent)  return 'message';
-  if (!cl.followUpDone) return 'followup';
-  return null; // tudo feito nesta vaga
+  // olha do passo mais avançado pro mais básico, pra ficar consistente mesmo
+  // se a pessoa marcar as atividades fora de ordem
+  if (!cl.applied)      return 'apply';       // ainda não aplicou
+  if (cl.followUpDone)  return null;          // tudo essencial feito
+  if (cl.messageSent)   return 'followup';    // já enviou a mensagem, falta follow-up
+  if (cl.foundPerson)   return 'message';     // achou a pessoa, falta enviar
+  if (!o.attackKit)     return 'kit';         // sem kit ainda, gerar o kit
+  return 'find';                              // tem kit, falta achar a pessoa
 }
 var OUTBOUND_BUCKETS = [
   { key: 'apply',    emoji: '📝', label: 'Candidaturas para enviar',        color: '#c9974a' },
