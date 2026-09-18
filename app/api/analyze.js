@@ -183,9 +183,43 @@ Responda SOMENTE com um JSON válido neste formato exato (sem markdown, sem text
 Regras de texto: escreva em português brasileiro correto com todos os acentos. NÃO use travessão nem meia-risca (— ou –); use vírgula, ponto ou dois-pontos. Não use marcas de gênero: prefira formas neutras. Tom aspiracional (a pessoa está subindo de carreira), nunca de desespero.`;
 }
 
+// Mapa de carreira: a partir do perfil, estima os caminhos de renda (faixas de
+// mercado) e posiciona oportunidades em curto x longo prazo. Sempre estimativa
+// de mercado, pra a pessoa ajustar. Persona: quem quer ganhar mais ou internacionalizar.
+function buildCareerMapPrompt(d) {
+  const profile = (d && d.profile) || '';
+  const currentIncome = (d && d.currentIncome) || '';
+  return `Você é um estrategista de carreira e remuneração. A partir do perfil abaixo, monte um "mapa de carreira" que mostra, de forma estratégica, quanto cada caminho pode render e onde vale investir energia. A persona é alguém ambicioso que quer ganhar mais ou internacionalizar a carreira, nunca alguém desesperado.
+
+## PERFIL PROFISSIONAL
+${profile}
+
+${currentIncome ? '## RENDA ATUAL INFORMADA PELA PESSOA\n' + currentIncome + '\n' : ''}
+Primeiro identifique cargo atual, senioridade, área e anos de experiência a partir do perfil. Depois estime, com base em benchmarks de mercado, faixas de remuneração anuais (R$/ano, valor total incluindo variável quando fizer sentido) para cada caminho realista para ESTE perfil. Para o caminho internacional/remoto, estime em dólar e converta para reais usando câmbio aproximado de 5,15, deixando claro que é conversão.
+
+Responda SOMENTE com um JSON válido neste formato exato (sem markdown, sem texto extra):
+{
+  "profileSummary": "<1 frase: cargo, senioridade e área percebidos no perfil>",
+  "usdRate": 5.15,
+  "paths": [
+    {"label": "<nome do caminho, ex: Cargo atual ou Head of Growth no Brasil>", "type": "current|job|international|freela|venture", "lowBRL": <número R$/ano provável>, "highBRL": <número R$/ano teto realista>, "certainty": "certo|variavel", "note": "<1 frase curta explicando a faixa; para internacional cite o valor aproximado em US$>"}
+  ],
+  "opportunities": [
+    {"name": "<oportunidade, ex: Continuar no emprego atual, Vaga internacional remota, Projeto proprio>", "type": "current|job|international|freela|venture", "shortTerm": <0-100 potencial de renda no curto prazo>, "longTerm": <0-100 potencial no longo prazo>, "note": "<1 frase>"}
+  ]
+}
+
+Regras para "paths": inclua o cargo atual (type "current", certainty "certo"), 1 a 2 cargos-alvo para os quais o perfil é competitivo (type "job"), o caminho internacional/remoto se fizer sentido (type "international", geralmente "variavel"), e freela/consultoria ou projeto próprio se couber (type "freela" ou "venture", "variavel"). Ordene do maior teto (highBRL) para o menor. Use "certo" para renda de emprego estável e "variavel" para renda com muita comissão, equity ou negócio próprio.
+
+Regras para "opportunities": posicione cada uma pela natureza. Emprego tende a caixa agora e teto menor (shortTerm alto, longTerm médio ou baixo). Papel com equity ou projeto próprio tende a pouco agora e muito no longo prazo (shortTerm baixo, longTerm alto). Internacional costuma ser forte nos dois. Gere de 3 a 5 oportunidades coerentes com o perfil.
+
+Regras de texto: português brasileiro correto com acentos. NÃO use travessão nem meia-risca (— ou –); use vírgula, ponto ou dois-pontos. Não use marca de gênero: use formas neutras. Tom aspiracional. Números sem separador de milhar (ex: 180000, não 180.000).`;
+}
+
 function buildPromptForTask(task, data) {
   if (task === 'analysis') return buildAnalysisPrompt(data);
   if (task === 'attack_kit') return buildAttackKitPrompt(data);
+  if (task === 'career_map') return buildCareerMapPrompt(data);
   return null;
 }
 

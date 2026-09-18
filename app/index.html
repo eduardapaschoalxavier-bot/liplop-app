@@ -2076,6 +2076,9 @@
   </a>
 
   <nav class="tab-nav">
+    <div class="nav-stage" data-stage="carreira">
+      <button class="tab-btn" data-stage="carreira" onclick="switchTab('dashboard')">Carreira</button>
+    </div>
     <div class="nav-stage" data-stage="aplicar" onmouseenter="openStageHover(this)" onmouseleave="scheduleCloseStages()">
       <button class="tab-btn" data-stage="aplicar" onclick="switchTab('analyzer')">Analisar <span class="nav-caret">▾</span></button>
       <div class="nav-dropdown">
@@ -2114,6 +2117,11 @@
 </header>
 
 <div class="page-content">
+
+<!-- DASHBOARD DE CARREIRA (HOME) -->
+<div class="tab-view" id="tab-dashboard">
+  <div id="dashboard-wrap" style="max-width:960px;margin:0 auto;padding:24px 16px 60px"></div>
+</div>
 
 <!-- ANALISAR FIT TAB -->
 <div class="tab-view" id="tab-analyzer">
@@ -3413,7 +3421,7 @@ function switchTab(tab) {
   _currentTab = tab;
 
   // Esconde todas as abas explicitamente
-  ['analyzer','kanban','ranking','interview','marca','tarefas','perfil','vagas','documentos'].forEach(id => {
+  ['dashboard','analyzer','kanban','ranking','interview','marca','tarefas','perfil','vagas','documentos'].forEach(id => {
     const el = document.getElementById('tab-' + id);
     if (el) { el.style.display = 'none'; el.classList.remove('active'); }
   });
@@ -3426,13 +3434,14 @@ function switchTab(tab) {
   }
 
   // Atualiza a etapa ativa do menu, destaca a página no dropdown e fecha os dropdowns
-  const stageOfTab = { perfil:'config', analyzer:'aplicar', vagas:'aplicar', documentos:'aplicar', marca:'linkedin', tarefas:'plano', interview:'aprovado', kanban:'acompanhar', ranking:'acompanhar' };
+  const stageOfTab = { dashboard:'carreira', perfil:'config', analyzer:'aplicar', vagas:'aplicar', documentos:'aplicar', marca:'linkedin', tarefas:'plano', interview:'aprovado', kanban:'acompanhar', ranking:'acompanhar' };
   const activeStage = stageOfTab[tab];
   document.querySelectorAll('.tab-btn[data-stage]').forEach(btn => btn.classList.toggle('active', btn.dataset.stage === activeStage));
   document.querySelectorAll('.nav-dropdown a').forEach(a => a.classList.toggle('active', (a.getAttribute('onclick') || '').includes("'" + tab + "'")));
   document.querySelectorAll('.nav-stage.open').forEach(s => s.classList.remove('open'));
 
   // Renderiza conteúdo da aba
+  if (tab === 'dashboard') renderDashboardTab();
   if (tab === 'kanban')    { renderFunnel(); renderBoard(); }
   if (tab === 'ranking')   renderRanking();
   if (tab === 'analyzer')  initAnalyzer();
@@ -7460,6 +7469,241 @@ function renderAnalysisResult(r) {
   try { window.dispatchEvent(new CustomEvent('liplop:analysis-complete')); } catch(e){}
 }
 
+// ── Dashboard de carreira (home) ──────────────────────────────────────────
+// Retrato estratégico da pessoa: quanto cada caminho pode render (barras) e
+// onde cada oportunidade cai entre curto e longo prazo (matriz 2x2). Gerado da
+// IA a partir do perfil; a pessoa pode adicionar oportunidades e ajustar.
+var CAREER_KEY = 'liplop-career-map';
+function loadCareerMap(){ try { var r = localStorage.getItem(CAREER_KEY); return r ? JSON.parse(r) : null; } catch(e){ return null; } }
+function saveCareerMap(m){ try { localStorage.setItem(CAREER_KEY, JSON.stringify(m)); } catch(e){} }
+var CAREER_TYPE_COLOR = { current:'#6b7280', job:'var(--rose,#D43A6E)', international:'#7c8cf8', freela:'#2dd4bf', venture:'#c9974a' };
+var CAREER_TYPE_LABEL = { current:'Atual', job:'Emprego', international:'Internacional', freela:'Freela/consultoria', venture:'Negócio próprio' };
+function brlShort(n){
+  n = Number(n) || 0;
+  if (n >= 1000000) return 'R$ ' + (n/1000000).toFixed(n % 1000000 ? 1 : 0).replace('.', ',') + 'M';
+  if (n >= 1000) return 'R$ ' + Math.round(n/1000) + 'k';
+  return 'R$ ' + n;
+}
+
+function renderDashboardTab(){
+  var wrap = document.getElementById('dashboard-wrap');
+  if (!wrap) return;
+  var map = loadCareerMap();
+  var profile = localStorage.getItem(PROFILE_KEY) || '';
+  var header = '<div style="margin-bottom:20px">'
+    + '<div style="font-size:11px;font-weight:700;color:var(--rose,#D43A6E);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">✦ Seu dashboard de carreira</div>'
+    + '<h2 style="font-size:1.7rem;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.2">Onde está o seu dinheiro, e pra onde mirar</h2>'
+    + '<p style="font-size:13px;color:var(--mid);line-height:1.6">Um retrato estratégico do seu momento: quanto cada caminho pode render e onde vale investir sua energia. As faixas são estimativa de mercado, você pode ajustar.</p>'
+    + '</div>';
+
+  if (!map){
+    var thin = !profile || (typeof profileTooThin === 'function' && profileTooThin(profile));
+    wrap.innerHTML = header
+      + '<div style="text-align:center;padding:48px 32px;border:1px dashed rgba(var(--ink),0.15);border-radius:16px">'
+      +   '<div style="font-size:38px;margin-bottom:14px">🧭</div>'
+      +   '<div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:8px">Gere o seu mapa de carreira</div>'
+      +   '<div style="font-size:13px;color:var(--mid);margin-bottom:20px;max-width:460px;margin-left:auto;margin-right:auto;line-height:1.6">O Liplop lê o seu perfil e monta dois gráficos: quanto cada caminho pode te pagar por ano, e onde cada oportunidade cai entre curto e longo prazo.</div>'
+      +   (thin
+            ? '<div style="font-size:13px;color:var(--mid);margin:0 auto 16px;max-width:520px;line-height:1.6">' + (typeof PROFILE_THIN_MSG !== 'undefined' ? PROFILE_THIN_MSG : 'Complete seu perfil primeiro.') + '</div><button onclick="switchTab(\'perfil\')" style="padding:12px 26px;background:var(--topbar-bg);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:800;cursor:pointer">Construir meu perfil →</button>'
+            : '<button id="btn-gen-career" onclick="generateCareerMap()" style="padding:14px 30px;background:var(--rose,#D43A6E);border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:800;cursor:pointer">🧭 Gerar meu mapa de carreira</button>')
+      +   '<div id="career-gen-status" style="font-size:12px;color:var(--mid);margin-top:14px;display:none"></div>'
+      + '</div>';
+    return;
+  }
+
+  wrap.innerHTML = header
+    + (map.profileSummary ? '<div style="font-size:13px;color:var(--text);background:rgba(var(--ink),0.03);border:1px solid rgba(var(--ink),0.08);border-radius:12px;padding:12px 14px;margin-bottom:20px">' + _kitEsc(map.profileSummary) + '</div>' : '')
+    + careerBarsHTML(map)
+    + careerMatrixHTML(map)
+    + '<div id="career-panel"></div>'
+    + '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">'
+    +   '<button onclick="openAddOpportunity()" style="padding:11px 20px;background:var(--rose,#D43A6E);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:800;cursor:pointer">+ Adicionar oportunidade</button>'
+    +   '<button id="btn-regen-career" onclick="generateCareerMap()" style="padding:11px 20px;background:transparent;border:1.5px solid rgba(var(--ink),0.2);border-radius:10px;color:var(--text);font-size:13px;font-weight:700;cursor:pointer">Atualizar mapa</button>'
+    + '</div>'
+    + '<div id="career-gen-status" style="font-size:12px;color:var(--mid);margin-top:10px;display:none"></div>';
+}
+
+function careerBarsHTML(map){
+  var paths = (map.paths || []).slice().sort(function(a,b){ return (b.highBRL||0) - (a.highBRL||0); });
+  if (!paths.length) return '';
+  var max = Math.max.apply(null, paths.map(function(p){ return p.highBRL || 0; })) || 1;
+  var rows = paths.map(function(p){
+    var color = CAREER_TYPE_COLOR[p.type] || 'var(--rose,#D43A6E)';
+    var lowPct = Math.max(0, Math.min(100, ((p.lowBRL||0)/max)*100));
+    var highPct = Math.max(lowPct + 1.5, Math.min(100, ((p.highBRL||0)/max)*100));
+    var variable = p.certainty === 'variavel';
+    var seg = '<div style="position:absolute;left:' + lowPct + '%;width:' + (highPct-lowPct) + '%;top:0;bottom:0;border-radius:6px;background:' + color + (variable ? ';opacity:.6;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.4) 0 6px,transparent 6px 12px)' : '') + '"></div>';
+    return '<div style="margin-bottom:14px">'
+      + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;gap:8px">'
+      +   '<span style="font-size:13px;font-weight:700;color:var(--text)">' + _kitEsc(p.label) + ' <span style="font-weight:600;color:' + color + ';font-size:11px">' + (CAREER_TYPE_LABEL[p.type]||'') + '</span></span>'
+      +   '<span style="font-size:12px;color:var(--mid);white-space:nowrap">' + brlShort(p.lowBRL) + ' a ' + brlShort(p.highBRL) + '/ano</span>'
+      + '</div>'
+      + '<div style="position:relative;height:22px;background:rgba(var(--ink),0.05);border-radius:6px">' + seg + '</div>'
+      + (p.note ? '<div style="font-size:11.5px;color:var(--mid);margin-top:4px;line-height:1.5">' + _kitEsc(p.note) + '</div>' : '')
+      + '</div>';
+  }).join('');
+  return '<div style="border:1px solid rgba(var(--ink),0.1);border-radius:16px;padding:20px;margin-bottom:20px">'
+    + '<div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px">Tamanho: quanto cada caminho pode te trazer</div>'
+    + '<div style="font-size:12px;color:var(--mid);margin-bottom:18px;line-height:1.5">Faixa de R$/ano, do provável ao teto realista. Barra listrada = renda mais variável (comissão, equity, negócio próprio). Tudo é estimativa de mercado.</div>'
+    + rows + '</div>';
+}
+
+function careerMatrixHTML(map){
+  var opps = map.opportunities || [];
+  var pts = opps.map(function(o,i){
+    var x = Math.max(4, Math.min(96, Number(o.shortTerm)||0));
+    var y = Math.max(4, Math.min(96, Number(o.longTerm)||0));
+    var color = CAREER_TYPE_COLOR[o.type] || 'var(--rose,#D43A6E)';
+    return '<button onclick="openOpportunityDetail(' + i + ')" title="' + _kitEsc(o.name) + '" style="position:absolute;left:' + x + '%;bottom:' + y + '%;transform:translate(-50%,50%);background:' + color + ';color:#fff;border:2px solid #fff;border-radius:999px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.22);max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:inherit">' + _kitEsc(o.name) + '</button>';
+  }).join('');
+  var quad = function(txt, pos){ return '<div style="position:absolute;' + pos + ';font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.03em;pointer-events:none;max-width:44%">' + txt + '</div>'; };
+  return '<div style="border:1px solid rgba(var(--ink),0.1);border-radius:16px;padding:20px;margin-bottom:20px">'
+    + '<div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px">Horizonte: curto x longo prazo</div>'
+    + '<div style="font-size:12px;color:var(--mid);margin-bottom:16px;line-height:1.5">Use pra decidir entre caminhos. Clique numa oportunidade pra ver o detalhe e persegui-la.</div>'
+    + '<div style="display:flex;gap:8px;align-items:stretch">'
+    +   '<div style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:11px;color:var(--mid);text-align:center;font-weight:600;padding:20px 0">Potencial no longo prazo</div>'
+    +   '<div style="flex:1;min-width:0">'
+    +     '<div style="position:relative;width:100%;aspect-ratio:1/1;max-width:520px;margin:0 auto;background:rgba(var(--ink),0.03);border-radius:12px;border:1px solid rgba(var(--ink),0.08)">'
+    +       '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(var(--ink),0.12)"></div>'
+    +       '<div style="position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(var(--ink),0.12)"></div>'
+    +       quad('Aposta de longo prazo','top:8px;left:10px')
+    +       quad('Melhor dos mundos','top:8px;right:10px;text-align:right')
+    +       quad('Evitar','bottom:8px;left:10px')
+    +       quad('Caixa agora, teto baixo','bottom:8px;right:10px;text-align:right')
+    +       (pts || '')
+    +     '</div>'
+    +     '<div style="text-align:center;font-size:11px;color:var(--mid);font-weight:600;margin-top:6px">Potencial no curto prazo</div>'
+    +   '</div>'
+    + '</div>'
+    + (opps.length ? '' : '<div style="font-size:12.5px;color:var(--mid);margin-top:12px;text-align:center">Adicione oportunidades pra posicioná-las aqui.</div>')
+    + '</div>';
+}
+
+async function generateCareerMap(){
+  var profile = localStorage.getItem(PROFILE_KEY) || '';
+  if (!profile || (typeof profileTooThin === 'function' && profileTooThin(profile))){ switchTab('perfil'); return; }
+  var st = document.getElementById('career-gen-status');
+  var btn = document.getElementById('btn-gen-career') || document.getElementById('btn-regen-career');
+  var label = btn ? btn.innerHTML : '';
+  if (btn){ btn.disabled = true; btn.textContent = '⏳ Montando seu mapa de carreira...'; }
+  if (st){ st.style.display = 'block'; st.textContent = 'Isso leva uns 30 segundos. A IA está cruzando o seu perfil com o mercado.'; }
+  try {
+    var existing = loadCareerMap();
+    var raw = await callAI({ task:'career_map', data:{ profile: profile, currentIncome: (existing && existing.currentIncome) || '' }, kind:'analysis' });
+    var map = JSON.parse(raw.replace(/^```json?\n?/, '').replace(/\n?```$/, ''));
+    if (existing){
+      if (existing.currentIncome) map.currentIncome = existing.currentIncome;
+      var manual = (existing.opportunities || []).filter(function(o){ return o && o.manual; });
+      map.opportunities = (map.opportunities || []).concat(manual);
+    }
+    map.generatedAt = Date.now();
+    saveCareerMap(map);
+    renderDashboardTab();
+  } catch(e){
+    if (e && e.paywall){ if (btn){ btn.disabled = false; btn.innerHTML = label; } return; }
+    if (st){
+      st.style.display = 'block';
+      var m = (e.message || '').toLowerCase();
+      st.textContent = (m.includes('credit') || m.includes('quota') || m.includes('billing'))
+        ? 'A IA está temporariamente indisponível. Tenta de novo em alguns minutos.'
+        : 'A IA demorou ou veio incompleta. Tenta de novo, costuma funcionar na segunda. 🙏';
+    }
+    if (btn){ btn.disabled = false; btn.innerHTML = label; }
+  }
+}
+
+function openAddOpportunity(){
+  var panel = document.getElementById('career-panel');
+  if (!panel) return;
+  var typeOpts = Object.keys(CAREER_TYPE_LABEL).map(function(k){ return '<option value="' + k + '">' + CAREER_TYPE_LABEL[k] + '</option>'; }).join('');
+  panel.innerHTML = '<div style="border:1px solid rgba(var(--ink),0.12);border-radius:14px;padding:18px;margin-bottom:16px;background:rgba(var(--ink),0.02)">'
+    + '<div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:12px">Adicionar oportunidade</div>'
+    + '<div style="display:grid;gap:12px">'
+    +   '<div><div style="font-size:12px;color:var(--mid);margin-bottom:4px">Nome</div><input id="opp-name" type="text" placeholder="Ex: Oferta da empresa X, projeto próprio" style="width:100%;box-sizing:border-box;background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.12);border-radius:8px;padding:9px 11px;color:var(--text);font-size:13px;font-family:inherit;outline:none"></div>'
+    +   '<div><div style="font-size:12px;color:var(--mid);margin-bottom:4px">Tipo</div><select id="opp-type" style="width:100%;box-sizing:border-box;background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.12);border-radius:8px;padding:9px 11px;color:var(--text);font-size:13px;font-family:inherit;outline:none;cursor:pointer">' + typeOpts + '</select></div>'
+    +   '<div><div style="font-size:12px;color:var(--mid);margin-bottom:4px">Potencial no curto prazo: <span id="opp-short-val">50</span></div><input id="opp-short" type="range" min="0" max="100" value="50" oninput="document.getElementById(\'opp-short-val\').textContent=this.value" style="width:100%;accent-color:var(--rose,#D43A6E)"></div>'
+    +   '<div><div style="font-size:12px;color:var(--mid);margin-bottom:4px">Potencial no longo prazo: <span id="opp-long-val">50</span></div><input id="opp-long" type="range" min="0" max="100" value="50" oninput="document.getElementById(\'opp-long-val\').textContent=this.value" style="width:100%;accent-color:var(--rose,#D43A6E)"></div>'
+    +   '<div><div style="font-size:12px;color:var(--mid);margin-bottom:4px">Nota (opcional)</div><input id="opp-note" type="text" placeholder="Ex: paga bem agora mas trava a carreira" style="width:100%;box-sizing:border-box;background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.12);border-radius:8px;padding:9px 11px;color:var(--text);font-size:13px;font-family:inherit;outline:none"></div>'
+    + '</div>'
+    + '<div style="display:flex;gap:8px;margin-top:14px">'
+    +   '<button onclick="saveNewOpportunity()" style="padding:10px 20px;background:var(--rose,#D43A6E);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:800;cursor:pointer">Salvar</button>'
+    +   '<button onclick="document.getElementById(\'career-panel\').innerHTML=\'\'" style="padding:10px 20px;background:transparent;border:1px solid rgba(var(--ink),0.2);border-radius:8px;color:var(--mid);font-size:13px;font-weight:700;cursor:pointer">Cancelar</button>'
+    + '</div></div>';
+  panel.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function saveNewOpportunity(){
+  var name = (document.getElementById('opp-name').value || '').trim();
+  if (!name){ document.getElementById('opp-name').style.borderColor = 'var(--rose,#D43A6E)'; return; }
+  var map = loadCareerMap() || { paths:[], opportunities:[] };
+  if (!map.opportunities) map.opportunities = [];
+  map.opportunities.push({
+    name: name,
+    type: document.getElementById('opp-type').value || 'job',
+    shortTerm: parseInt(document.getElementById('opp-short').value, 10) || 0,
+    longTerm: parseInt(document.getElementById('opp-long').value, 10) || 0,
+    note: (document.getElementById('opp-note').value || '').trim(),
+    manual: true
+  });
+  saveCareerMap(map);
+  renderDashboardTab();
+}
+
+function openOpportunityDetail(idx){
+  var map = loadCareerMap(); if (!map || !map.opportunities || !map.opportunities[idx]) return;
+  var o = map.opportunities[idx];
+  var panel = document.getElementById('career-panel'); if (!panel) return;
+  var color = CAREER_TYPE_COLOR[o.type] || 'var(--rose,#D43A6E)';
+  panel.innerHTML = '<div style="border:1px solid rgba(var(--ink),0.12);border-radius:14px;padding:18px;margin-bottom:16px;background:rgba(var(--ink),0.02)">'
+    + '<div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:8px">'
+    +   '<div style="font-size:15px;font-weight:800;color:var(--text)">' + _kitEsc(o.name) + ' <span style="font-size:11px;font-weight:700;color:' + color + '">' + (CAREER_TYPE_LABEL[o.type]||'') + '</span></div>'
+    +   '<button onclick="document.getElementById(\'career-panel\').innerHTML=\'\'" style="background:none;border:none;color:var(--dim);font-size:18px;cursor:pointer;line-height:1">✕</button>'
+    + '</div>'
+    + '<div style="display:flex;gap:16px;font-size:12px;color:var(--mid);margin-bottom:10px">'
+    +   '<span>Curto prazo: <strong style="color:var(--text)">' + (o.shortTerm||0) + '/100</strong></span>'
+    +   '<span>Longo prazo: <strong style="color:var(--text)">' + (o.longTerm||0) + '/100</strong></span>'
+    + '</div>'
+    + (o.note ? '<div style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:14px">' + _kitEsc(o.note) + '</div>' : '')
+    + '<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    +   '<button onclick="pursueOpportunity(' + idx + ')" style="padding:10px 20px;background:var(--rose,#D43A6E);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:800;cursor:pointer">🎯 Perseguir esta oportunidade</button>'
+    +   (o.manual ? '<button onclick="removeOpportunity(' + idx + ')" style="padding:10px 16px;background:transparent;border:1px solid rgba(var(--ink),0.2);border-radius:8px;color:var(--mid);font-size:13px;font-weight:700;cursor:pointer">Remover</button>' : '')
+    + '</div>'
+    + '<div style="font-size:11.5px;color:var(--mid);margin-top:10px;line-height:1.5">Perseguir cria um card no Kanban pra você executar o outbound: gerar o kit de ataque, alcançar as pessoas certas e acompanhar no seu plano do dia.</div>'
+    + '</div>';
+  panel.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function removeOpportunity(idx){
+  var map = loadCareerMap(); if (!map || !map.opportunities) return;
+  map.opportunities.splice(idx, 1);
+  saveCareerMap(map);
+  renderDashboardTab();
+}
+
+function pursueOpportunity(idx){
+  var map = loadCareerMap(); if (!map || !map.opportunities || !map.opportunities[idx]) return;
+  var o = map.opportunities[idx];
+  var newOpp = {
+    id: nextId++,
+    company: o.name,
+    role: (CAREER_TYPE_LABEL[o.type] || 'Oportunidade'),
+    status: 'A aplicar',
+    stage: 'todo',
+    fit: null,
+    link: null,
+    jd_text: null,
+    contacts: [],
+    next: '—',
+    notes: o.note || '—',
+    checklist: {}
+  };
+  opps.push(newOpp);
+  saveOpps();
+  try { renderFunnel(); } catch(e){}
+  switchTab('kanban');
+  try { openModal(newOpp); } catch(e){}
+}
+
 // ── Kit de ataque (outbound) ──────────────────────────────────────────────
 // A IA diz QUEM procurar e COMO buscar no LinkedIn, e rascunha a mensagem e o
 // follow-up. O Liplop NUNCA acessa o LinkedIn nem envia nada: a pessoa acha o
@@ -7644,8 +7888,8 @@ function saveAnalysisToKanban() {
 }
 
 // Inicializa ao carregar — chamado depois de todas as declarações
-switchTab('analyzer');
-initAnalyzer();
+initAnalyzer();          // prepara a aba de análise mesmo sem ser a home
+switchTab('dashboard');  // home = dashboard de carreira
 </script>
 </div><!-- /page-content -->
 
