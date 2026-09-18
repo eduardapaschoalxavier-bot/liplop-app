@@ -139,7 +139,7 @@
   function setLang(lang) { try { localStorage.setItem('liplop-lang', lang); } catch (e) {} apply(lang); }
   var saved = null; try { saved = localStorage.getItem('liplop-lang'); } catch (e) {}
   var nav = (navigator.language || 'pt').toLowerCase();
-  var initial = (saved === 'pt' || saved === 'en') ? saved : (nav.indexOf('en') === 0 ? 'en' : 'pt');
+  var initial = (saved === 'pt' || saved === 'en') ? saved : 'en';
   document.querySelectorAll('.lang-switch button').forEach(function (b) {
     b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); });
   });
