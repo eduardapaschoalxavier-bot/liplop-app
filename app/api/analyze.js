@@ -246,10 +246,48 @@ Regras para "opportunities": posicione cada uma pela natureza. Emprego tende a c
 Regras de texto: português brasileiro correto com acentos. NÃO use travessão nem meia-risca (— ou –); use vírgula, ponto ou dois-pontos. Não use marca de gênero: use formas neutras. Tom aspiracional. Números sem separador de milhar (ex: 180000, não 180.000).`;
 }
 
+// Linha do tempo de carreira: extrai do perfil (PDF do LinkedIn) a sequência de
+// cargos com empresa e período. Não estima salário: quem informa é a pessoa.
+function buildCareerTimelinePrompt(d) {
+  const profile = (d && d.profile) || '';
+  const lang = (d && d.lang) === 'en' ? 'en' : 'pt';
+  if (lang === 'en') {
+    return `Extract the person's career history from the profile below. List each professional role in chronological order, oldest first.
+
+## PROFILE
+${profile}
+
+Respond ONLY with a valid JSON in this exact format (no markdown, no extra text):
+{
+  "summary": "<1 sentence about the trajectory>",
+  "roles": [
+    {"title": "<role title>", "company": "<company>", "startYear": <year number>, "endYear": <year number or null if current>, "seniority": "<junior|pleno|senior|lideranca or best guess>"}
+  ]
+}
+
+Rules: only real roles found in the profile, chronological (oldest first). If a role is current, endYear is null. If a year is missing, make your best estimate from context. Correct English, no em dashes or en dashes (— or –).`;
+  }
+  return `Extraia o histórico de carreira da pessoa a partir do perfil abaixo. Liste cada cargo profissional em ordem cronológica, do mais antigo para o mais recente.
+
+## PERFIL
+${profile}
+
+Responda SOMENTE com um JSON válido neste formato exato (sem markdown, sem texto extra):
+{
+  "summary": "<1 frase sobre a trajetória>",
+  "roles": [
+    {"title": "<título do cargo>", "company": "<empresa>", "startYear": <ano número>, "endYear": <ano número ou null se atual>, "seniority": "<junior|pleno|senior|lideranca ou melhor estimativa>"}
+  ]
+}
+
+Regras: só cargos reais encontrados no perfil, em ordem cronológica (mais antigo primeiro). Se o cargo for o atual, endYear é null. Se faltar um ano, faça a melhor estimativa pelo contexto. Português correto, sem travessão nem meia-risca (— ou –).`;
+}
+
 function buildPromptForTask(task, data) {
   if (task === 'analysis') return buildAnalysisPrompt(data);
   if (task === 'attack_kit') return buildAttackKitPrompt(data);
   if (task === 'career_map') return buildCareerMapPrompt(data);
+  if (task === 'career_timeline') return buildCareerTimelinePrompt(data);
   return null;
 }
 

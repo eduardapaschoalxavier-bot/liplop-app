@@ -7519,20 +7519,38 @@ function moneyShort(n, sym){
   return sym + ' ' + n;
 }
 
+var _careerView = 'map';
+function setCareerView(v){ _careerView = (v === 'evolution' ? 'evolution' : 'map'); renderDashboardTab(); }
+function careerToggleHTML(){
+  var seg = function(v, label){
+    var on = _careerView === v;
+    return '<button onclick="setCareerView(\'' + v + '\')" style="padding:8px 16px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;' + (on ? 'background:var(--rose,#D43A6E);color:#fff' : 'background:transparent;color:var(--mid)') + '">' + label + '</button>';
+  };
+  return '<div style="display:inline-flex;gap:4px;padding:4px;background:rgba(var(--ink),0.05);border-radius:10px;margin-bottom:20px">'
+    + seg('map', t('Mapa de carreira','Career map'))
+    + seg('evolution', t('Evolução','Evolution'))
+    + '</div>';
+}
 function renderDashboardTab(){
   var wrap = document.getElementById('dashboard-wrap');
   if (!wrap) return;
+  wrap.innerHTML = careerToggleHTML() + '<div id="career-view-body"></div>';
+  var body = document.getElementById('career-view-body');
+  if (!body) return;
+  body.innerHTML = (_careerView === 'evolution') ? renderEvolutionContent() : renderCareerMapContent();
+}
+
+function renderCareerMapContent(){
   var map = loadCareerMap();
   var profile = localStorage.getItem(PROFILE_KEY) || '';
   var header = '<div style="margin-bottom:20px">'
-    + '<div style="font-size:11px;font-weight:700;color:var(--rose,#D43A6E);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">✦ ' + t('Seu dashboard de carreira','Your career dashboard') + '</div>'
-    + '<h2 style="font-size:1.7rem;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.2">' + t('Onde está o seu dinheiro, e pra onde mirar','Where your money is, and where to aim') + '</h2>'
+    + '<h2 style="font-size:1.6rem;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.2">' + t('Onde está o seu dinheiro, e pra onde mirar','Where your money is, and where to aim') + '</h2>'
     + '<p style="font-size:13px;color:var(--mid);line-height:1.6">' + t('Um retrato estratégico do seu momento: quanto cada caminho pode render e onde vale investir sua energia. As faixas são estimativa de mercado, você pode ajustar.','A strategic snapshot of where you are: how much each path can pay and where your energy is worth investing. The ranges are market estimates, and you can adjust them.') + '</p>'
     + '</div>';
 
   if (!map){
     var thin = !profile || (typeof profileTooThin === 'function' && profileTooThin(profile));
-    wrap.innerHTML = header
+    return header
       + '<div style="text-align:center;padding:48px 32px;border:1px dashed rgba(var(--ink),0.15);border-radius:16px">'
       +   '<div style="font-size:38px;margin-bottom:14px">🧭</div>'
       +   '<div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:8px">' + t('Gere o seu mapa de carreira','Generate your career map') + '</div>'
@@ -7542,10 +7560,9 @@ function renderDashboardTab(){
             : '<button id="btn-gen-career" onclick="generateCareerMap()" style="padding:14px 30px;background:var(--rose,#D43A6E);border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:800;cursor:pointer">🧭 ' + t('Gerar meu mapa de carreira','Generate my career map') + '</button>')
       +   '<div id="career-gen-status" style="font-size:12px;color:var(--mid);margin-top:14px;display:none"></div>'
       + '</div>';
-    return;
   }
 
-  wrap.innerHTML = header
+  return header
     + (map.profileSummary ? '<div style="font-size:13px;color:var(--text);background:rgba(var(--ink),0.03);border:1px solid rgba(var(--ink),0.08);border-radius:12px;padding:12px 14px;margin-bottom:20px">' + _kitEsc(map.profileSummary) + '</div>' : '')
     + careerBarsHTML(map)
     + careerMatrixHTML(map)
@@ -7742,6 +7759,201 @@ function pursueOpportunity(idx){
   try { renderFunnel(); } catch(e){}
   switchTab('kanban');
   try { openModal(newOpp); } catch(e){}
+}
+
+// ── Evolução de carreira (crescimento ao longo do tempo) ───────────────────
+// Extrai a trajetória (cargos + período) do perfil/PDF do LinkedIn, pergunta o
+// salário de cada cargo (o CV não traz salário) e monta o dashboard de evolução.
+var TIMELINE_KEY = 'liplop-career-timeline';
+function loadTimeline(){ try { var r = localStorage.getItem(TIMELINE_KEY); return r ? JSON.parse(r) : null; } catch(e){ return null; } }
+function saveTimeline(tl){ try { localStorage.setItem(TIMELINE_KEY, JSON.stringify(tl)); } catch(e){} }
+function timelineSalariesComplete(tl){
+  return tl && Array.isArray(tl.roles) && tl.roles.length > 0 && tl.roles.every(function(r){ return Number(r.salary) > 0; });
+}
+
+function renderEvolutionContent(){
+  var tl = loadTimeline();
+  var profile = localStorage.getItem(PROFILE_KEY) || '';
+  var header = '<div style="margin-bottom:20px">'
+    + '<h2 style="font-size:1.6rem;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.2">' + t('O quanto você já cresceu','How far you have come') + '</h2>'
+    + '<p style="font-size:13px;color:var(--mid);line-height:1.6">' + t('A sua trajetória em números: como a sua carreira e a sua renda evoluíram cargo a cargo. Puxado do seu perfil, com os salários que você informar.','Your trajectory in numbers: how your career and income evolved role by role. Pulled from your profile, with the salaries you provide.') + '</p>'
+    + '</div>';
+
+  if (!tl){
+    var thin = !profile || (typeof profileTooThin === 'function' && profileTooThin(profile));
+    return header
+      + '<div style="text-align:center;padding:48px 32px;border:1px dashed rgba(var(--ink),0.15);border-radius:16px">'
+      +   '<div style="font-size:38px;margin-bottom:14px">📈</div>'
+      +   '<div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:8px">' + t('Monte a sua linha do tempo','Build your timeline') + '</div>'
+      +   '<div style="font-size:13px;color:var(--mid);margin-bottom:20px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.6">' + t('O Liplop lê os cargos do seu perfil e, com os salários que você informar, mostra o quanto a sua carreira evoluiu ao longo do tempo.','Liplop reads the roles from your profile and, with the salaries you provide, shows how much your career has grown over time.') + '</div>'
+      +   (thin
+            ? '<div style="font-size:13px;color:var(--mid);margin:0 auto 16px;max-width:520px;line-height:1.6">' + (typeof PROFILE_THIN_MSG !== 'undefined' ? PROFILE_THIN_MSG : t('Complete seu perfil primeiro.','Complete your profile first.')) + '</div><button onclick="switchTab(\'perfil\')" style="padding:12px 26px;background:var(--topbar-bg);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:800;cursor:pointer">' + t('Construir meu perfil','Build my profile') + ' →</button>'
+            : '<button id="btn-gen-timeline" onclick="generateTimeline()" style="padding:14px 30px;background:var(--rose,#D43A6E);border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:800;cursor:pointer">📈 ' + t('Importar minha trajetória','Import my trajectory') + '</button>')
+      +   '<div id="timeline-gen-status" style="font-size:12px;color:var(--mid);margin-top:14px;display:none"></div>'
+      + '</div>';
+  }
+
+  if (!timelineSalariesComplete(tl)) return header + evolutionSalaryFormHTML(tl);
+  return header + evolutionDashboardHTML(tl);
+}
+
+async function generateTimeline(){
+  var profile = localStorage.getItem(PROFILE_KEY) || '';
+  if (!profile || (typeof profileTooThin === 'function' && profileTooThin(profile))){ switchTab('perfil'); return; }
+  var st = document.getElementById('timeline-gen-status');
+  var btn = document.getElementById('btn-gen-timeline');
+  var label = btn ? btn.innerHTML : '';
+  if (btn){ btn.disabled = true; btn.textContent = t('⏳ Lendo a sua trajetória...','⏳ Reading your trajectory...'); }
+  if (st){ st.style.display = 'block'; st.textContent = t('Isso leva uns 20 segundos.','This takes about 20 seconds.'); }
+  try {
+    var raw = await callAI({ task:'career_timeline', data:{ profile: profile, lang: getLang() }, kind:'analysis' });
+    var tl = JSON.parse(raw.replace(/^```json?\n?/, '').replace(/\n?```$/, ''));
+    tl.roles = (tl.roles || []).map(function(r){ return { title:r.title||'', company:r.company||'', startYear:r.startYear||null, endYear:(r.endYear===undefined?null:r.endYear), seniority:r.seniority||'', salary:null }; });
+    tl.currencySymbol = (getLang() === 'en' ? '$' : 'R$');
+    tl.lang = getLang();
+    saveTimeline(tl);
+    renderDashboardTab();
+  } catch(e){
+    if (e && e.paywall){ if (btn){ btn.disabled = false; btn.innerHTML = label; } return; }
+    if (st){
+      st.style.display = 'block';
+      var m = (e.message || '').toLowerCase();
+      st.textContent = (m.includes('credit') || m.includes('quota') || m.includes('billing'))
+        ? t('A IA está temporariamente indisponível. Tenta de novo em alguns minutos.','The AI is temporarily unavailable. Try again in a few minutes.')
+        : t('A IA demorou ou veio incompleta. Tenta de novo, costuma funcionar na segunda. 🙏','The AI took too long or came back incomplete. Try again, it usually works the second time. 🙏');
+    }
+    if (btn){ btn.disabled = false; btn.innerHTML = label; }
+  }
+}
+
+function evolutionSalaryFormHTML(tl){
+  var sym = tl.currencySymbol || 'R$';
+  var per = t('/mês','/mo');
+  var rows = (tl.roles || []).map(function(r, i){
+    var period = (r.startYear || '?') + ' - ' + (r.endYear ? r.endYear : t('atual','present'));
+    return '<div style="display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(var(--ink),0.06)">'
+      + '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--text)">' + _kitEsc(r.title) + '</div>'
+      + '<div style="font-size:11.5px;color:var(--mid)">' + _kitEsc(r.company) + ' · ' + period + '</div></div>'
+      + '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0"><span style="font-size:12px;color:var(--mid)">' + sym + '</span>'
+      + '<input id="sal-' + i + '" type="number" inputmode="numeric" min="0" step="100" value="' + (r.salary != null ? r.salary : '') + '" placeholder="0" style="width:110px;box-sizing:border-box;background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.12);border-radius:8px;padding:8px 10px;color:var(--text);font-size:13px;font-family:inherit;outline:none;text-align:right">'
+      + '<span style="font-size:11px;color:var(--mid)">' + per + '</span></div>'
+      + '</div>';
+  }).join('');
+  return '<div style="border:1px solid rgba(var(--ink),0.1);border-radius:16px;padding:20px;margin-bottom:16px">'
+    + '<div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px">' + t('Informe o salário de cada cargo','Enter the salary for each role') + '</div>'
+    + '<div style="font-size:12px;color:var(--mid);margin-bottom:16px;line-height:1.5">' + t('O currículo não traz salário. Preencha o salário mensal aproximado de cada cargo (fica só no seu navegador). Com isso o Liplop monta a sua evolução.','A resume does not include salary. Fill in the approximate monthly salary for each role (it stays only in your browser). Liplop then builds your evolution.') + '</div>'
+    + rows
+    + '<div style="display:flex;gap:8px;margin-top:16px"><button onclick="saveEvolutionSalaries()" style="padding:11px 24px;background:var(--rose,#D43A6E);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:800;cursor:pointer">' + t('Ver minha evolução','See my evolution') + '</button>'
+    + '<button onclick="regenerateTimeline()" style="padding:11px 18px;background:transparent;border:1px solid rgba(var(--ink),0.2);border-radius:10px;color:var(--mid);font-size:13px;font-weight:700;cursor:pointer">' + t('Reimportar do perfil','Re-import from profile') + '</button></div>'
+    + '<div id="timeline-gen-status" style="font-size:12px;color:var(--mid);margin-top:10px;display:none"></div>'
+    + '</div>';
+}
+
+function saveEvolutionSalaries(){
+  var tl = loadTimeline(); if (!tl || !tl.roles) return;
+  tl.roles.forEach(function(r, i){
+    var el = document.getElementById('sal-' + i);
+    if (el){ var v = parseInt(el.value, 10); r.salary = (isNaN(v) || v < 0) ? null : v; }
+  });
+  saveTimeline(tl);
+  renderDashboardTab();
+}
+
+function regenerateTimeline(){
+  try { localStorage.removeItem(TIMELINE_KEY); } catch(e){}
+  renderDashboardTab();
+}
+
+function editEvolutionSalaries(){
+  var tl = loadTimeline(); if (!tl || !tl.roles) return;
+  tl.roles.forEach(function(r){ /* mantém salários; só volta pro form */ });
+  // força o form: zera um marcador temporário? Reusa: renderiza o form diretamente
+  var body = document.getElementById('career-view-body');
+  if (body) body.innerHTML = '<div style="margin-bottom:20px"><h2 style="font-size:1.6rem;font-weight:800;color:var(--text);line-height:1.2">' + t('Ajustar salários','Adjust salaries') + '</h2></div>' + evolutionSalaryFormHTML(tl);
+}
+
+function evolutionDashboardHTML(tl){
+  var sym = tl.currencySymbol || 'R$';
+  var roles = (tl.roles || []).slice().sort(function(a,b){ return (a.startYear||0) - (b.startYear||0); });
+  var first = roles[0], last = roles[roles.length - 1];
+  var firstSal = Number(first.salary) || 0, curSal = Number(last.salary) || 0;
+  var mult = firstSal > 0 ? (curSal / firstSal) : 0;
+  var totalPct = firstSal > 0 ? Math.round((mult - 1) * 100) : 0;
+  var nowYear = new Date().getFullYear();
+  var years = Math.max(1, (last.endYear || nowYear) - (first.startYear || nowYear));
+  var transitions = roles.length - 1;
+  var cagr = (firstSal > 0 && years > 0) ? Math.round((Math.pow(mult, 1 / years) - 1) * 100) : 0;
+  var multStr = mult ? (mult.toFixed(mult >= 10 ? 0 : 1).replace('.', getLang() === 'en' ? '.' : ',') + 'x') : '—';
+
+  // sparkline dos salários
+  var sals = roles.map(function(r){ return Number(r.salary) || 0; });
+  var maxSal = Math.max.apply(null, sals) || 1;
+  var spark = '';
+  if (sals.length > 1){
+    var pts = sals.map(function(s, i){ var x = (i / (sals.length - 1)) * 100; var y = 30 - (s / maxSal) * 28; return x.toFixed(1) + ',' + y.toFixed(1); }).join(' ');
+    spark = '<svg viewBox="0 0 100 32" preserveAspectRatio="none" style="width:120px;height:40px"><polyline points="' + pts + '" fill="none" stroke="var(--rose,#D43A6E)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  }
+
+  var hero = '<div style="border:1px solid rgba(var(--ink),0.1);border-radius:16px;padding:22px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;background:linear-gradient(120deg,rgba(212,58,110,0.06),rgba(124,140,248,0.06))">'
+    + '<div><div style="font-size:11px;font-weight:700;color:var(--rose,#D43A6E);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">' + t('Crescimento salarial na carreira','Career salary growth') + '</div>'
+    + '<div style="font-size:2.6rem;font-weight:800;color:var(--text);line-height:1">' + multStr + '</div>'
+    + '<div style="font-size:12.5px;color:var(--mid);margin-top:4px">' + t('desde o seu primeiro cargo','since your first role') + ' (' + (first.startYear || '') + ')</div></div>'
+    + '<div>' + spark + '</div>'
+    + '</div>';
+
+  var card = function(value, label){
+    return '<div style="flex:1;min-width:120px;border:1px solid rgba(var(--ink),0.1);border-radius:14px;padding:14px 16px">'
+      + '<div style="font-size:1.5rem;font-weight:800;color:var(--text);line-height:1">' + value + '</div>'
+      + '<div style="font-size:11.5px;color:var(--mid);margin-top:5px;line-height:1.3">' + label + '</div></div>';
+  };
+  var kpis = '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">'
+    + card(moneyShort(curSal, sym) + t('/mês','/mo'), t('Salário atual','Current salary'))
+    + card('+' + totalPct + '%', t('Crescimento total','Total growth'))
+    + card(years + ' ' + t('anos','yrs'), t('Tempo de carreira','Career length'))
+    + card(transitions, t('Transições de cargo','Role transitions'))
+    + card('+' + cagr + '%', t('Crescimento médio/ano','Avg growth/yr'))
+    + '</div>';
+
+  // gráfico de barras: salário por cargo, na ordem cronológica
+  var bars = roles.map(function(r){
+    var s = Number(r.salary) || 0;
+    var h = Math.max(4, (s / maxSal) * 160);
+    var period = (r.startYear || '') + (r.endYear ? '' : ' ·');
+    return '<div style="flex:1;min-width:60px;display:flex;flex-direction:column;align-items:center;gap:6px">'
+      + '<div style="font-size:11px;font-weight:700;color:var(--text)">' + moneyShort(s, sym) + '</div>'
+      + '<div style="width:70%;max-width:54px;height:' + h + 'px;background:var(--rose,#D43A6E);border-radius:6px 6px 0 0"></div>'
+      + '<div style="font-size:10.5px;font-weight:700;color:var(--text);text-align:center;line-height:1.2;max-width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="' + _kitEsc(r.title) + '">' + _kitEsc(r.title) + '</div>'
+      + '<div style="font-size:10px;color:var(--mid);text-align:center">' + _kitEsc(String(period)) + '</div>'
+      + '</div>';
+  }).join('');
+  var chart = '<div style="border:1px solid rgba(var(--ink),0.1);border-radius:16px;padding:20px;margin-bottom:16px">'
+    + '<div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px">' + t('Evolução salarial','Salary evolution') + '</div>'
+    + '<div style="font-size:12px;color:var(--mid);margin-bottom:20px;line-height:1.5">' + t('Salário mensal por cargo, do primeiro ao atual.','Monthly salary per role, from first to current.') + '</div>'
+    + '<div style="display:flex;align-items:flex-end;gap:10px;overflow-x:auto;padding-bottom:4px;min-height:200px">' + bars + '</div>'
+    + '</div>';
+
+  // trajetória detalhada
+  var traj = roles.map(function(r, i){
+    var prev = i > 0 ? Number(roles[i-1].salary) || 0 : 0;
+    var s = Number(r.salary) || 0;
+    var delta = (prev > 0 && i > 0) ? Math.round((s / prev - 1) * 100) : null;
+    var deltaTag = delta != null ? '<span style="font-size:11px;font-weight:700;color:' + (delta >= 0 ? '#16a34a' : '#d6395e') + '">' + (delta >= 0 ? '+' : '') + delta + '%</span>' : '';
+    var period = (r.startYear || '?') + ' - ' + (r.endYear ? r.endYear : t('atual','present'));
+    return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid rgba(var(--ink),0.06)">'
+      + '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--text)">' + _kitEsc(r.title) + '</div>'
+      + '<div style="font-size:11.5px;color:var(--mid)">' + _kitEsc(r.company) + ' · ' + period + '</div></div>'
+      + '<div style="text-align:right;flex-shrink:0"><div style="font-size:13px;font-weight:700;color:var(--text)">' + moneyShort(s, sym) + t('/mês','/mo') + '</div>' + deltaTag + '</div>'
+      + '</div>';
+  }).join('');
+  var trajBox = '<div style="border:1px solid rgba(var(--ink),0.1);border-radius:16px;padding:20px;margin-bottom:16px">'
+    + '<div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:12px">' + t('Sua trajetória','Your trajectory') + '</div>' + traj + '</div>';
+
+  var actions = '<div style="display:flex;gap:10px;flex-wrap:wrap">'
+    + '<button onclick="editEvolutionSalaries()" style="padding:11px 20px;background:transparent;border:1.5px solid rgba(var(--ink),0.2);border-radius:10px;color:var(--text);font-size:13px;font-weight:700;cursor:pointer">' + t('Ajustar salários','Adjust salaries') + '</button>'
+    + '<button onclick="regenerateTimeline()" style="padding:11px 20px;background:transparent;border:1.5px solid rgba(var(--ink),0.2);border-radius:10px;color:var(--mid);font-size:13px;font-weight:700;cursor:pointer">' + t('Reimportar do perfil','Re-import from profile') + '</button></div>';
+
+  return (tl.summary ? '<div style="font-size:13px;color:var(--text);background:rgba(var(--ink),0.03);border:1px solid rgba(var(--ink),0.08);border-radius:12px;padding:12px 14px;margin-bottom:16px">' + _kitEsc(tl.summary) + '</div>' : '')
+    + hero + kpis + chart + trajBox + actions;
 }
 
 // ── Kit de ataque (outbound) ──────────────────────────────────────────────
