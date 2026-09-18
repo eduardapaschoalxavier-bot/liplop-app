@@ -186,9 +186,39 @@ Regras de texto: escreva em português brasileiro correto com todos os acentos. 
 // Mapa de carreira: a partir do perfil, estima os caminhos de renda (faixas de
 // mercado) e posiciona oportunidades em curto x longo prazo. Sempre estimativa
 // de mercado, pra a pessoa ajustar. Persona: quem quer ganhar mais ou internacionalizar.
+function buildCareerMapPromptEN(profile, currentIncome) {
+  return `You are a career and compensation strategist. From the profile below, build a "career map" that strategically shows how much each path can pay and where it is worth investing energy. The persona is someone ambitious who wants to earn more or internationalize their career, never someone desperate.
+
+## PROFESSIONAL PROFILE
+${profile}
+
+${currentIncome ? '## CURRENT INCOME PROVIDED BY THE PERSON\n' + currentIncome + '\n' : ''}
+First identify current role, seniority, area and years of experience from the profile. Then estimate, based on market benchmarks, annual compensation ranges (US$/year, total including variable pay when relevant) for each realistic path for THIS profile. Assume a US or global-remote market for salary levels.
+
+Respond ONLY with a valid JSON in this exact format (no markdown, no extra text):
+{
+  "profileSummary": "<1 sentence: perceived role, seniority and area>",
+  "currencySymbol": "$",
+  "paths": [
+    {"label": "<path name, e.g. Current role or Head of Growth>", "type": "current|job|international|freela|venture", "lowBRL": <likely US$/year number>, "highBRL": <realistic ceiling US$/year number>, "certainty": "certo|variavel", "note": "<1 short sentence explaining the range>"}
+  ],
+  "opportunities": [
+    {"name": "<opportunity, e.g. Stay in current job, International remote role, Own project>", "type": "current|job|international|freela|venture", "shortTerm": <0-100 short-term income potential>, "longTerm": <0-100 long-term potential>, "note": "<1 sentence>"}
+  ]
+}
+
+Rules for "paths": include the current role (type "current", certainty "certo"), 1 or 2 target roles the profile is competitive for (type "job"), an international/remote path if it makes sense (type "international", usually "variavel"), and freelance/consulting or an own venture if it fits (type "freela" or "venture", "variavel"). Order from highest ceiling (highBRL) to lowest. Use "certo" for stable employment income and "variavel" for income heavy on commission, equity or own business. The field names stay lowBRL/highBRL but the values are in US dollars.
+
+Rules for "opportunities": position each by its nature. Employment tends to be cash now and a lower ceiling (high shortTerm, medium or low longTerm). A role with equity or an own project tends to be little now and a lot long term (low shortTerm, high longTerm). International is usually strong on both. Generate 3 to 5 opportunities coherent with the profile.
+
+Text rules: write in correct English. Do NOT use em dashes or en dashes (— or –); use commas, periods or colons. Avoid gendered wording. Aspirational tone. Numbers without thousands separators (e.g. 180000, not 180,000).`;
+}
+
 function buildCareerMapPrompt(d) {
   const profile = (d && d.profile) || '';
   const currentIncome = (d && d.currentIncome) || '';
+  const lang = (d && d.lang) === 'en' ? 'en' : 'pt';
+  if (lang === 'en') return buildCareerMapPromptEN(profile, currentIncome);
   return `Você é um estrategista de carreira e remuneração. A partir do perfil abaixo, monte um "mapa de carreira" que mostra, de forma estratégica, quanto cada caminho pode render e onde vale investir energia. A persona é alguém ambicioso que quer ganhar mais ou internacionalizar a carreira, nunca alguém desesperado.
 
 ## PERFIL PROFISSIONAL
