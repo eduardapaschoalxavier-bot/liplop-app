@@ -7768,7 +7768,17 @@ var TIMELINE_KEY = 'liplop-career-timeline';
 function loadTimeline(){ try { var r = localStorage.getItem(TIMELINE_KEY); return r ? JSON.parse(r) : null; } catch(e){ return null; } }
 function saveTimeline(tl){ try { localStorage.setItem(TIMELINE_KEY, JSON.stringify(tl)); } catch(e){} }
 function timelineSalariesComplete(tl){
-  return tl && Array.isArray(tl.roles) && tl.roles.length > 0 && tl.roles.every(function(r){ return Number(r.salary) > 0; });
+  // "completo" = a pessoa já enviou o formulário (permite cargos com 0, ex: sócia/equity)
+  return !!(tl && Array.isArray(tl.roles) && tl.roles.length > 0 && tl.salariesProvided);
+}
+// Remuneração total anual do cargo, comparável entre CLT/PJ e com bônus:
+// CLT recebe ~13,33 salários/ano (13º + 1/3 de férias); PJ recebe 12. O bônus
+// (variável, PLR, comissão) é informado como valor ANUAL e somado.
+function roleAnnualTotal(r){
+  var base = Number(r && r.salary) || 0;
+  var months = (r && r.regime === 'PJ') ? 12 : 13.33;
+  var bonus = Number(r && r.bonus) || 0;
+  return Math.round(base * months + bonus);
 }
 
 function renderEvolutionContent(){
@@ -7829,21 +7839,30 @@ async function generateTimeline(){
 function evolutionSalaryFormHTML(tl){
   var sym = tl.currencySymbol || 'R$';
   var per = t('/mês','/mo');
+  var inputStyle = 'width:100px;box-sizing:border-box;background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.12);border-radius:8px;padding:8px 10px;color:var(--text);font-size:13px;font-family:inherit;outline:none;text-align:right';
   var rows = (tl.roles || []).map(function(r, i){
     var period = (r.startYear || '?') + ' - ' + (r.endYear ? r.endYear : t('atual','present'));
-    return '<div style="display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(var(--ink),0.06)">'
-      + '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--text)">' + _kitEsc(r.title) + '</div>'
-      + '<div style="font-size:11.5px;color:var(--mid)">' + _kitEsc(r.company) + ' · ' + period + '</div></div>'
-      + '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0"><span style="font-size:12px;color:var(--mid)">' + sym + '</span>'
-      + '<input id="sal-' + i + '" type="number" inputmode="numeric" min="0" step="100" value="' + (r.salary != null ? r.salary : '') + '" placeholder="0" style="width:110px;box-sizing:border-box;background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.12);border-radius:8px;padding:8px 10px;color:var(--text);font-size:13px;font-family:inherit;outline:none;text-align:right">'
-      + '<span style="font-size:11px;color:var(--mid)">' + per + '</span></div>'
+    var reg = r.regime === 'PJ' ? 'PJ' : 'CLT';
+    var regSel = '<select id="reg-' + i + '" style="background:rgba(var(--ink),0.04);border:1px solid rgba(var(--ink),0.12);border-radius:8px;padding:8px 8px;color:var(--text);font-size:12px;font-family:inherit;outline:none;cursor:pointer">'
+      + '<option value="CLT"' + (reg === 'CLT' ? ' selected' : '') + '>CLT</option>'
+      + '<option value="PJ"' + (reg === 'PJ' ? ' selected' : '') + '>PJ</option></select>';
+    var baseField = '<div style="display:flex;align-items:center;gap:5px"><span style="font-size:12px;color:var(--mid)">' + sym + '</span>'
+      + '<input id="sal-' + i + '" type="number" inputmode="numeric" min="0" step="100" value="' + (r.salary != null ? r.salary : '') + '" placeholder="0" style="' + inputStyle + '">'
+      + '<span style="font-size:11px;color:var(--mid)">' + per + '</span></div>';
+    var bonusField = '<div style="display:flex;align-items:center;gap:5px"><span style="font-size:12px;color:var(--mid)">' + sym + '</span>'
+      + '<input id="bonus-' + i + '" type="number" inputmode="numeric" min="0" step="500" value="' + (r.bonus != null && r.bonus !== 0 ? r.bonus : '') + '" placeholder="0" style="' + inputStyle + '">'
+      + '<span style="font-size:11px;color:var(--mid)">' + t('bônus/ano','bonus/yr') + '</span></div>';
+    return '<div style="padding:12px 0;border-bottom:1px solid rgba(var(--ink),0.06)">'
+      + '<div style="font-size:13px;font-weight:700;color:var(--text)">' + _kitEsc(r.title) + '</div>'
+      + '<div style="font-size:11.5px;color:var(--mid);margin-bottom:9px">' + _kitEsc(r.company) + ' · ' + period + '</div>'
+      + '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">' + regSel + baseField + bonusField + '</div>'
       + '</div>';
   }).join('');
   return '<div style="border:1px solid rgba(var(--ink),0.1);border-radius:16px;padding:20px;margin-bottom:16px">'
-    + '<div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px">' + t('Informe o salário de cada cargo','Enter the salary for each role') + '</div>'
-    + '<div style="font-size:12px;color:var(--mid);margin-bottom:16px;line-height:1.5">' + t('O currículo não traz salário. Preencha o salário mensal aproximado de cada cargo (fica só no seu navegador). Com isso o Liplop monta a sua evolução.','A resume does not include salary. Fill in the approximate monthly salary for each role (it stays only in your browser). Liplop then builds your evolution.') + '</div>'
+    + '<div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px">' + t('Informe a remuneração de cada cargo','Enter the compensation for each role') + '</div>'
+    + '<div style="font-size:12px;color:var(--mid);margin-bottom:16px;line-height:1.5">' + t('O currículo não traz salário. Para cada cargo escolha o regime (CLT ou PJ), o salário base mensal e o bônus ou variável anual (PLR, comissão). Fica só no seu navegador. O Liplop compara tudo em remuneração total anual.','A resume does not include salary. For each role pick the regime (CLT or PJ), the monthly base salary and the annual bonus or variable pay (profit share, commission). It stays only in your browser. Liplop compares everything as total annual compensation.') + '</div>'
     + rows
-    + '<div style="display:flex;gap:8px;margin-top:16px"><button onclick="saveEvolutionSalaries()" style="padding:11px 24px;background:var(--rose,#D43A6E);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:800;cursor:pointer">' + t('Ver minha evolução','See my evolution') + '</button>'
+    + '<div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap"><button onclick="saveEvolutionSalaries()" style="padding:11px 24px;background:var(--rose,#D43A6E);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:800;cursor:pointer">' + t('Ver minha evolução','See my evolution') + '</button>'
     + '<button onclick="regenerateTimeline()" style="padding:11px 18px;background:transparent;border:1px solid rgba(var(--ink),0.2);border-radius:10px;color:var(--mid);font-size:13px;font-weight:700;cursor:pointer">' + t('Reimportar do perfil','Re-import from profile') + '</button></div>'
     + '<div id="timeline-gen-status" style="font-size:12px;color:var(--mid);margin-top:10px;display:none"></div>'
     + '</div>';
@@ -7853,8 +7872,13 @@ function saveEvolutionSalaries(){
   var tl = loadTimeline(); if (!tl || !tl.roles) return;
   tl.roles.forEach(function(r, i){
     var el = document.getElementById('sal-' + i);
-    if (el){ var v = parseInt(el.value, 10); r.salary = (isNaN(v) || v < 0) ? null : v; }
+    if (el){ var v = parseInt(el.value, 10); r.salary = (isNaN(v) || v < 0) ? 0 : v; }
+    var rel = document.getElementById('reg-' + i);
+    if (rel) r.regime = (rel.value === 'PJ' ? 'PJ' : 'CLT');
+    var bel = document.getElementById('bonus-' + i);
+    if (bel){ var b = parseInt(bel.value, 10); r.bonus = (isNaN(b) || b < 0) ? 0 : b; }
   });
+  tl.salariesProvided = true;
   saveTimeline(tl);
   renderDashboardTab();
 }
@@ -7875,29 +7899,34 @@ function editEvolutionSalaries(){
 function evolutionDashboardHTML(tl){
   var sym = tl.currencySymbol || 'R$';
   var roles = (tl.roles || []).slice().sort(function(a,b){ return (a.startYear||0) - (b.startYear||0); });
+  var perYear = t('/ano','/yr');
+  var totals = roles.map(roleAnnualTotal);   // remuneração total anual por cargo (CLT/PJ + bônus)
+  var maxT = Math.max.apply(null, totals) || 1;
+  // baseline = primeiro cargo com remuneração > 0; atual = último com remuneração > 0
+  var baseIdx = totals.findIndex(function(v){ return v > 0; }); if (baseIdx < 0) baseIdx = 0;
+  var curIdx = -1; for (var k = totals.length - 1; k >= 0; k--){ if (totals[k] > 0){ curIdx = k; break; } } if (curIdx < 0) curIdx = totals.length - 1;
+  var baseline = totals[baseIdx] || 0, current = totals[curIdx] || 0;
   var first = roles[0], last = roles[roles.length - 1];
-  var firstSal = Number(first.salary) || 0, curSal = Number(last.salary) || 0;
-  var mult = firstSal > 0 ? (curSal / firstSal) : 0;
-  var totalPct = firstSal > 0 ? Math.round((mult - 1) * 100) : 0;
+  var mult = baseline > 0 ? (current / baseline) : 0;
+  var totalPct = baseline > 0 ? Math.round((mult - 1) * 100) : 0;
   var nowYear = new Date().getFullYear();
   var years = Math.max(1, (last.endYear || nowYear) - (first.startYear || nowYear));
+  var spanYears = Math.max(1, (roles[curIdx].endYear || nowYear) - (roles[baseIdx].startYear || nowYear));
   var transitions = roles.length - 1;
-  var cagr = (firstSal > 0 && years > 0) ? Math.round((Math.pow(mult, 1 / years) - 1) * 100) : 0;
+  var cagr = (baseline > 0 && spanYears > 0) ? Math.round((Math.pow(mult, 1 / spanYears) - 1) * 100) : 0;
   var multStr = mult ? (mult.toFixed(mult >= 10 ? 0 : 1).replace('.', getLang() === 'en' ? '.' : ',') + 'x') : '—';
 
-  // sparkline dos salários
-  var sals = roles.map(function(r){ return Number(r.salary) || 0; });
-  var maxSal = Math.max.apply(null, sals) || 1;
+  // sparkline da remuneração total anual
   var spark = '';
-  if (sals.length > 1){
-    var pts = sals.map(function(s, i){ var x = (i / (sals.length - 1)) * 100; var y = 30 - (s / maxSal) * 28; return x.toFixed(1) + ',' + y.toFixed(1); }).join(' ');
+  if (totals.length > 1){
+    var pts = totals.map(function(s, i){ var x = (i / (totals.length - 1)) * 100; var y = 30 - (s / maxT) * 28; return x.toFixed(1) + ',' + y.toFixed(1); }).join(' ');
     spark = '<svg viewBox="0 0 100 32" preserveAspectRatio="none" style="width:120px;height:40px"><polyline points="' + pts + '" fill="none" stroke="var(--rose,#D43A6E)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   }
 
   var hero = '<div style="border:1px solid rgba(var(--ink),0.1);border-radius:16px;padding:22px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;background:linear-gradient(120deg,rgba(212,58,110,0.06),rgba(124,140,248,0.06))">'
-    + '<div><div style="font-size:11px;font-weight:700;color:var(--rose,#D43A6E);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">' + t('Crescimento salarial na carreira','Career salary growth') + '</div>'
+    + '<div><div style="font-size:11px;font-weight:700;color:var(--rose,#D43A6E);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">' + t('Crescimento na remuneração','Compensation growth') + '</div>'
     + '<div style="font-size:2.6rem;font-weight:800;color:var(--text);line-height:1">' + multStr + '</div>'
-    + '<div style="font-size:12.5px;color:var(--mid);margin-top:4px">' + t('desde o seu primeiro cargo','since your first role') + ' (' + (first.startYear || '') + ')</div></div>'
+    + '<div style="font-size:12.5px;color:var(--mid);margin-top:4px">' + t('desde o seu primeiro cargo','since your first role') + ' (' + (roles[baseIdx].startYear || '') + ')</div></div>'
     + '<div>' + spark + '</div>'
     + '</div>';
 
@@ -7907,17 +7936,17 @@ function evolutionDashboardHTML(tl){
       + '<div style="font-size:11.5px;color:var(--mid);margin-top:5px;line-height:1.3">' + label + '</div></div>';
   };
   var kpis = '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">'
-    + card(moneyShort(curSal, sym) + t('/mês','/mo'), t('Salário atual','Current salary'))
+    + card(moneyShort(current, sym) + perYear, t('Remuneração atual','Current compensation'))
     + card('+' + totalPct + '%', t('Crescimento total','Total growth'))
     + card(years + ' ' + t('anos','yrs'), t('Tempo de carreira','Career length'))
     + card(transitions, t('Transições de cargo','Role transitions'))
     + card('+' + cagr + '%', t('Crescimento médio/ano','Avg growth/yr'))
     + '</div>';
 
-  // gráfico de barras: salário por cargo, na ordem cronológica
-  var bars = roles.map(function(r){
-    var s = Number(r.salary) || 0;
-    var h = Math.max(4, (s / maxSal) * 160);
+  // gráfico de barras: remuneração total anual por cargo, na ordem cronológica
+  var bars = roles.map(function(r, i){
+    var s = totals[i];
+    var h = Math.max(4, (s / maxT) * 160);
     var period = (r.startYear || '') + (r.endYear ? '' : ' ·');
     return '<div style="flex:1;min-width:60px;display:flex;flex-direction:column;align-items:center;gap:6px">'
       + '<div style="font-size:11px;font-weight:700;color:var(--text)">' + moneyShort(s, sym) + '</div>'
@@ -7927,22 +7956,25 @@ function evolutionDashboardHTML(tl){
       + '</div>';
   }).join('');
   var chart = '<div style="border:1px solid rgba(var(--ink),0.1);border-radius:16px;padding:20px;margin-bottom:16px">'
-    + '<div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px">' + t('Evolução salarial','Salary evolution') + '</div>'
-    + '<div style="font-size:12px;color:var(--mid);margin-bottom:20px;line-height:1.5">' + t('Salário mensal por cargo, do primeiro ao atual.','Monthly salary per role, from first to current.') + '</div>'
+    + '<div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px">' + t('Evolução da remuneração','Compensation evolution') + '</div>'
+    + '<div style="font-size:12px;color:var(--mid);margin-bottom:20px;line-height:1.5">' + t('Remuneração total anual por cargo (salário base ajustado por CLT ou PJ, mais bônus), do primeiro ao atual.','Total annual compensation per role (base salary adjusted for CLT or PJ, plus bonus), from first to current.') + '</div>'
     + '<div style="display:flex;align-items:flex-end;gap:10px;overflow-x:auto;padding-bottom:4px;min-height:200px">' + bars + '</div>'
     + '</div>';
 
   // trajetória detalhada
   var traj = roles.map(function(r, i){
-    var prev = i > 0 ? Number(roles[i-1].salary) || 0 : 0;
-    var s = Number(r.salary) || 0;
+    var s = totals[i];
+    var prev = i > 0 ? totals[i-1] : 0;
     var delta = (prev > 0 && i > 0) ? Math.round((s / prev - 1) * 100) : null;
     var deltaTag = delta != null ? '<span style="font-size:11px;font-weight:700;color:' + (delta >= 0 ? '#16a34a' : '#d6395e') + '">' + (delta >= 0 ? '+' : '') + delta + '%</span>' : '';
     var period = (r.startYear || '?') + ' - ' + (r.endYear ? r.endYear : t('atual','present'));
+    var reg = (r.regime === 'PJ' ? 'PJ' : 'CLT');
+    var regTag = '<span style="font-size:10px;font-weight:700;color:var(--mid);background:rgba(var(--ink),0.06);border-radius:5px;padding:1px 6px;margin-left:6px">' + reg + '</span>';
+    var bonusLine = (Number(r.bonus) > 0) ? '<div style="font-size:11px;color:var(--mid)">' + t('inclui bônus de','includes bonus of') + ' ' + moneyShort(Number(r.bonus), sym) + perYear + '</div>' : '';
     return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid rgba(var(--ink),0.06)">'
-      + '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--text)">' + _kitEsc(r.title) + '</div>'
-      + '<div style="font-size:11.5px;color:var(--mid)">' + _kitEsc(r.company) + ' · ' + period + '</div></div>'
-      + '<div style="text-align:right;flex-shrink:0"><div style="font-size:13px;font-weight:700;color:var(--text)">' + moneyShort(s, sym) + t('/mês','/mo') + '</div>' + deltaTag + '</div>'
+      + '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--text)">' + _kitEsc(r.title) + regTag + '</div>'
+      + '<div style="font-size:11.5px;color:var(--mid)">' + _kitEsc(r.company) + ' · ' + period + '</div>' + bonusLine + '</div>'
+      + '<div style="text-align:right;flex-shrink:0"><div style="font-size:13px;font-weight:700;color:var(--text)">' + moneyShort(s, sym) + perYear + '</div>' + deltaTag + '</div>'
       + '</div>';
   }).join('');
   var trajBox = '<div style="border:1px solid rgba(var(--ink),0.1);border-radius:16px;padding:20px;margin-bottom:16px">'
